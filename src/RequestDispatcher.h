@@ -28,7 +28,7 @@ public:
 public slots:
 	void dispatchSockMessage(json receivedJson);
 
-	signals:
+signals:
 	void requested_getPosition();
 	void requested_getPositionXY();
 	void requested_getOrigin();

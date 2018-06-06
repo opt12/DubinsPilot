@@ -11,6 +11,8 @@
 #include <QTime>
 #include <QString>
 #include "Position.h"
+#include "enumDeclarations.h"
+#include <vector>
 
 //#include <iostream>
 
@@ -76,6 +78,14 @@ public:
 	double PRoll = 0.0, IRoll = 0.0, DRoll = 0.0;
 	double artstab_pitch_ratio = 0.0;
 	double artstab_roll_ratio = 0.0;
+
+	class PidParams{
+	public:
+		double p=0.0, i=0.0, d=0.0;
+	};
+
+	std::vector<PidParams> pidParameters[ctrlType::_size()];
+
 };
 
 #endif /* SRC_DATASET_H_ */

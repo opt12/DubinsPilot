@@ -11,23 +11,25 @@ LIBS += -L/usr/lib/ -lqwt -lXPlaneUDPClient -lGeographic -lpthread
 # Input
 HEADERS += Forms/pid_parameters.h \
            Forms/qledindicator.h \
-           src/Datacenter.h \
+           src/DataCenter.h \
            src/Dataset.h \
            src/pid_controller.h \
            src/Position.h \
            src/SockServer.h \
-           src/RequestDispatcher.h
+           src/RequestDispatcher.h \
+           src/auto_pilot.h
 FORMS +=   Forms/pid_parameters.ui
 SOURCES += Forms/pid_parameters.cpp \
            Forms/qledindicator.cpp \
            src/main.cpp \
            src/json.hpp \
-           src/Datacenter.cpp \
+           src/DataCenter.cpp \
            src/Dataset.cpp \
            src/pid_controller.cpp \
            src/Position.cpp \
            src/SockServer.cpp \
-           src/RequestDispatcher.cpp
+           src/RequestDispatcher.cpp \
+           src/auto_pilot.cpp
 
 
 #RESOURCES     = plotter.qrc

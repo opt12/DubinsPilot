@@ -39,7 +39,7 @@ public:
 		return instance;
 	}
 
-	void setDebug(int _debug) {
+	void setDebug(bool _debug) {
 		debug = _debug;
 	}
 
@@ -48,14 +48,14 @@ private slots:
 public slots:
 	void socketSendData(std::string msgType, json data);
 
-	signals:
+signals:
 	void sigDispatchSockMessage(json request);
 
 protected:
 	static const std::string socket_path;
 	bool quitFlag = false;
 	bool isRunning = false;
-	int debug = false;
+	bool debug = false;
 
 	static SockServer *instance;
 

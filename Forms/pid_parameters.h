@@ -15,6 +15,7 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_panner.h>
+#include "enumDeclarations.h"
 
 
 class SpeedPlotData;
@@ -27,25 +28,19 @@ public:
 	PIDParametersDialog(QWidget *parent = 0);
 
 signals:
-	void sigCheckboxBankingChanged(bool active);
+	void sigPidParametersChanged(ctrlType ctrl, double P, double I, double D);
+	void sigCtrlActiveStateChanged(ctrlType ctrl, bool active);
+	void sigRequestedSetValueChanged(ctrlType ctrl, double setValue);
 
-	void sigPidParametersChanged(double P, double I, double D);
-	void sigTempomatActiveStateChanged(bool active);
-	void sigRequestedSpeedChanged(double speed);
-	void sigPidParametersBankChanged(double, double, double);
-	void sigRequestedBankingChanged(double banking);
-	void sigBankControlActiveStateChanged(bool bankControlActive);
-	void sigSetRequestedAltitude(double altitudeAboveGround);
+	void sigSendXPDataRef(const char*, double);
 
 	void sigLoggingActiveStateChanged(bool active, QFile* fileLog);
 
 
 public slots:
 	void setXPlaneConnection(bool);
-	void attachSpeedCurve(QwtPlotCurve* speedCurve);
-	void replotSpeedCurve(void);
-	void attachRollCurve(QwtPlotCurve* rollCurve);
-	void replotRollCurve(void);
+	void attachControllerCurve(ctrlType c, QwtPlotCurve* ctrlCurve);
+	void replotControllerCurve(ctrlType c);
 
 
 private slots:
@@ -87,12 +82,9 @@ private:
 	} //maybe I don't want to always save the parameters at closing
 	void readSettings();
 	double valP, valI, valD, valClimbRate;
-	double valPBank, valIBank, valDBank, valBanking;
+	double valPBank, valIBank, valDBank, valRoll;
 
-	void timerEvent( QTimerEvent * );
-
-	QwtPlotCurve *speedCurve, *elevatorCurve;
-	QwtPlotMarker *speedMarker, *rollMarker;
+	QwtPlotMarker *climbMarker, *rollMarker;
 	QwtPlotMagnifier *zoom_yLeftClimb, *zoom_yRightClimb, *zoom_yLeftRoll, *zoom_yRightRoll;
 	QwtPlotPanner *drag_yLeftClimb, *drag_yRightClimb, *drag_yLeftRoll, *drag_yRightRoll;
 

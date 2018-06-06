@@ -104,26 +104,24 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	setupPlot();
 
 //	KnobSpeed->setRange(-8.0, 8.0, .1);	//for Pitch-Control
-	KnobSpeed->setRange(-15, 15, 0.025);
-	connect(KnobSpeed, SIGNAL(valueChanged(double)), this,
+	KnobClimb->setRange(-15, 15, 0.025);
+	connect(KnobClimb, SIGNAL(valueChanged(double)), this,
 			SLOT(setClimbRateLabel(double)));
 
-	KnobBank->setRange(-30.0, 30.0, 1.0);
-	connect(KnobBank, SIGNAL(valueChanged(double)), this,
+	KnobRoll->setRange(-30.0, 30.0, 1.0);
+	connect(KnobRoll, SIGNAL(valueChanged(double)), this,
 			SLOT(setBankingLabel(double)));
 
-	checkBoxPID->setChecked(false);
-	connect(checkBoxPID, SIGNAL(toggled(bool)), this,
+	checkBoxClimbController->setChecked(false);
+	connect(checkBoxClimbController, SIGNAL(toggled(bool)), this,
 			SLOT(tempomatActiveStateChanged(bool)));
 	ledIndicator->setChecked(false);
 
-	checkBoxPidBank->setChecked(false);
+	checkBoxRollController->setChecked(false);
 
-	connect(checkBoxPidBank, SIGNAL(toggled(bool)), this,
+	connect(checkBoxRollController, SIGNAL(toggled(bool)), this,
 			SLOT(bankControlActiveStateChanged(bool)));
-	connect(checkBoxPidBank, SIGNAL(toggled(bool)), this,
-			SIGNAL(sigCheckboxBankingChanged(bool)));
-	ledIndicatorBank->setChecked(false);
+	ledIndicatorRoll->setChecked(false);
 
 	//logging
 	connect(toggleLogButton, SIGNAL(clicked()), this, SLOT(logButtonClicked()));
@@ -144,8 +142,8 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	lineEditFileName->setText(logFile);
 
 	//TODO
-	checkBoxPID->setEnabled(true);
-	checkBoxPidBank->setEnabled(true);
+	checkBoxClimbController->setEnabled(true);
+	checkBoxRollController->setEnabled(true);
 
 }
 
@@ -163,35 +161,43 @@ void PIDParametersDialog::closeEvent(QCloseEvent *event) {
 void PIDParametersDialog::setXPlaneConnection(bool active) {
 	qDebug() << "XPlane Connection changed" << endl;
 	ledIndicator->setChecked(active);
-	ledIndicatorBank->setChecked(active);
-	checkBoxPID->setEnabled(active);
-	checkBoxPidBank->setEnabled(active);
+	ledIndicatorRoll->setChecked(active);
+	checkBoxClimbController->setEnabled(active);
+	checkBoxRollController->setEnabled(active);
 	if (!active)
-		checkBoxPID->setChecked(false);
+		checkBoxClimbController->setChecked(false);
 	if (!active)
-		checkBoxPidBank->setChecked(false);
+		checkBoxRollController->setChecked(false);
 	if(loggingActive){
 		logButtonClicked();	//close the logfile;
 	}
 	toggleLogButton->setEnabled(active);
 }
 
-void PIDParametersDialog::attachSpeedCurve(QwtPlotCurve* speedCurve) {
-	qDebug() << "Speed curve attached\n";
-	speedCurve->attach(qwtPlotSpeed);
+
+void PIDParametersDialog::attachControllerCurve(ctrlType c, QwtPlotCurve* ctrlCurve) {
+	switch (c) {
+		case ctrlType::ROLL_CONTROL:
+			qDebug() << "Roll curve attached\n";
+			ctrlCurve->attach(qwtPlotRoll);
+			break;
+		case ctrlType::CLIMB_CONTROL:
+			ctrlCurve->attach(qwtPlotClimb);
+			qDebug() << "Speed curve attached\n";
+			break;
+	}
 }
 
-void PIDParametersDialog::replotSpeedCurve(void) {
-	qwtPlotSpeed->replot();
-}
 
-void PIDParametersDialog::attachRollCurve(QwtPlotCurve* rollCurve) {
-	qDebug() << "Roll curve attached\n";
-	rollCurve->attach(qwtPlotRoll);
-}
-
-void PIDParametersDialog::replotRollCurve(void) {
-	qwtPlotRoll->replot();
+void PIDParametersDialog::replotControllerCurve(ctrlType c) {
+	switch (c) {
+		case ctrlType::ROLL_CONTROL:
+			qwtPlotRoll->replot();
+			break;
+		case ctrlType::CLIMB_CONTROL:
+			qwtPlotClimb->replot();
+			break;
+	}
 }
 
 void PIDParametersDialog::setDValue(void) {
@@ -201,7 +207,7 @@ void PIDParametersDialog::setDValue(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditDParameter->setText(QString::number(value, 'g'));
 	valD = value;
-	emit sigPidParametersChanged(valP, valI, valD);
+	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
 }
 void PIDParametersDialog::setIValue(void) {
 	double mantissa = doubleSpinBoxIValue->value();
@@ -210,7 +216,7 @@ void PIDParametersDialog::setIValue(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditIParameter->setText(QString::number(value, 'g'));
 	valI = value;
-	emit sigPidParametersChanged(valP, valI, valD);
+	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
 }
 void PIDParametersDialog::setPValue(void) {
 	double mantissa = doubleSpinBoxPValue->value();
@@ -219,7 +225,7 @@ void PIDParametersDialog::setPValue(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditPParameter->setText(QString::number(value, 'g'));
 	valP = value;
-	emit sigPidParametersChanged(valP, valI, valD);
+	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
 }
 
 void PIDParametersDialog::setDSpinners(QString text) {
@@ -278,10 +284,10 @@ void PIDParametersDialog::setClimbRateLabel(double climbRate) {
 	climbRateLabel->setText(
 			"climb: " + QString::number(climbRate) + " [m/s]\n"
 					+ QString::number(climbRate / 5.08e-3) + " [ft/min]");
-	emit sigRequestedSpeedChanged(valClimbRate);
-	speedMarker->setYValue(valClimbRate);
-	speedMarker->setLabel("y = " + QString::number(valClimbRate));
-	qwtPlotSpeed->replot();
+	emit sigRequestedSetValueChanged(ctrlType::CLIMB_CONTROL, valClimbRate);
+	climbMarker->setYValue(valClimbRate);
+	climbMarker->setLabel("sink = " + QString::number(valClimbRate));
+	qwtPlotClimb->replot();
 }
 
 void PIDParametersDialog::setDValueBank(void) {
@@ -291,7 +297,7 @@ void PIDParametersDialog::setDValueBank(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditDParameterBank->setText(QString::number(value, 'g'));
 	valDBank = value;
-	emit sigPidParametersBankChanged(valPBank, valIBank, valDBank);
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPBank, valIBank, valDBank);
 }
 void PIDParametersDialog::setIValueBank(void) {
 	double mantissa = doubleSpinBoxIValueBank->value();
@@ -300,7 +306,7 @@ void PIDParametersDialog::setIValueBank(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditIParameterBank->setText(QString::number(value, 'g'));
 	valIBank = value;
-	emit sigPidParametersBankChanged(valPBank, valIBank, valDBank);
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPBank, valIBank, valDBank);
 }
 void PIDParametersDialog::setPValueBank(void) {
 	double mantissa = doubleSpinBoxPValueBank->value();
@@ -309,7 +315,7 @@ void PIDParametersDialog::setPValueBank(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditPParameterBank->setText(QString::number(value, 'g'));
 	valPBank = value;
-	emit sigPidParametersBankChanged(valPBank, valIBank, valDBank);
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPBank, valIBank, valDBank);
 }
 
 void PIDParametersDialog::setDSpinnersBank(QString text) {
@@ -357,26 +363,25 @@ void PIDParametersDialog::setISpinnersBank(QString text) {
 	}
 }
 
-void PIDParametersDialog::setBankingLabel(double banking) {
-	valBanking = banking;
-	bankLabel->setText("Roll: " + QString::number(valBanking) + " [deg]");
-	emit sigRequestedBankingChanged(banking);
-	rollMarker->setYValue(valBanking);
-	rollMarker->setLabel("roll = " + QString::number(valBanking));
+void PIDParametersDialog::setBankingLabel(double roll) {
+	valRoll = roll;
+	rollLabel->setText("Roll: " + QString::number(valRoll) + " [deg]");
+	emit sigRequestedSetValueChanged(ctrlType::ROLL_CONTROL, roll);
+	rollMarker->setYValue(valRoll);
+	rollMarker->setLabel("roll = " + QString::number(valRoll));
 	qwtPlotRoll->replot();
-
 }
 
 void PIDParametersDialog::tempomatActiveStateChanged(bool active) {
-	emit sigPidParametersChanged(valP, valI, valD);
-	emit sigRequestedSpeedChanged(valClimbRate);
-	emit sigTempomatActiveStateChanged(active);
+	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
+	emit sigRequestedSetValueChanged(ctrlType::CLIMB_CONTROL, valClimbRate);
+	emit sigCtrlActiveStateChanged(ctrlType::CLIMB_CONTROL, active);
 }
 
 void PIDParametersDialog::bankControlActiveStateChanged(bool active) {
-	emit sigBankControlActiveStateChanged(active);
-	emit sigRequestedBankingChanged(valBanking);
-	emit sigPidParametersBankChanged(valPBank, valIBank, valDBank);
+	emit sigCtrlActiveStateChanged(ctrlType::ROLL_CONTROL, active);
+	emit sigRequestedSetValueChanged(ctrlType::ROLL_CONTROL, valRoll);
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPBank, valIBank, valDBank);
 }
 
 void PIDParametersDialog::readSettings() {
@@ -396,9 +401,10 @@ void PIDParametersDialog::readSettings() {
 	qDebug() << "\tvalD: " << valD;
 	lineEditDParameter->setText(QString::number(valD, 'g'));
 	valClimbRate = settings.value("valClimbRate").toDouble();
-	KnobSpeed->setValue(valClimbRate);
+	KnobClimb->setValue(valClimbRate);
+	setClimbRateLabel(valClimbRate);	//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
 	qDebug() << "\tvalSpeed: " << valClimbRate << endl;
-	checkBoxPID->setChecked(settings.value("tempomatActive").toBool());
+	checkBoxClimbController->setChecked(settings.value("climbControlActive").toBool());
 
 	valPBank = settings.value("valPBank").toDouble();
 	qDebug() << "valPBank: " << valPBank;
@@ -409,11 +415,12 @@ void PIDParametersDialog::readSettings() {
 	valDBank = settings.value("valDBank").toDouble();
 	qDebug() << "\tvalDBank: " << valDBank;
 	lineEditDParameterBank->setText(QString::number(valDBank, 'g'));
-	valBanking = settings.value("valBanking").toDouble();
-	KnobBank->setValue(valBanking);
-	qDebug() << "\tvalBanking: " << valBanking << endl;
-	checkBoxPidBank->setChecked(
-			settings.value("bankingControlActive").toBool());
+	valRoll = settings.value("valBanking").toDouble();
+	KnobRoll->setValue(valRoll);
+	setBankingLabel(valRoll);	//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
+	qDebug() << "\tvalBanking: " << valRoll << endl;
+	checkBoxRollController->setChecked(
+			settings.value("rollControlActive").toBool());
 
 	initialLogFileDir = settings.value("initialLogFileDir").toString();
 }
@@ -433,7 +440,7 @@ void PIDParametersDialog::writeSettings() {
 	settings.setValue("valPBank", QVariant::fromValue(valPBank));
 	settings.setValue("valIBank", QVariant::fromValue(valIBank));
 	settings.setValue("valDBank", QVariant::fromValue(valDBank));
-	settings.setValue("valBanking", QVariant::fromValue(valBanking));
+	settings.setValue("valBanking", QVariant::fromValue(valRoll));
 
 	settings.setValue("initialLogFileDir",
 			QVariant::fromValue(initialLogFileDir));
@@ -441,7 +448,7 @@ void PIDParametersDialog::writeSettings() {
 
 void PIDParametersDialog::setAltitude(void) {
 	double altitudeAboveGround = lineEditAltitude->text().toDouble();
-	emit sigSetRequestedAltitude(altitudeAboveGround);
+	emit sigSendXPDataRef("sim/flightmodel/position/local_y", altitudeAboveGround);
 }
 
 void PIDParametersDialog::logButtonClicked() {
@@ -500,76 +507,55 @@ QString PIDParametersDialog::generateLogfilename() {
 	return "Log_" + DateString + ".csv";
 }
 
-void PIDParametersDialog::timerEvent(QTimerEvent *) {
-//	double inSpeedVal = 20 * sin( M_PI * count / 50)+valSpeed;
-//	double inElevatorVal = 30 * cos( M_PI * count / 50)+valSpeed;
-//	++count;
-
-//	qDebug()<<"Timer event ticked";
-
-// add the new input to the plot
-//	memmove(speedData, speedData + 1, (plotDataSize - 1) * sizeof(double));
-//	memmove(elevatorData, elevatorData + 1,
-//			(plotDataSize - 1) * sizeof(double));
-//	speedData[plotDataSize - 1] = inSpeedVal;
-//	elevatorData[plotDataSize - 1] = inElevatorVal;
-//	speedCurve->setSamples(timeData, speedData, plotDataSize);
-//	elevatorCurve->setSamples(timeData, elevatorData, plotDataSize);
-//
-//	qwtPlotSpeed->replot();
-}
-
 void PIDParametersDialog::setupPlot(void) {
-	qwtPlotSpeed->setTitle("Sink Rate");
+	qwtPlotClimb->setTitle("Sink Rate");
 
 // axes
-	qwtPlotSpeed->setAxisTitle(qwtPlotSpeed->xBottom, "t -->");
-	qwtPlotSpeed->setAxisScale(qwtPlotSpeed->xBottom, 0.0, plotDataSize);
+	qwtPlotClimb->setAxisTitle(qwtPlotClimb->xBottom, "t -->");
+	qwtPlotClimb->setAxisScale(qwtPlotClimb->xBottom, 0.0, plotDataSize);
 
-	qwtPlotSpeed->setAxisTitle(qwtPlotSpeed->yLeft, "climb Rate[m/s] -->");
-	qwtPlotSpeed->setAxisScale(qwtPlotSpeed->yLeft, -10, 10);
+	qwtPlotClimb->setAxisTitle(qwtPlotClimb->yLeft, "climb Rate[m/s] -->");
+	qwtPlotClimb->setAxisScale(qwtPlotClimb->yLeft, -10, 5);
 
-	qwtPlotSpeed->setAxisTitle(qwtPlotSpeed->yRight, "<-- elevator");
-	qwtPlotSpeed->setAxisScale(qwtPlotSpeed->yRight, -0.75, 0.75);
+	qwtPlotClimb->setAxisTitle(qwtPlotClimb->yRight, "<-- elevator");
+	qwtPlotClimb->setAxisScale(qwtPlotClimb->yRight, -0.75, 0.75);
 
-	qwtPlotSpeed->enableAxis(QwtPlot::xBottom);
-	qwtPlotSpeed->enableAxis(QwtPlot::yLeft);
-	qwtPlotSpeed->enableAxis(QwtPlot::yRight);
+	qwtPlotClimb->enableAxis(QwtPlot::xBottom);
+	qwtPlotClimb->enableAxis(QwtPlot::yLeft);
+	qwtPlotClimb->enableAxis(QwtPlot::yRight);
 
 //  ...a horizontal line at y = 0...
-	speedMarker = new QwtPlotMarker();
-	speedMarker->setLabel(QString::fromLatin1("y = 60"));
-	speedMarker->setLabelAlignment(Qt::AlignRight | Qt::AlignTop);
-	speedMarker->setLineStyle(QwtPlotMarker::HLine);
-//	speedMarker->setYValue(0.0);
-	speedMarker->attach(qwtPlotSpeed);
+	climbMarker = new QwtPlotMarker();
+	climbMarker->setLabelAlignment(Qt::AlignRight | Qt::AlignTop);
+	climbMarker->setLineStyle(QwtPlotMarker::HLine);
+	climbMarker->attach(qwtPlotClimb);
 
-	zoom_yLeftClimb = new QwtPlotMagnifier(qwtPlotSpeed->canvas());
+	zoom_yLeftClimb = new QwtPlotMagnifier(qwtPlotClimb->canvas());
 	zoom_yLeftClimb->setWheelButtonState(Qt::NoModifier);
 	zoom_yLeftClimb->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yLeftClimb->setAxisEnabled(QwtPlot::yLeft, true);
 	zoom_yLeftClimb->setAxisEnabled(QwtPlot::yRight, false);
 
-	drag_yLeftClimb = new QwtPlotPanner(qwtPlotSpeed->canvas());
+	drag_yLeftClimb = new QwtPlotPanner(qwtPlotClimb->canvas());
 	drag_yLeftClimb->setMouseButton(Qt::LeftButton, Qt::NoModifier);
 	drag_yLeftClimb->setAxisEnabled(QwtPlot::xBottom, false);
 	drag_yLeftClimb->setAxisEnabled(QwtPlot::yLeft, true);
 	drag_yLeftClimb->setAxisEnabled(QwtPlot::yRight, false);
 
-	zoom_yRightClimb = new QwtPlotMagnifier(qwtPlotSpeed->canvas());
+	zoom_yRightClimb = new QwtPlotMagnifier(qwtPlotClimb->canvas());
 	zoom_yRightClimb->setWheelButtonState(Qt::ControlModifier);
 	zoom_yRightClimb->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yRightClimb->setAxisEnabled(QwtPlot::yLeft, false);
 	zoom_yRightClimb->setAxisEnabled(QwtPlot::yRight, true);
 
-	drag_yRightClimb = new QwtPlotPanner(qwtPlotSpeed->canvas());
+	drag_yRightClimb = new QwtPlotPanner(qwtPlotClimb->canvas());
 	drag_yRightClimb->setMouseButton(Qt::LeftButton, Qt::ControlModifier);
 	drag_yRightClimb->setAxisEnabled(QwtPlot::xBottom, false);
 	drag_yRightClimb->setAxisEnabled(QwtPlot::yLeft, false);
 	drag_yRightClimb->setAxisEnabled(QwtPlot::yRight, true);
 
-	qwtPlotSpeed->replot();
-	qwtPlotSpeed->show();
+	qwtPlotClimb->replot();
+	qwtPlotClimb->show();
 
 	qwtPlotRoll->setTitle("Roll Angle");
 
@@ -589,10 +575,8 @@ void PIDParametersDialog::setupPlot(void) {
 
 //  ...a horizontal line at y = 0...
 	rollMarker = new QwtPlotMarker();
-	rollMarker->setLabel(QString::fromLatin1("y = 60"));
 	rollMarker->setLabelAlignment(Qt::AlignRight | Qt::AlignTop);
 	rollMarker->setLineStyle(QwtPlotMarker::HLine);
-//	rollMarker->setYValue(0.0);
 	rollMarker->attach(qwtPlotRoll);
 
 	zoom_yLeftRoll = new QwtPlotMagnifier(qwtPlotRoll->canvas());
