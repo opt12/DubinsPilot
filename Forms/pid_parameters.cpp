@@ -14,7 +14,9 @@
 #include <qwt_series_data.h>
 #include <qwt_magnifier.h>
 #include <qwt_plot_magnifier.h>
+#include <math.h>       /* tan */
 #include "Dataset.h"
+
 
 PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 		QDialog(parent) {
@@ -279,11 +281,15 @@ void PIDParametersDialog::setISpinners(QString text) {
 	}
 }
 
+double inline PIDParametersDialog::deg2rad(double deg){
+	return deg/180*(M_PI);
+}
+
 void PIDParametersDialog::setClimbRateLabel(double climbRate) {
 	valClimbRate = climbRate;
 	climbRateLabel->setText(
-			"climb: " + QString::number(climbRate) + " [m/s]\n"
-					+ QString::number(climbRate / 5.08e-3) + " [ft/min]");
+			"gamma: " + QString::number(climbRate) + " [°]\n"
+					+ QString::number(1/tan( deg2rad(climbRate) ))+ " [m/m]");
 	emit sigRequestedSetValueChanged(ctrlType::CLIMB_CONTROL, valClimbRate);
 	climbMarker->setYValue(valClimbRate);
 	climbMarker->setLabel("sink = " + QString::number(valClimbRate));
@@ -508,14 +514,14 @@ QString PIDParametersDialog::generateLogfilename() {
 }
 
 void PIDParametersDialog::setupPlot(void) {
-	qwtPlotClimb->setTitle("Sink Rate");
+	qwtPlotClimb->setTitle("Flight Path / Sink Rate");
 
 // axes
 	qwtPlotClimb->setAxisTitle(qwtPlotClimb->xBottom, "t -->");
 	qwtPlotClimb->setAxisScale(qwtPlotClimb->xBottom, 0.0, plotDataSize);
 
-	qwtPlotClimb->setAxisTitle(qwtPlotClimb->yLeft, "climb Rate[m/s] -->");
-	qwtPlotClimb->setAxisScale(qwtPlotClimb->yLeft, -10, 5);
+	qwtPlotClimb->setAxisTitle(qwtPlotClimb->yLeft, "Flight Path Angle [°] -->");
+	qwtPlotClimb->setAxisScale(qwtPlotClimb->yLeft, -10.5, -0.5);
 
 	qwtPlotClimb->setAxisTitle(qwtPlotClimb->yRight, "<-- elevator");
 	qwtPlotClimb->setAxisScale(qwtPlotClimb->yRight, -0.75, 0.75);

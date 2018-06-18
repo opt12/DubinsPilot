@@ -70,6 +70,14 @@ void DataCenter::timerExpired(void) {
 	//store curDat to archive
 	curDat.timestamp = QTime::currentTime();
 	dataSeries.push_back(curDat);	//copies the curDat and is hence save to use here
+
+	//send the entire Dataset out to the ipc-socket The node.js app can listen if it wants to
+	//no need to implement a question answer protocol
+	//TODO das sollte wirklich alle 100msec raus und nicht nur jede Sekunde
+	if(!(count%1)){
+		on_rqd_requested_getPlaneState(0);
+	}
+
 	++count;
 }
 
@@ -91,6 +99,9 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 	case hash("sim/flightmodel/position/indicated_airspeed"):
 		curDat.indicated_airspeed = value;
 		break;
+//	case hash("sim/flightmodel/position/indicated_airspeed2"):
+//		curDat.indicated_airspeed2 = value;
+//		break;
 	case hash("sim/flightmodel/position/true_airspeed"):
 		curDat.true_airspeed = value;
 		break;
@@ -184,20 +195,25 @@ void DataCenter::connectToXPlane() {
 //}
 //
 
-void DataCenter::on_rqd_requested_getPosition() {
-	emit sigSocketSendData(std::string("message"),
+void DataCenter::on_rqd_requested_getPosition(int requestId) {
+	emit sigSocketSendData(std::string("POSITION"),
+			requestId,
 			curDat.getPosition_WGS84().asJson());
 }
 
-void DataCenter::on_rpd_requested_getPositionXY() {
-	emit sigSocketSendData(std::string("message"),
+void DataCenter::on_rpd_requested_getPositionXY(int requestId) {
+	emit sigSocketSendData(std::string("POSITION_XY"),
+			requestId,
 			curDat.getPosition_Cart().asJson());
 }
 
-void DataCenter::on_rqd_requested_getOrigin() {
+void DataCenter::on_rqd_requested_getOrigin(int requestId) {
 }
 
-void DataCenter::on_rqd_requested_getPlaneState() {
+void DataCenter::on_rqd_requested_getPlaneState(int requestId) {
+		emit sigSocketSendData(std::string("PLANE_STATE"),
+				requestId,
+				curDat.asJson());
 }
 
 
@@ -261,6 +277,7 @@ void DataCenter::setConnected(bool connected) {
 		xp->setDebug(0);
 
 		xp->subscribeDataRef("sim/flightmodel/position/indicated_airspeed", 20);
+//		xp->subscribeDataRef("sim/flightmodel/position/indicated_airspeed2", 20);
 		xp->subscribeDataRef("sim/flightmodel/position/true_airspeed", 20);
 		xp->subscribeDataRef("sim/flightmodel/position/groundspeed", 20);
 

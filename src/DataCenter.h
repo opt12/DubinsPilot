@@ -72,13 +72,17 @@ public:
 		return curDat.true_phi;
 	}
 
+	double getTrue_airspeed() {
+		return curDat.true_airspeed;
+	}
+
 public slots:
 //void setRequestedAltitude(double altitudeAboveGround);
 
-	void on_rqd_requested_getPosition();
-	void on_rpd_requested_getPositionXY();
-	void on_rqd_requested_getOrigin();
-	void on_rqd_requested_getPlaneState();
+	void on_rqd_requested_getPosition(int requestId);
+	void on_rpd_requested_getPositionXY(int requestId);
+	void on_rqd_requested_getOrigin(int requestId);
+	void on_rqd_requested_getPlaneState(int requestId);
 
 	void invokeLogging(bool active, QFile* fileLog);
 
@@ -92,7 +96,7 @@ private slots:
 signals:
 	void XPlaneConnectionChanged(bool connected);
 
-	void sigSocketSendData(std::string, json);
+	void sigSocketSendData(std::string msgType, int requestId, json data);
 
 private:
 	bool debug = false;

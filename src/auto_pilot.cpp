@@ -25,11 +25,11 @@ AutoPilot::AutoPilot(QObject* parent) :
 	QObject::connect(basicTimer, SIGNAL(timeout()), this, SLOT(timerExpired()));
 
 	ctrl = std::vector<Controller>(ctrlType::_size());
-	ctrl[ctrlType::CLIMB_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1, -100.0, 100.0, MANUAL,
+	ctrl[ctrlType::CLIMB_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1, -1.0, 1.0, MANUAL,
 			DIRECT);
 	ctrl[ctrlType::CLIMB_CONTROL].dataRef = "sim/joystick/artstab_pitch_ratio";
 
-	ctrl[ctrlType::ROLL_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1, -50.0, 50.0, MANUAL,
+	ctrl[ctrlType::ROLL_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1, -1.0, 1.0, MANUAL,
 			DIRECT);
 	ctrl[ctrlType::ROLL_CONTROL].dataRef = "sim/joystick/artstab_roll_ratio";
 
@@ -126,7 +126,8 @@ void AutoPilot::timerExpired(void) {
 	//set the latest measurements
 //	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVh_ind();
 	//TODO
-	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVh_ind();
+//	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVh_ind();
+	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVpath();
 	ctrl[ctrlType::ROLL_CONTROL].currentValue= dc->getTrue_phi();
 
 	//calculate new control output for all controllers

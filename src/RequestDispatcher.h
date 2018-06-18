@@ -29,10 +29,10 @@ public slots:
 	void dispatchSockMessage(json receivedJson);
 
 signals:
-	void requested_getPosition();
-	void requested_getPositionXY();
-	void requested_getOrigin();
-	void requested_getPlaneState();
+	void requested_getPosition(int requestId);
+	void requested_getPositionXY(int requestId);
+	void requested_getOrigin(int requestId);
+	void requested_getPlaneState(int requestId);
 
 private:
 	bool debug = false;

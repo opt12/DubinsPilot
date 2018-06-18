@@ -14,6 +14,11 @@
 #include "enumDeclarations.h"
 #include <vector>
 
+#include "json.hpp"
+// for convenience
+using json = nlohmann::json;
+
+
 //#include <iostream>
 
 class Dataset {
@@ -43,11 +48,13 @@ public:
 
 	static QString csvHeading();
 	QString csvDataRecord();
+	json asJson();
 
 	//statistics
 	int counter=0;	//to count the received UDP datasets since last write
 	//plane Data
 	double indicated_airspeed = 0.0;	//kias
+//	double indicated_airspeed2 = 0.0;	//keas	//TODO is this EAS???
 	double true_airspeed = 0.0; //knots
 	double groundspeed = 0.0; //knots
 

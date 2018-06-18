@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 	AutoPilot ap;
 
 	SockServer *sock = SockServer::getInstance();
-	sock->setDebug(true);
+//	sock->setDebug(true);
 
 	RequestDispatcher rqd;
 
@@ -80,18 +80,18 @@ int main(int argc, char *argv[]) {
 			SLOT(dispatchSockMessage(json)));
 
 	//connections from RequestDispatcher --> DataCenter
-	QObject::connect(&rqd, SIGNAL(requested_getPosition()), dc,
-			SLOT(on_rqd_requested_getPosition()));
-	QObject::connect(&rqd, SIGNAL(requested_getPositionXY()), dc,
-			SLOT(on_rpd_requested_getPositionXY()));
-	QObject::connect(&rqd, SIGNAL(requested_getOrigin()), dc,
-			SLOT(on_rqd_requested_getOrigin()));
-	QObject::connect(&rqd, SIGNAL(requested_getPlaneState()), dc,
-			SLOT(on_rqd_requested_getPlaneState()));
+	QObject::connect(&rqd, SIGNAL(requested_getPosition(int)), dc,
+			SLOT(on_rqd_requested_getPosition(int)));
+	QObject::connect(&rqd, SIGNAL(requested_getPositionXY(int)), dc,
+			SLOT(on_rpd_requested_getPositionXY(int)));
+	QObject::connect(&rqd, SIGNAL(requested_getOrigin(int)), dc,
+			SLOT(on_rqd_requested_getOrigin(int)));
+	QObject::connect(&rqd, SIGNAL(requested_getPlaneState(int)), dc,
+			SLOT(on_rqd_requested_getPlaneState(int)));
 
 	//connections from DataCenter --> SockServer
-	QObject::connect(dc, SIGNAL(sigSocketSendData(std::string, json)), sock,
-			SLOT(socketSendData(std::string, json)));
+	QObject::connect(dc, SIGNAL(sigSocketSendData(std::string, int, json)), sock,
+			SLOT(socketSendData(std::string, int, json)));
 
 	return app.exec();
 }

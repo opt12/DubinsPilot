@@ -77,6 +77,8 @@ protected:
 	void closeEvent(QCloseEvent *event);
 
 private:
+	double deg2rad(double deg);
+
 	bool allowSave() {
 		return false;
 	} //maybe I don't want to always save the parameters at closing

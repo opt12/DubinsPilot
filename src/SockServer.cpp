@@ -26,7 +26,7 @@ const std::string SockServer::socket_path = "/tmp/eee_AutoViewer";
 SockServer::SockServer() :
 		QObject(0) {
 
-	debug = 0;
+	debug = false;
 	quitFlag = false;
 	isRunning = false;
 
@@ -51,16 +51,22 @@ SockServer::~SockServer() {
 	}
 }
 
-void SockServer::socketSendData(string msgType, json data) {
-	json j = { { "type", msgType }, { "data", data } };
+void SockServer::socketSendData(std::string msgType, int requestId, json data) {
+	json j =
+			{ { "type", msgType }, { "requestId", requestId }, { "data", data } };
 	//XXX The node.js module needs a "\f" at the end of the serialized JSON-Message :-)
 	if (debug) {
 		cout << "sending via socket: \n" << j.dump(4) << endl;
 	}
 	string msgString = j.dump() + "\f";
 	unsigned int msgSize = msgString.length();
-	for (unsigned int bytesTransferred = 0; bytesTransferred < msgSize;) {
-		bytesTransferred += write(connectedSocket, msgString.c_str(), msgSize);
+	if (connectedSocket != 0) {
+		// wenn noch kein client auf dem Socket verbunden ist, bleibt der connectedSocket == 0
+		// Das würde dann nach stdout gehen, das soll es nicht.
+		for (unsigned int bytesTransferred = 0; bytesTransferred < msgSize;) {
+			bytesTransferred += write(connectedSocket, msgString.c_str(),
+					msgSize);
+		}
 	}
 }
 

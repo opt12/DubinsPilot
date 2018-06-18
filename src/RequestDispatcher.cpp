@@ -26,9 +26,11 @@ RequestDispatcher::~RequestDispatcher() {
 void RequestDispatcher::dispatchSockMessage(json receivedJson) {
 
 	std::string msgType = receivedJson.value("type", "malformedRequest");
+	int requestId = -1;
 	json data;
 	try {
 		data = receivedJson["data"];
+		requestId = receivedJson["requestId"];
 	} catch (std::exception& e) {
 		std::cout << "Malformed request received from Socket\n";
 		std::cout << e.what();
@@ -40,21 +42,22 @@ void RequestDispatcher::dispatchSockMessage(json receivedJson) {
 
 	switch (hash(msgType.c_str())) {
 	case hash("GET_POSITION"):
-		emit requested_getPosition();
+		emit requested_getPosition(requestId);
 		break;
 	case hash("GET_POSITION_XY"):
-		emit requested_getPositionXY();
+		emit requested_getPositionXY(requestId);
 		break;
 	case hash("GET_ORIGIN"):
-		emit requested_getOrigin();
+		emit requested_getOrigin(requestId);
 		break;
 	case hash("GET_PLANE_STATE"):
-		emit requested_getPlaneState();
+		emit requested_getPlaneState(requestId);
 		break;
 
 	case hash("malformedRequest"):
 	default:
-		std::cout << " please include a proper \"type\"-field in and request\n";
+		std::cout << " please include a proper \"type\"-field and a \"requestId\"-field"
+		" in and request\n";
 		break;
 	}
 

@@ -46,7 +46,7 @@ public:
 private slots:
 
 public slots:
-	void socketSendData(std::string msgType, json data);
+	void socketSendData(std::string msgType, int requestId, json data);
 
 signals:
 	void sigDispatchSockMessage(json request);
