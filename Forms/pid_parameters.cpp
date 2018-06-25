@@ -16,6 +16,7 @@
 #include <qwt_plot_magnifier.h>
 #include <math.h>       /* tan */
 #include "Dataset.h"
+#include "utils.h"
 
 
 PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
@@ -143,7 +144,17 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	logFile = QDir(initialLogFileDir).filePath(logFileName);
 	lineEditFileName->setText(logFile);
 
-	//TODO
+	connect(pushButtonResetOrigin, SIGNAL(clicked()), this, SIGNAL(resetOrigin(void)));
+	connect(pushButtonResetElf, SIGNAL(clicked()), this, SLOT(clearInputFields(void)));
+
+	lineEditForward->setValidator(new QDoubleValidator);
+	lineEditRight->setValidator(new QDoubleValidator);
+	lineEditHeight->setValidator(new QDoubleValidator);
+	lineEditRotation->setValidator(new QDoubleValidator);
+
+	connect(pushButtonSubmitElf, SIGNAL(clicked()), this, SLOT(submitElfData(void)));
+
+	//TODO weil das eigentlich erst nach dem Connect passieren soll. aber für's Debugging
 	checkBoxClimbController->setEnabled(true);
 	checkBoxRollController->setEnabled(true);
 
@@ -201,6 +212,31 @@ void PIDParametersDialog::replotControllerCurve(ctrlType c) {
 			break;
 	}
 }
+
+void PIDParametersDialog::clearInputFields(void){
+	lineEditForward->clear();
+	lineEditRight->clear();
+	lineEditHeight->clear();
+	lineEditRotation->clear();
+}
+
+
+void PIDParametersDialog::showOriginCoords(Position_WGS84 origin){
+	pushButtonResetOrigin->setText("ResetOrigin");
+	labelLatOrigin->setText("Lat: "+QString::number(origin.lati, 'g'));
+	labelLonOrigin->setText("Lon: "+QString::number(origin.longi, 'g'));
+}
+
+void PIDParametersDialog::showElfCoords(Position_WGS84 elf, Position_Cartesian elf_Cart, double elfHeading){
+	labelLatElf->setText("Lat: "+QString::number(elf.lati, 'g'));
+	labelLonElf->setText("Lon: "+QString::number(elf.longi, 'g'));
+	labelHeadingElf->setText("heading: "+QString::number(elfHeading, 'g'));
+	labelXElf->setText("X: "+QString::number(elf_Cart.x, 'g'));
+	labelYElf->setText("Y: "+QString::number(elf_Cart.y, 'g'));
+	labelZElf->setText("Z: "+QString::number(elf_Cart.z, 'g'));
+}
+
+
 
 void PIDParametersDialog::setDValue(void) {
 	double mantissa = doubleSpinBoxDValue->value();
@@ -279,10 +315,6 @@ void PIDParametersDialog::setISpinners(QString text) {
 		spinBoxExpIValue->setValue(exp);
 		valI = value;
 	}
-}
-
-double inline PIDParametersDialog::deg2rad(double deg){
-	return deg/180*(M_PI);
 }
 
 void PIDParametersDialog::setClimbRateLabel(double climbRate) {
@@ -505,6 +537,19 @@ void PIDParametersDialog::fileNameEditingFinished() {
 	logFile = cleanPath.fileName();
 	lineEditFileName->setText(cleanPath.absoluteFilePath());
 }
+
+void PIDParametersDialog::submitElfData(void) {
+	double forward, right, height, rotation;
+	forward = lineEditForward->text().toDouble();
+	right = lineEditRight->text().toDouble();
+	height = lineEditHeight->text().toDouble();
+	rotation = lineEditRotation->text().toDouble();
+
+	emit sigSetElfLocation(forward, right, height, rotation);
+
+}
+
+
 
 QString PIDParametersDialog::generateLogfilename() {
 	QString DateString =

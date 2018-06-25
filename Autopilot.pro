@@ -4,9 +4,12 @@
 
 TEMPLATE = app
 TARGET = 
-DEPENDPATH += . src Forms
-INCLUDEPATH += . src Forms /usr/include/qwt
-LIBS += -L/usr/lib/ -lqwt -lXPlaneUDPClient -lGeographic -lpthread
+DEPENDPATH += . src Forms libXPlane
+INCLUDEPATH += . src libXPlane Forms /usr/include/qwt
+LIBS += -L/usr/lib/ -lqwt -lGeographic -lpthread
+
+#use precompiled library in production build
+#LIBS += -lXPlaneUDPClient
 
 # Input
 HEADERS += Forms/pid_parameters.h \
@@ -17,6 +20,8 @@ HEADERS += Forms/pid_parameters.h \
            src/Position.h \
            src/SockServer.h \
            src/RequestDispatcher.h \
+           src/utils.h \
+           src/DubinsPath.h \
            src/auto_pilot.h
 FORMS +=   Forms/pid_parameters.ui
 SOURCES += Forms/pid_parameters.cpp \
@@ -29,7 +34,18 @@ SOURCES += Forms/pid_parameters.cpp \
            src/Position.cpp \
            src/SockServer.cpp \
            src/RequestDispatcher.cpp \
+           src/utils.cpp \
+           src/DubinsPath.cpp \
            src/auto_pilot.cpp
+
+#to debug try to compile XplaneLib myself
+HEADERS += libXPlane/XPlaneBeaconListener.h \
+           libXPlane/XPlaneUDPClient.h \
+           libXPlane/XPUtils.h
+SOURCES += libXPlane/XPlaneBeaconListener.cpp \
+           libXPlane/XPlaneUDPClient.cpp \
+           libXPlane/XPUtils.cpp
+
 
 
 #RESOURCES     = plotter.qrc

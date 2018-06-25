@@ -216,12 +216,27 @@ void DataCenter::on_rqd_requested_getPlaneState(int requestId) {
 				curDat.asJson());
 }
 
+void DataCenter::setElfLocation(double forward, double right, double height, double rotation){
+	//we don't necessarily need the origin set to define an ELF file
+	//we only need it when starting to calculate the path to do this in XY cartesian coords
+	curDat.setElfPos_relative(forward, right, height, rotation);	//relative to current position
+	std::cout << "ELF set to "<< curDat.elf.getPosition_WGS84().asJson().dump(4)<< std::endl;
+	std::cout << "ELF heading set to " << curDat.elfHeading << std::endl;
+	std::cout << "ELF distance from here is " << curDat.pos.getDistanceCart(curDat.elf);
+	std::cout << ", heading is "<< curDat.pos.getHeadingCart(curDat.elf) << std::endl;
 
-void DataCenter::invokeLogging(bool active, QFile* fileLog) {
-	loggingActive = active;
-	if (active) {
-		outLog = new QTextStream(fileLog);
-		Position::setOrigin(curDat.getPosition_WGS84());
+
+	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(),
+			curDat.elf.getPosition_Cart(), curDat.elfHeading);
+}
+
+void DataCenter::setOrigin(void){
+	Position_WGS84 pos =  curDat.getPosition_WGS84();
+	Position::setOrigin(pos);
+	originSet = true;
+	std::cout <<"Origin set to: " << Position::getOrigin_WGS84().asJson().dump(4) << std::endl;
+	if(outLog){
+		//insert the new Origin into the logfile, if it exists
 		QString origin = "origin:\n"
 				"latitude;"
 				+ QString::number(curDat.getPosition_WGS84().lati, 'g', 12)
@@ -233,6 +248,19 @@ void DataCenter::invokeLogging(bool active, QFile* fileLog) {
 				+ QString::number(curDat.getPosition_WGS84().height, 'g', 6)
 				+ ";\n";
 		*outLog << origin;
+	}
+	emit originSetTo(Position::getOrigin_WGS84());
+	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(),
+			curDat.elf.getPosition_Cart(), curDat.elfHeading);
+}
+
+void DataCenter::invokeLogging(bool active, QFile* fileLog) {
+	loggingActive = active;
+	if (active) {
+		outLog = new QTextStream(fileLog);
+		if(! originSet){
+			setOrigin();
+		}
 		*outLog << Dataset::csvHeading();
 
 	} else {

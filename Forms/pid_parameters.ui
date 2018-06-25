@@ -29,7 +29,7 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>20</y>
+     <y>0</y>
      <width>1011</width>
      <height>591</height>
     </rect>
@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tabClimb">
     <attribute name="title">
@@ -705,8 +705,20 @@
        <height>27</height>
       </rect>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="text">
       <string>&amp;Save Settings</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QWidget" name="layoutWidget">
@@ -743,6 +755,12 @@
        <widget class="QPushButton" name="setHeightButton">
         <property name="text">
          <string>Set &amp;Height</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -795,6 +813,12 @@
         <property name="text">
          <string>...</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -811,7 +835,502 @@
         <property name="text">
          <string>Start &amp;Logging</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
        </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGraphicsView" name="graphicsView">
+     <property name="geometry">
+      <rect>
+       <x>540</x>
+       <y>110</y>
+       <width>451</width>
+       <height>431</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_13">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>120</y>
+       <width>181</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ELF Generator:</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>140</y>
+       <width>491</width>
+       <height>239</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
+        <item row="1" column="3">
+         <widget class="Line" name="line_6">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="label_8">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>m</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QLabel" name="label_9">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>m</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QRadioButton" name="radioButtonLSL">
+            <property name="text">
+             <string>LSL</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButtonRSR">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>RSR</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="lineEditHeight">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>height:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditHeight</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>rotation:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditRotation</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="lineEditRotation">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>&amp;forward:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditForward</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEditForward">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEditRight">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>&amp;right:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditRight</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="label_10">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>m</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QLabel" name="label_11">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>m</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="QLabel" name="labelXElf">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>X = xxx m</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="4">
+         <widget class="QLabel" name="labelYElf">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Y = yyy m</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="4">
+         <widget class="QLabel" name="labelZElf">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Z = hhhh m</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="6">
+         <widget class="QLabel" name="labelLatElf">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Lat: ELF</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="6">
+         <widget class="QLabel" name="labelLonElf">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Lon: ELF</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="4">
+         <widget class="QLabel" name="labelHeadingElf">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>heading: hhh °</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="6">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Origin:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="6">
+         <widget class="QLabel" name="labelLatOrigin">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Lat: Origin</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="6">
+         <widget class="QLabel" name="labelLonOrigin">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Lon: Origin</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="4">
+         <widget class="QPushButton" name="pushButtonResetOrigin">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Set Origin</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="Line" name="line_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="3">
+         <widget class="Line" name="line_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="4">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3">
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Relative to Origin:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5">
+         <widget class="Line" name="line_7">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <widget class="Line" name="line_8">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="5">
+         <widget class="Line" name="line_9">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="5">
+         <widget class="Line" name="line_10">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QPushButton" name="pushButtonResetElf">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Reset ELF</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonSubmitElf">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>2</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Submit &amp;ELF Data</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -840,6 +1359,55 @@
    <header>qwt_slider.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>spinBoxExpDValue</tabstop>
+  <tabstop>doubleSpinBoxPValue</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>lineEditAltitude</tabstop>
+  <tabstop>setHeightButton</tabstop>
+  <tabstop>lineEditFileName</tabstop>
+  <tabstop>choseFileNameButton</tabstop>
+  <tabstop>toggleLogButton</tabstop>
+  <tabstop>lineEditForward</tabstop>
+  <tabstop>lineEditRight</tabstop>
+  <tabstop>lineEditHeight</tabstop>
+  <tabstop>lineEditRotation</tabstop>
+  <tabstop>radioButtonLSL</tabstop>
+  <tabstop>radioButtonRSR</tabstop>
+  <tabstop>pushButtonResetOrigin</tabstop>
+  <tabstop>pushButtonResetElf</tabstop>
+  <tabstop>pushButtonSubmitElf</tabstop>
+  <tabstop>graphicsView</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>lineEditPParameterBank</tabstop>
+  <tabstop>SliderIValueBank</tabstop>
+  <tabstop>doubleSpinBoxIValueBank</tabstop>
+  <tabstop>spinBoxExpIValueBank</tabstop>
+  <tabstop>lineEditIParameterBank</tabstop>
+  <tabstop>SliderDValueBank</tabstop>
+  <tabstop>doubleSpinBoxDValueBank</tabstop>
+  <tabstop>spinBoxExpDValueBank</tabstop>
+  <tabstop>lineEditDParameterBank</tabstop>
+  <tabstop>checkBoxRollController</tabstop>
+  <tabstop>ledIndicatorRoll</tabstop>
+  <tabstop>KnobRoll</tabstop>
+  <tabstop>SliderPValue</tabstop>
+  <tabstop>spinBoxExpPValue</tabstop>
+  <tabstop>lineEditPParameter</tabstop>
+  <tabstop>SliderIValue</tabstop>
+  <tabstop>doubleSpinBoxIValue</tabstop>
+  <tabstop>spinBoxExpIValue</tabstop>
+  <tabstop>lineEditDParameter</tabstop>
+  <tabstop>checkBoxClimbController</tabstop>
+  <tabstop>lineEditIParameter</tabstop>
+  <tabstop>SliderDValue</tabstop>
+  <tabstop>doubleSpinBoxDValue</tabstop>
+  <tabstop>spinBoxExpPValueBank</tabstop>
+  <tabstop>doubleSpinBoxPValueBank</tabstop>
+  <tabstop>SliderPValueBank</tabstop>
+  <tabstop>ledIndicator</tabstop>
+  <tabstop>KnobClimb</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -849,12 +1417,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>368</x>
-     <y>107</y>
+     <x>450</x>
+     <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>611</x>
-     <y>111</y>
+     <x>601</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
@@ -865,12 +1433,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>611</x>
-     <y>111</y>
+     <x>601</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>107</y>
+     <x>528</x>
+     <y>77</y>
     </hint>
    </hints>
   </connection>
@@ -881,12 +1449,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>519</x>
-     <y>183</y>
+     <x>528</x>
+     <y>153</y>
     </hint>
     <hint type="destinationlabel">
-     <x>611</x>
-     <y>186</y>
+     <x>601</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -897,12 +1465,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>611</x>
-     <y>186</y>
+     <x>601</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>183</y>
+     <x>528</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -913,12 +1481,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>258</y>
+     <x>528</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
-     <x>611</x>
-     <y>262</y>
+     <x>601</x>
+     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -929,12 +1497,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>611</x>
-     <y>262</y>
+     <x>601</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>258</y>
+     <x>528</x>
+     <y>228</y>
     </hint>
    </hints>
   </connection>
@@ -945,12 +1513,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>105</y>
+     <x>528</x>
+     <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>589</x>
-     <y>82</y>
+     <x>601</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
@@ -961,12 +1529,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>611</x>
-     <y>108</y>
+     <x>601</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>105</y>
+     <x>528</x>
+     <y>77</y>
     </hint>
    </hints>
   </connection>
@@ -977,12 +1545,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>174</y>
+     <x>528</x>
+     <y>153</y>
     </hint>
     <hint type="destinationlabel">
-     <x>611</x>
-     <y>178</y>
+     <x>601</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -993,12 +1561,12 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>611</x>
-     <y>178</y>
+     <x>601</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>174</y>
+     <x>528</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -1009,8 +1577,8 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>244</y>
+     <x>528</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
      <x>589</x>
@@ -1025,12 +1593,108 @@
    <slot>setValue(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>611</x>
-     <y>247</y>
+     <x>601</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>244</y>
+     <x>528</x>
+     <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditAltitude</sender>
+   <signal>returnPressed()</signal>
+   <receiver>setHeightButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>337</x>
+     <y>58</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>493</x>
+     <y>60</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditFileName</sender>
+   <signal>returnPressed()</signal>
+   <receiver>toggleLogButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>686</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>913</x>
+     <y>99</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditForward</sender>
+   <signal>returnPressed()</signal>
+   <receiver>lineEditRight</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>203</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>202</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditRight</sender>
+   <signal>returnPressed()</signal>
+   <receiver>lineEditHeight</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>135</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditHeight</sender>
+   <signal>returnPressed()</signal>
+   <receiver>lineEditRotation</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>167</x>
+     <y>255</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>169</x>
+     <y>291</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditRotation</sender>
+   <signal>returnPressed()</signal>
+   <receiver>pushButtonSubmitElf</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>192</x>
+     <y>285</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>292</x>
+     <y>356</y>
     </hint>
    </hints>
   </connection>

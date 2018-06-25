@@ -8,53 +8,51 @@
 #include "Position.h"
 
 #include <cmath>
+#include <iostream>
 using namespace GeographicLib;
 
 //initialize static members
-Position_WGS84 Position::origin = Position_WGS84(0.0, 0.0);
+Position Position::origin = Position(0.0, 0.0);
 Geocentric Position::earth = Geocentric(Constants::WGS84_a(),
 		Constants::WGS84_f());
-LocalCartesian Position::proj = LocalCartesian(origin.lati, origin.longi, 0,
+LocalCartesian Position::proj = LocalCartesian(origin.pos.lati, origin.pos.longi, origin.pos.height,
 		earth);
+
+double Position::getDistanceCart(Position pointB) {
+	LocalCartesian tempProj = LocalCartesian(pos.lati, pos.longi, pos.height,earth);
+
+	double x, y, z;
+	tempProj.Forward(pointB.pos.lati, pointB.pos.longi, pointB.pos.height, x, y, z);
+	return sqrt(x*x +y*y);	//height difference is neglected as only the straight glide path is relevant
+}
+
+double Position::getHeadingCart(Position pointB) {
+	LocalCartesian tempProj = LocalCartesian(pos.lati, pos.longi, pos.height,earth);
+
+	double x, y, z;
+	tempProj.Forward(pointB.pos.lati, pointB.pos.longi, pointB.pos.height, x, y, z);
+	double headingRad = -atan2(y, x) + M_PI/2;
+	return to_degrees(headingRad);
+}
+
+Position_Cartesian Position::convertToCart() {
+	//reference is the origin which defines Position::proj;
+	double x, y, z;
+	Position::proj.Forward(pos.lati, pos.longi, pos.height, x, y, z);
+	return Position_Cartesian(x, y, z);
+}
 
 Position::~Position() {
 	// TODO Auto-generated destructor stub
 }
 
 Position_Cartesian Position::getOrigin_Cart() {
-	return convertToCart(this->origin);	//should be always Position_Cartesian(0.0, 0.0, 0.0);
+	return origin.convertToCart();	//should be always Position_Cartesian(0.0, 0.0, 0.0);
 }
 
 Position_Cartesian Position::getPosition_Cart() {
-	return convertToCart(this->pos);
+	//reference is the origin which defines Position::proj;
+	return this->convertToCart();
 }
 
-double Position::getDistanceCart(Position pointA, Position pointB) {
-	Position_Cartesian pointACart = convertToCart(pointA.pos), pointBCart =
-			convertToCart(pointB.pos);
-	return sqrt(
-			pow(pointACart.x - pointBCart.x, 2)
-					+ pow(pointACart.y - pointBCart.y, 2));
-}
-
-double Position::getHeadingCart(Position pointA, Position pointB) {
-	Position_Cartesian pointACart = convertToCart(pointA.pos), pointBCart =
-			convertToCart(pointB.pos);
-	double deltaX = pointBCart.x - pointACart.x, deltaY = pointBCart.y
-			- pointACart.y;
-	double headingRad = -atan2(deltaY, deltaX) + M_PI;
-	return to_degrees(headingRad);
-}
-
-Position_Cartesian Position::convertToCart(Position_WGS84 pos) {
-	double x, y, z;
-	proj.Forward(pos.lati, pos.longi, pos.height, x, y, z);
-	return Position_Cartesian(x, y, z);
-}
-
-Position_WGS84 Position::convertToWGS84(Position_Cartesian pos) {
-	double lat, lon, h;
-	proj.Reverse(pos.x, pos.y, pos.z, lat, lon, h);
-	return Position_WGS84(lat, lon, h);
-}
 

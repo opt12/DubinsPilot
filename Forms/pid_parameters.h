@@ -16,7 +16,7 @@
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_panner.h>
 #include "enumDeclarations.h"
-
+#include "Position.h"
 
 class SpeedPlotData;
 
@@ -35,13 +35,15 @@ signals:
 	void sigSendXPDataRef(const char*, double);
 
 	void sigLoggingActiveStateChanged(bool active, QFile* fileLog);
-
+	void resetOrigin(void);
+	void sigSetElfLocation(double forward, double right, double height, double rotation);
 
 public slots:
 	void setXPlaneConnection(bool);
 	void attachControllerCurve(ctrlType c, QwtPlotCurve* ctrlCurve);
 	void replotControllerCurve(ctrlType c);
-
+	void showOriginCoords(Position_WGS84 origin);
+	void showElfCoords(Position_WGS84 elf, Position_Cartesian elf_Cart, double elfHeading);
 
 private slots:
 	void setDValue(void);
@@ -73,12 +75,13 @@ private slots:
 	void fileNameSelectorClicked(void);
 	void fileNameEditingFinished(void);
 
+	void clearInputFields(void);
+	void submitElfData(void);
+
 protected:
 	void closeEvent(QCloseEvent *event);
 
 private:
-	double deg2rad(double deg);
-
 	bool allowSave() {
 		return false;
 	} //maybe I don't want to always save the parameters at closing

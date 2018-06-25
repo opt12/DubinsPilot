@@ -13,11 +13,12 @@
 #include "Position.h"
 #include "enumDeclarations.h"
 #include <vector>
+#include <iostream>
+#include "utils.h"
 
 #include "json.hpp"
 // for convenience
 using json = nlohmann::json;
-
 
 //#include <iostream>
 
@@ -37,6 +38,28 @@ public:
 		pos.setPosition_WGS84(lati, longi, height);
 	}
 
+	void setElfPos_WGS84(double lati, double longi, double height) {
+		elf.setPosition_WGS84(lati, longi, height);
+	}
+
+	void setElfPos_relative(double forward, double right, double height, double rotation){
+		// ELf distance need to be transformed from Aircraft CoSy to Earth frame
+		// The aircraft has a heading of true_psi
+		// We need a rotation of the ccordinates by -true_psi
+		//TODO XXX
+		double true_psi_rad = to_radians(true_psi);
+		double xTransf = cos(-true_psi_rad)*right - sin(-true_psi_rad)*forward;
+		double yTransf = sin(-true_psi_rad)*right + cos(-true_psi_rad)*forward;
+		double hTransf = height;
+		std::cout << "Coordinate Transform yielded with true_Psi= "<<
+				to_degrees(true_psi_rad) <<std::endl;
+		std::cout << "xTransf= "<< xTransf << "; yTransf= "<< yTransf << "; hTransf= "<< hTransf <<std::endl;
+		elf = Position(pos.getPosition_WGS84(), xTransf, yTransf, hTransf);
+		std::cout <<"elf set to: "<< elf.getPosition_WGS84().asJson().dump(4) << std::endl;
+		std::cout <<"elf set to: "<< elf.getPosition_Cart().asJson().dump(4) << std::endl;
+		elfHeading = true_psi + rotation;
+	}
+
 	Position_WGS84 getPosition_WGS84() {
 		Position_WGS84 posi = pos.getPosition_WGS84();
 		return posi;
@@ -44,6 +67,14 @@ public:
 
 	Position_Cartesian getPosition_Cart() {
 		return pos.getPosition_Cart();
+	}
+
+	Position_WGS84 getElfPosition_WGS84() {
+		return elf.getPosition_WGS84();
+	}
+
+	Position_Cartesian getElfPosition_Cart() {
+		return elf.getPosition_Cart();
 	}
 
 	static QString csvHeading();
@@ -75,6 +106,8 @@ public:
 	double roll_electric_deg_pilot = 0.0;
 	double heightOverGnd = 0.0;
 	Position pos = Position(0.0, 0.0);
+	Position elf = Position(0.0, 0.0);
+	double elfHeading = 0.0;
 
 	//controller data
 	bool climbControlActive = false;
@@ -92,6 +125,9 @@ public:
 	};
 
 	std::vector<PidParams> pidParameters[ctrlType::_size()];
+
+private:
+
 
 };
 

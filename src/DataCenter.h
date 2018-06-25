@@ -84,7 +84,9 @@ public slots:
 	void on_rqd_requested_getOrigin(int requestId);
 	void on_rqd_requested_getPlaneState(int requestId);
 
+	void setOrigin(void);
 	void invokeLogging(bool active, QFile* fileLog);
+	void setElfLocation(double forward, double right, double height, double rotation);
 
 	void SendXPDataRef(const char* dataRefName, double value);
 	void SendXPDataRef(const char* dataRefName, bool state);
@@ -97,6 +99,9 @@ signals:
 	void XPlaneConnectionChanged(bool connected);
 
 	void sigSocketSendData(std::string msgType, int requestId, json data);
+	void originSetTo(Position_WGS84 origin);
+	void sigElfCoordsSet(Position_WGS84 elf, Position_Cartesian elfCart, double elfHeading);
+
 
 private:
 	bool debug = false;
@@ -132,6 +137,8 @@ private:
 
 	bool loggingActive = false;
 	QTextStream *outLog = NULL;
+
+	bool originSet = false;
 
 protected:
 	static DataCenter *instance;
