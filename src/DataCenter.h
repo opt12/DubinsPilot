@@ -52,6 +52,12 @@ public:
 		debug = _debug;
 	}
 
+	void setControllerOutputs(ctrlType _c, double _outputValue) {
+		curDat.controllerOutputs[_c] = _outputValue;
+	}
+	void setRequestedTargetValue(ctrlType _c, double _requestedValue) {
+		curDat.requestedTargetVals[_c] = _requestedValue;
+	}
 	void setClimbControlActive(bool active) {
 		curDat.climbControlActive = active;
 	}

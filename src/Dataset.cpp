@@ -27,7 +27,7 @@ QString Dataset::csvHeading() {
 			"longitude;"
 			"elevation;"
 			"roll_electric_deg_pilot;"
-			"heightOverGnd;"
+//			"heightOverGnd;"
 			"requestedClimbRate;"
 			"requestedRoll;"
 			"artstab_pitch_ratio;"
@@ -35,6 +35,8 @@ QString Dataset::csvHeading() {
 			"x_cart;"
 			"y_cart;"
 			"z_cart;"
+			"wind_direction_degt;"
+			"wind_speed_kt;"
 			"\n";
 }
 
@@ -58,14 +60,16 @@ QString Dataset::csvDataRecord() {
 			+ QString::number(pos.getPosition_WGS84().longi, 'g', 12) + ";"
 			+ QString::number(pos.getPosition_WGS84().height, 'g', 6) + ";"
 			+ QString::number(roll_electric_deg_pilot, 'g', 6) + ";"
-			+ QString::number(heightOverGnd, 'g', 6) + ";"
-			+ QString::number(requestedClimbRate, 'g', 6) + ";"
-			+ QString::number(requestedRoll, 'g', 6) + ";"
-			+ QString::number(artstab_pitch_ratio, 'g', 6) + ";"
-			+ QString::number(artstab_roll_ratio, 'g', 6) + ";"
+//			+ QString::number(heightOverGnd, 'g', 6) + ";"
+			+ QString::number(requestedTargetVals[ctrlType::CLIMB_CONTROL], 'g', 6) + ";"
+			+ QString::number(requestedTargetVals[ctrlType::ROLL_CONTROL], 'g', 6) + ";"
+			+ QString::number(controllerOutputs[ctrlType::CLIMB_CONTROL], 'g', 6) + ";"
+			+ QString::number(controllerOutputs[ctrlType::ROLL_CONTROL], 'g', 6) + ";"
 			+ QString::number(pos.getPosition_Cart().x, 'g', 8) + ";"
 			+ QString::number(pos.getPosition_Cart().y, 'g', 8) + ";"
-			+ QString::number(pos.getPosition_Cart().z, 'g', 8) + ";" + "\n";
+			+ QString::number(pos.getPosition_Cart().z, 'g', 8) + ";"
+			+ QString::number(wind_direction_degt, 'g', 6) + ";"
+			+ QString::number(wind_speed_kt, 'g', 6) + ";" + "\n";
 }
 
 json Dataset::asJson() {
@@ -89,12 +93,17 @@ json Dataset::asJson() {
 	j["y_agl"] = y_agl;
 	j["pos_WGS84"] = pos.getPosition_WGS84().asJson();
 	j["roll_electric_deg_pilot"] = roll_electric_deg_pilot;
-	j["heightOverGnd"] = heightOverGnd;
-	j["requestedClimbRate"] = requestedClimbRate;
-	j["requestedRoll"] = requestedRoll;
-	j["artstab_pitch_ratio"] = artstab_pitch_ratio;
-	j["artstab_roll_ratio"] = artstab_roll_ratio;
+//	j["heightOverGnd"] = heightOverGnd;
+	j["requestedClimbRate"] = requestedTargetVals[ctrlType::CLIMB_CONTROL];
+	j["requestedRoll"] = requestedTargetVals[ctrlType::ROLL_CONTROL];
+	j["artstab_pitch_ratio"] = controllerOutputs[ctrlType::CLIMB_CONTROL];
+	j["artstab_roll_ratio"] = controllerOutputs[ctrlType::ROLL_CONTROL];
 	j["pos_Cart"] = pos.getPosition_Cart().asJson();
+	j["wind_direction_degt"] = wind_direction_degt;
+	j["wind_speed_kt"] = wind_speed_kt;
+
+
+
 
 	return j;
 }

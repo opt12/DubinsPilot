@@ -22,7 +22,7 @@ using json = nlohmann::json;
 
 #include <qmetatype.h>
 
-#define TEST
+//#define TEST
 
 int main(int argc, char *argv[]) {
 #ifdef TEST

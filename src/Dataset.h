@@ -15,6 +15,7 @@
 #include <vector>
 #include <iostream>
 #include "utils.h"
+#include "enumDeclarations.h"
 
 #include "json.hpp"
 // for convenience
@@ -28,7 +29,7 @@ public:
 		return o
 				<< data.timestamp.toString(Qt::SystemLocaleShortDate).toStdString()
 				<< ":\tspeed: " << data.indicated_airspeed
-				<< " [KIAS]\tyoke-pitch: " << data.artstab_pitch_ratio * 100
+				<< " [KIAS]\tyoke-pitch: " << data.controllerOutputs[ctrlType::CLIMB_CONTROL] * 100
 				<< "\n";
 	}
 
@@ -98,13 +99,14 @@ public:
 	double altitude_ft_pilot = 0.0; //ft
 	double y_agl = 0.0; //meter
 
+	double wind_direction_degt=0.0, wind_speed_kt=0.0;
 //	double latitude = 0.0, longitude = 0.0; //WGS84
 //	double elevation = 0.0; // WGS84
 
 	/*************************/
 
 	double roll_electric_deg_pilot = 0.0;
-	double heightOverGnd = 0.0;
+//	double heightOverGnd = 0.0;	//this value isn't in the datarefs
 	Position pos = Position(0.0, 0.0);
 	Position elf = Position(0.0, 0.0);
 	double elfHeading = 0.0;
@@ -112,12 +114,10 @@ public:
 	//controller data
 	bool climbControlActive = false;
 	bool rollControlActive = false;
-	double requestedClimbRate = 0.0;
-	double requestedRoll = 0.0;
+	std::vector<double> requestedTargetVals = std::vector<double>(ctrlType::_size());;
 	double PSpeed = 0.0, ISpeed = 0.0, DSpeed = 0.0;
 	double PRoll = 0.0, IRoll = 0.0, DRoll = 0.0;
-	double artstab_pitch_ratio = 0.0;
-	double artstab_roll_ratio = 0.0;
+	std::vector<double> controllerOutputs = std::vector<double>(ctrlType::_size());;
 
 	class PidParams{
 	public:

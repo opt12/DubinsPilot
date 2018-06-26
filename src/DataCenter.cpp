@@ -167,6 +167,12 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 //	case hash("sim/flightmodel2/misc/AoA_angle_degrees"):
 //		curDat.speedKias = value;
 //		break;
+	case hash("sim/weather/wind_direction_degt"):
+		curDat.wind_direction_degt = value;
+		break;
+	case hash("sim/weather/wind_speed_kt"):
+		curDat.wind_speed_kt = value;
+		break;
 	default:
 		break;
 	}
@@ -330,6 +336,9 @@ void DataCenter::setConnected(bool connected) {
 		xp->subscribeDataRef(
 				"sim/cockpit2/gauges/indicators/roll_electric_deg_pilot", 20);
 //		xp->subscribeDataRef("sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot", 20);
+		xp->subscribeDataRef("sim/weather/wind_direction_degt", 20);
+		xp->subscribeDataRef("sim/weather/wind_speed_kt", 20);
+
 		curDat.counter = 0;
 	}
 

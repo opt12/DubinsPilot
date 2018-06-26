@@ -27,11 +27,12 @@ AutoPilot::AutoPilot(QObject* parent) :
 	ctrl = std::vector<Controller>(ctrlType::_size());
 	ctrl[ctrlType::CLIMB_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1, -1.0, 1.0, MANUAL,
 			DIRECT);
-	ctrl[ctrlType::CLIMB_CONTROL].dataRef = "sim/joystick/artstab_pitch_ratio";
-
+//	ctrl[ctrlType::CLIMB_CONTROL].dataRef = "sim/joystick/artstab_pitch_ratio";
+	ctrl[ctrlType::CLIMB_CONTROL].dataRef = "sim/joystick/yoke_pitch_ratio";
 	ctrl[ctrlType::ROLL_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1, -1.0, 1.0, MANUAL,
 			DIRECT);
-	ctrl[ctrlType::ROLL_CONTROL].dataRef = "sim/joystick/artstab_roll_ratio";
+//	ctrl[ctrlType::ROLL_CONTROL].dataRef = "sim/joystick/artstab_roll_ratio";
+	ctrl[ctrlType::ROLL_CONTROL].dataRef = "sim/joystick/yoke_roll_ratio";
 
 
 	//hier kann ich noch keinen attach ausführen, weil die Verbindung in main noch nicht besteht.
@@ -89,16 +90,23 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 		ctrl[_ct].controller->PIDModeSet(AUTOMATIC);
 
 		//in the if we need the +Operator as seen on https://github.com/aantron/better-enums/issues/23
-		if(_ct == +ctrlType::CLIMB_CONTROL || _ct == +ctrlType::ROLL_CONTROL){
+		if(_ct == +ctrlType::CLIMB_CONTROL){
 			//we need this override to be active for those controllers
-			emit sigSendXPDataRef("sim/operation/override/override_artstab", true);
+			emit sigSendXPDataRef("sim/operation/override/override_joystick_pitch", true);
+		}
+		if(_ct == +ctrlType::ROLL_CONTROL){
+			//we need this override to be active for those controllers
+			emit sigSendXPDataRef("sim/operation/override/override_joystick_roll", true);
 		}
 	} else {
 		std::cout << _ct._to_string() << " deactivated\n";
 		ctrl[_ct].controller->PIDModeSet(MANUAL);
 		emit sigSendXPDataRef(ctrl[_ct].dataRef, ctrl[_ct].output);
-		if (!ctrl[ctrlType::CLIMB_CONTROL].controlActive && !ctrl[ctrlType::ROLL_CONTROL].controlActive) {
-			emit sigSendXPDataRef("sim/operation/override/override_artstab", false);
+		if (!ctrl[ctrlType::CLIMB_CONTROL].controlActive) {
+			emit sigSendXPDataRef("sim/operation/override/override_joystick_pitch", false);
+		}
+		if (!ctrl[ctrlType::ROLL_CONTROL].controlActive) {
+			emit sigSendXPDataRef("sim/operation/override/override_joystick_roll", false);
 		}
 	}
 }
@@ -108,6 +116,7 @@ void AutoPilot::requestCtrlTargetValue(ctrlType _ct, double _targetValue) {
 	if (debug) {
 		std::cout << "New targetValue requested for " << _ct._to_string()
 				<< ": targetValue= " << _targetValue << ";\n";
+		dc->setRequestedTargetValue(_ct, _targetValue);
 	}
 }
 
@@ -146,6 +155,7 @@ void AutoPilot::timerExpired(void) {
 						<< "; \n";
 				std::cout << "\tNew output value is " << ctrl[c].output << "\n";
 			}
+			dc->setControllerOutputs(c, ctrl[c].output);
 		}
 	}
 	QTimer::singleShot(0, this, SLOT(updateAllPlots()));
