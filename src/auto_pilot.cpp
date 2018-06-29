@@ -11,6 +11,7 @@
 #include <QTimer>
 #include <qwt_plot.h>	//to have the QwtPlot::yleft, ... specifiers available
 #include <qwt_plot_curve.h>
+#include "utils.h"
 
 
 #include <iostream>
@@ -136,7 +137,13 @@ void AutoPilot::timerExpired(void) {
 //	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVh_ind();
 	//TODO
 //	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVh_ind();
-	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVpath();
+	{	// wir müssen den Gleitwinkel selber rechnen aus true_airspeed und sinkrate
+		// der von XPlane ausgegebene Winkel ist bezogen auf ground_speed und damit bei wind unbrauchbar.
+		double tas = dc->getTrue_airspeed();
+		double sinkrate = dc->getVh_ind();
+		ctrl[ctrlType::CLIMB_CONTROL].currentValue = to_degrees(atan(sinkrate/tas));
+	}
+//	ctrl[ctrlType::CLIMB_CONTROL].currentValue = dc->getVpath();
 	ctrl[ctrlType::ROLL_CONTROL].currentValue= dc->getTrue_phi();
 
 	//calculate new control output for all controllers

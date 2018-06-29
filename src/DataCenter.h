@@ -91,6 +91,7 @@ public slots:
 	void on_rqd_requested_getPlaneState(int requestId);
 
 	void setOrigin(void);
+	void resetWindDisplacement(void);
 	void invokeLogging(bool active, QFile* fileLog);
 	void setElfLocation(double forward, double right, double height, double rotation);
 
@@ -111,6 +112,8 @@ signals:
 
 private:
 	bool debug = false;
+
+	static int UPDATE_RATE;
 
 	//Data Items
 	Dataset curDat;

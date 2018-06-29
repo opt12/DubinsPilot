@@ -10,7 +10,7 @@
 QString Dataset::csvHeading() {
 	return "timestamp;"
 			"counter;"
-			"indicated_airspeed;"
+			"indicated_airspeed_ms;"
 //			"indicated_airspeed2;"
 			"true_airspeed;"
 			"groundspeed;"
@@ -36,15 +36,16 @@ QString Dataset::csvHeading() {
 			"y_cart;"
 			"z_cart;"
 			"wind_direction_degt;"
-			"wind_speed_kt;"
+			"wind_speed_ms;"
+			"x_windDisplacement;"
+			"y_windDisplacement;"
 			"\n";
 }
 
 QString Dataset::csvDataRecord() {
 	return QTime::currentTime().toString("hh:mm:ss.zzz") + ";"
 			+ QString::number(counter, 'f', 8) + ";"
-			+ QString::number(indicated_airspeed, 'g', 6) + ";"
-//			+ QString::number(indicated_airspeed2, 'g', 6) + ";"
+			+ QString::number(indicated_airspeed_ms, 'g', 6) + ";"
 			+ QString::number(true_airspeed, 'g', 6) + ";"
 			+ QString::number(groundspeed, 'g', 6) + ";"
 			+ QString::number(vh_ind_fpm, 'g', 6) + ";"
@@ -60,7 +61,6 @@ QString Dataset::csvDataRecord() {
 			+ QString::number(pos.getPosition_WGS84().longi, 'g', 12) + ";"
 			+ QString::number(pos.getPosition_WGS84().height, 'g', 6) + ";"
 			+ QString::number(roll_electric_deg_pilot, 'g', 6) + ";"
-//			+ QString::number(heightOverGnd, 'g', 6) + ";"
 			+ QString::number(requestedTargetVals[ctrlType::CLIMB_CONTROL], 'g', 6) + ";"
 			+ QString::number(requestedTargetVals[ctrlType::ROLL_CONTROL], 'g', 6) + ";"
 			+ QString::number(controllerOutputs[ctrlType::CLIMB_CONTROL], 'g', 6) + ";"
@@ -69,7 +69,9 @@ QString Dataset::csvDataRecord() {
 			+ QString::number(pos.getPosition_Cart().y, 'g', 8) + ";"
 			+ QString::number(pos.getPosition_Cart().z, 'g', 8) + ";"
 			+ QString::number(wind_direction_degt, 'g', 6) + ";"
-			+ QString::number(wind_speed_kt, 'g', 6) + ";" + "\n";
+			+ QString::number(wind_speed_ms, 'g', 6) + ";"
+			+ QString::number(windDisplacement.x, 'g', 6) + ";"
+			+ QString::number(windDisplacement.y, 'g', 6) + ";" + "\n";
 }
 
 json Dataset::asJson() {
@@ -78,7 +80,7 @@ json Dataset::asJson() {
 
 	j["timestamp"] = QTime::currentTime().toString("hh:mm:ss.zzz").toStdString().c_str();
 	j["counter"] = counter;
-	j["indicated_airspeed"] = indicated_airspeed;
+	j["indicated_airspeed_ms"] = indicated_airspeed_ms;
 //	j["indicated_airspeed2"] = indicated_airspeed2;
 	j["true_airspeed"] = true_airspeed;
 	j["groundspeed"] = groundspeed;
@@ -100,7 +102,8 @@ json Dataset::asJson() {
 	j["artstab_roll_ratio"] = controllerOutputs[ctrlType::ROLL_CONTROL];
 	j["pos_Cart"] = pos.getPosition_Cart().asJson();
 	j["wind_direction_degt"] = wind_direction_degt;
-	j["wind_speed_kt"] = wind_speed_kt;
+	j["wind_speed_kt"] = wind_speed_ms;
+	j["windDisplacement"] = windDisplacement.asJson();
 
 
 

@@ -28,8 +28,8 @@ public:
 	friend std::ostream& operator<<(std::ostream& o, const Dataset& data) {
 		return o
 				<< data.timestamp.toString(Qt::SystemLocaleShortDate).toStdString()
-				<< ":\tspeed: " << data.indicated_airspeed
-				<< " [KIAS]\tyoke-pitch: " << data.controllerOutputs[ctrlType::CLIMB_CONTROL] * 100
+				<< ":\tspeed: " << data.indicated_airspeed_ms
+				<< " [m/s]\tyoke-pitch: " << data.controllerOutputs[ctrlType::CLIMB_CONTROL] * 100
 				<< "\n";
 	}
 
@@ -81,14 +81,16 @@ public:
 	static QString csvHeading();
 	QString csvDataRecord();
 	json asJson();
+	void resetWindDisplacement(void) {
+		windDisplacement={0.0, 0.0, 0.0};
+	}
 
 	//statistics
 	int counter=0;	//to count the received UDP datasets since last write
 	//plane Data
-	double indicated_airspeed = 0.0;	//kias
-//	double indicated_airspeed2 = 0.0;	//keas	//TODO is this EAS???
-	double true_airspeed = 0.0; //knots
-	double groundspeed = 0.0; //knots
+	double indicated_airspeed_ms = 0.0;	//m/s
+	double true_airspeed = 0.0; //m/s
+	double groundspeed = 0.0; //m/s
 
 	double vh_ind_fpm = 0.0; // fpm
 	double vh_ind = 0.0; // m/sec
@@ -99,7 +101,9 @@ public:
 	double altitude_ft_pilot = 0.0; //ft
 	double y_agl = 0.0; //meter
 
-	double wind_direction_degt=0.0, wind_speed_kt=0.0;
+	double wind_direction_degt=0.0, wind_speed_ms=0.0;
+	// the displacement due to wind is integrated with each wind_direction_degt update
+	Position_Cartesian windDisplacement = {0.0, 0.0, 0.0};
 //	double latitude = 0.0, longitude = 0.0; //WGS84
 //	double elevation = 0.0; // WGS84
 

@@ -64,6 +64,24 @@ private slots:
 	void setISpinnersBank(QString text);
 	void setBankingLabel(double val);
 
+	void setDValueHeading(void);
+	void setPValueHeading(void);
+	void setIValueHeading(void);
+
+	void setDSpinnersHeading(QString text);
+	void setPSpinnersHeading(QString text);
+	void setISpinnersHeading(QString text);
+	void setHeadingLabel(double val);
+
+	void setDValueCircle(void);
+	void setPValueCircle(void);
+	void setIValueCircle(void);
+
+	void setDSpinnersCircle(QString text);
+	void setPSpinnersCircle(QString text);
+	void setISpinnersCircle(QString text);
+	void setCircleLabel(double val);
+
 	void tempomatActiveStateChanged(bool);
 	void bankControlActiveStateChanged(bool);
 
@@ -88,21 +106,23 @@ private:
 	void readSettings();
 	double valP, valI, valD, valClimbRate;
 	double valPBank, valIBank, valDBank, valRoll;
+	double valPHeading, valIHeading, valDHeading, valHeading;
+	double valPCircle, valICircle, valDCircle, valCircle;
 
-	QwtPlotMarker *climbMarker, *rollMarker;
-	QwtPlotMagnifier *zoom_yLeftClimb, *zoom_yRightClimb, *zoom_yLeftRoll, *zoom_yRightRoll;
-	QwtPlotPanner *drag_yLeftClimb, *drag_yRightClimb, *drag_yLeftRoll, *drag_yRightRoll;
+	QwtPlotMarker *climbMarker, *rollMarker, *headingMarker, *circleMarker;
+	QwtPlotMagnifier *zoom_yLeftClimb, *zoom_yRightClimb,
+			*zoom_yLeftRoll, *zoom_yRightRoll,
+			*zoom_yLeftHeading, *zoom_yRightHeading,
+			*zoom_yLeftCircle, *zoom_yRightCircle;
+	QwtPlotPanner *drag_yLeftClimb, *drag_yRightClimb,
+			*drag_yLeftRoll, *drag_yRightRoll,
+			*drag_yLeftHeading, *drag_yRightHeading,
+			*drag_yLeftCircle, *drag_yRightCircle;
 
 	void setupPlot(void);
 	static const int plotDataSize = 500;
 	static const int minExp = -6;
 	static const int maxExp = 3;
-
-	// data arrays for the plot
-	double speedData[plotDataSize];
-	double elevatorData[plotDataSize];
-	double timeData[plotDataSize];
-	int count;
 
 	QString initialLogFileDir;
 	QString logFileName, logFile;

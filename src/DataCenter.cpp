@@ -20,6 +20,7 @@
 #include "XPlaneUDPClient.h"
 #include <qtextstream.h>
 #include <qfile.h>
+#include "utils.h"
 
 constexpr
 static unsigned int hash(const char* str, int h = 0) { //TODO check if this hashing is a good idea...
@@ -34,6 +35,7 @@ template<typename T> int sgn(T val) {
 
 // initialize statics
 DataCenter * DataCenter::instance = NULL;
+int DataCenter::UPDATE_RATE = 20;
 
 DataCenter::DataCenter(QObject* parent) :
 		QObject(parent) {
@@ -97,24 +99,20 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 //	receivedData[dataref] = {value, time(NULL)};
 	switch (hash(dataref.c_str())) {
 	case hash("sim/flightmodel/position/indicated_airspeed"):
-		curDat.indicated_airspeed = value;
+		curDat.indicated_airspeed_ms = knots_to_ms(value);
 		break;
-//	case hash("sim/flightmodel/position/indicated_airspeed2"):
-//		curDat.indicated_airspeed2 = value;
-//		break;
 	case hash("sim/flightmodel/position/true_airspeed"):
-		curDat.true_airspeed = value;
+		curDat.true_airspeed = value; //this is one of the controlled parameters
 		break;
 	case hash("sim/flightmodel/position/groundspeed"):
 		curDat.groundspeed = value;
 		break;
-
 	case hash("sim/flightmodel/position/vh_ind_fpm"):
 		curDat.vh_ind_fpm = value;
 		break;
 	case hash("sim/flightmodel/position/vh_ind"):
-		curDat.vh_ind = value;
-		curDat.counter++;	//this is one of the controlled parameters
+		curDat.vh_ind = value;	//this is one of the controlled parameters
+		curDat.counter++;
 		break;
 	case hash("sim/flightmodel/position/vpath"):
 		curDat.vpath = value;
@@ -132,7 +130,6 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 	case hash("sim/flightmodel/position/true_psi"):
 		curDat.true_psi = value;
 		break;
-
 	case hash("sim/flightmodel/position/elevation"):
 		curDat.setPos_WGS84(curDat.getPosition_WGS84().lati,
 				curDat.getPosition_WGS84().longi, value);
@@ -151,27 +148,19 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 	case hash("sim/flightmodel/position/y_agl"):
 		curDat.y_agl = value;
 		break;
-
-//	case hash("sim/flightmodel2/controls/pitch_ratio"):
-//		curDat.pitch = value;
-//		break;
-//	case hash("sim/flightmodel2/controls/roll_ratio"):
-//		curDat.bank = value;
-//		break;
 	case hash("sim/cockpit2/gauges/indicators/roll_electric_deg_pilot"):
 		curDat.roll_electric_deg_pilot = value;
 		break;
-//	case hash("sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot"):
-//		curDat.speedKias = value;
-//		break;
-//	case hash("sim/flightmodel2/misc/AoA_angle_degrees"):
-//		curDat.speedKias = value;
-//		break;
 	case hash("sim/weather/wind_direction_degt"):
 		curDat.wind_direction_degt = value;
+		// when the direction is updated, I also update the integration over the wind displacement
+		curDat.windDisplacement.x += sin(to_radians(value))
+				* curDat.wind_speed_ms/UPDATE_RATE;
+		curDat.windDisplacement.y += cos(to_radians(value))
+				* curDat.wind_speed_ms/UPDATE_RATE;
 		break;
 	case hash("sim/weather/wind_speed_kt"):
-		curDat.wind_speed_kt = value;
+		curDat.wind_speed_ms = knots_to_ms(value);
 		break;
 	default:
 		break;
@@ -260,12 +249,17 @@ void DataCenter::setOrigin(void){
 			curDat.elf.getPosition_Cart(), curDat.elfHeading);
 }
 
+void DataCenter::resetWindDisplacement(void){
+	curDat.resetWindDisplacement();
+}
+
 void DataCenter::invokeLogging(bool active, QFile* fileLog) {
 	loggingActive = active;
 	if (active) {
 		outLog = new QTextStream(fileLog);
 		if(! originSet){
 			setOrigin();
+			resetWindDisplacement();
 		}
 		*outLog << Dataset::csvHeading();
 
@@ -310,34 +304,29 @@ void DataCenter::setConnected(bool connected) {
 				});
 		xp->setDebug(0);
 
-		xp->subscribeDataRef("sim/flightmodel/position/indicated_airspeed", 20);
-//		xp->subscribeDataRef("sim/flightmodel/position/indicated_airspeed2", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/true_airspeed", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/groundspeed", 20);
+		xp->subscribeDataRef("sim/flightmodel/position/indicated_airspeed", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/true_airspeed", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/groundspeed", UPDATE_RATE);
 
-		xp->subscribeDataRef("sim/flightmodel/position/vh_ind_fpm", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/vh_ind", 20);
+		xp->subscribeDataRef("sim/flightmodel/position/vh_ind_fpm", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/vh_ind", UPDATE_RATE);
 
-		xp->subscribeDataRef("sim/flightmodel/position/vpath", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/alpha", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/true_theta", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/true_phi", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/true_psi", 20);
+		xp->subscribeDataRef("sim/flightmodel/position/vpath", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/alpha", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/true_theta", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/true_phi", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/true_psi", UPDATE_RATE);
 
-		xp->subscribeDataRef("sim/flightmodel/position/elevation", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/latitude", 20);
-		xp->subscribeDataRef("sim/flightmodel/position/longitude", 20);
+		xp->subscribeDataRef("sim/flightmodel/position/elevation", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/latitude", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/longitude", UPDATE_RATE);
 		xp->subscribeDataRef("sim/cockpit2/gauges/indicators/altitude_ft_pilot",
-				20);
-		xp->subscribeDataRef("sim/flightmodel/position/y_agl", 20);
-
-//		xp->subscribeDataRef("sim/flightmodel2/controls/pitch_ratio", 1);
-//		xp->subscribeDataRef("sim/flightmodel2/controls/roll_ratio", 1);
+				UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/y_agl", UPDATE_RATE);
 		xp->subscribeDataRef(
-				"sim/cockpit2/gauges/indicators/roll_electric_deg_pilot", 20);
-//		xp->subscribeDataRef("sim/cockpit2/gauges/indicators/pitch_AHARS_deg_pilot", 20);
-		xp->subscribeDataRef("sim/weather/wind_direction_degt", 20);
-		xp->subscribeDataRef("sim/weather/wind_speed_kt", 20);
+				"sim/cockpit2/gauges/indicators/roll_electric_deg_pilot", UPDATE_RATE);
+		xp->subscribeDataRef("sim/weather/wind_direction_degt", UPDATE_RATE);
+		xp->subscribeDataRef("sim/weather/wind_speed_kt", UPDATE_RATE);
 
 		curDat.counter = 0;
 	}

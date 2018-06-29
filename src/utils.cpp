@@ -24,3 +24,7 @@ void rotatePoint(const double x, const double y, const double rotDeg, double& ou
 	outY = x* sin(to_radians(-rotDeg)) + y*cos(to_radians(-rotDeg));
 }
 
+double knots_to_ms(const double valKnots){
+	return valKnots*0.51444444444;
+}
+

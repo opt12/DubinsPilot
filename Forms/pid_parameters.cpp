@@ -14,6 +14,7 @@
 #include <qwt_series_data.h>
 #include <qwt_magnifier.h>
 #include <qwt_plot_magnifier.h>
+#include <qwt_knob.h>
 #include <math.h>       /* tan */
 #include "Dataset.h"
 #include "utils.h"
@@ -100,6 +101,83 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(lineEditPParameterBank, SIGNAL(textChanged(QString)), this,
 			SLOT(setPSpinnersBank(QString)));
 
+	doubleSpinBoxDValueHeading->setRange(-10.0, 10.0);
+	doubleSpinBoxDValueHeading->setSingleStep(0.01);
+	SliderDValueHeading->setRange(-10.0, 10.0, 0.1);
+	spinBoxExpDValueHeading->setRange(minExp, maxExp);
+	connect(doubleSpinBoxDValueHeading, SIGNAL(valueChanged(double)), this,
+			SLOT(setDValueHeading(void)));
+	connect(spinBoxExpDValueHeading, SIGNAL(valueChanged(int)), this,
+			SLOT(setDValueHeading(void)));
+	lineEditDParameterHeading->setValidator(new QDoubleValidator);
+	connect(lineEditDParameterHeading, SIGNAL(textChanged(QString)), this,
+			SLOT(setDSpinnersHeading(QString)));
+
+	doubleSpinBoxIValueHeading->setMinimum(-10);
+	doubleSpinBoxIValueHeading->setMaximum(10);
+	doubleSpinBoxIValueHeading->setSingleStep(0.1);
+	SliderIValueHeading->setRange(-10.0, 10.0, 0.1);
+	spinBoxExpIValueHeading->setRange(minExp, maxExp);
+	connect(doubleSpinBoxIValueHeading, SIGNAL(valueChanged(double)), this,
+			SLOT(setIValueHeading(void)));
+	connect(spinBoxExpIValueHeading, SIGNAL(valueChanged(int)), this,
+			SLOT(setIValueHeading(void)));
+	lineEditIParameterHeading->setValidator(new QDoubleValidator);
+	connect(lineEditIParameterHeading, SIGNAL(textChanged(QString)), this,
+			SLOT(setISpinnersHeading(QString)));
+
+	doubleSpinBoxPValueHeading->setMinimum(-10);
+	doubleSpinBoxPValueHeading->setMaximum(10);
+	doubleSpinBoxPValueHeading->setSingleStep(0.1);
+	SliderPValueHeading->setRange(-10.0, 10.0, 0.1);
+	spinBoxExpPValueHeading->setRange(minExp, maxExp);
+	connect(doubleSpinBoxPValueHeading, SIGNAL(valueChanged(double)), this,
+			SLOT(setPValueHeading(void)));
+	connect(spinBoxExpPValueHeading, SIGNAL(valueChanged(int)), this,
+			SLOT(setPValueHeading(void)));
+	lineEditPParameterHeading->setValidator(new QDoubleValidator);
+	connect(lineEditPParameterHeading, SIGNAL(textChanged(QString)), this,
+			SLOT(setPSpinnersHeading(QString)));
+
+	doubleSpinBoxDValueCircle->setRange(-10.0, 10.0);
+	doubleSpinBoxDValueCircle->setSingleStep(0.01);
+	SliderDValueCircle->setRange(-10.0, 10.0, 0.1);
+	spinBoxExpDValueCircle->setRange(minExp, maxExp);
+	connect(doubleSpinBoxDValueCircle, SIGNAL(valueChanged(double)), this,
+			SLOT(setDValueCircle(void)));
+	connect(spinBoxExpDValueCircle, SIGNAL(valueChanged(int)), this,
+			SLOT(setDValueCircle(void)));
+	lineEditDParameterCircle->setValidator(new QDoubleValidator);
+	connect(lineEditDParameterCircle, SIGNAL(textChanged(QString)), this,
+			SLOT(setDSpinnersCircle(QString)));
+
+	doubleSpinBoxIValueCircle->setMinimum(-10);
+	doubleSpinBoxIValueCircle->setMaximum(10);
+	doubleSpinBoxIValueCircle->setSingleStep(0.1);
+	SliderIValueCircle->setRange(-10.0, 10.0, 0.1);
+	spinBoxExpIValueCircle->setRange(minExp, maxExp);
+	connect(doubleSpinBoxIValueCircle, SIGNAL(valueChanged(double)), this,
+			SLOT(setIValueCircle(void)));
+	connect(spinBoxExpIValueCircle, SIGNAL(valueChanged(int)), this,
+			SLOT(setIValueCircle(void)));
+	lineEditIParameterCircle->setValidator(new QDoubleValidator);
+	connect(lineEditIParameterCircle, SIGNAL(textChanged(QString)), this,
+			SLOT(setISpinnersCircle(QString)));
+
+	doubleSpinBoxPValueCircle->setMinimum(-10);
+	doubleSpinBoxPValueCircle->setMaximum(10);
+	doubleSpinBoxPValueCircle->setSingleStep(0.1);
+	SliderPValueCircle->setRange(-10.0, 10.0, 0.1);
+	spinBoxExpPValueCircle->setRange(minExp, maxExp);
+	connect(doubleSpinBoxPValueCircle, SIGNAL(valueChanged(double)), this,
+			SLOT(setPValueCircle(void)));
+	connect(spinBoxExpPValueCircle, SIGNAL(valueChanged(int)), this,
+			SLOT(setPValueCircle(void)));
+	lineEditPParameterCircle->setValidator(new QDoubleValidator);
+	connect(lineEditPParameterCircle, SIGNAL(textChanged(QString)), this,
+			SLOT(setPSpinnersCircle(QString)));
+
+
 	connect(saveButton, SIGNAL(clicked(void)), this, SLOT(writeSettings(void)));
 	connect(setHeightButton, SIGNAL(clicked(void)), this,
 			SLOT(setAltitude(void)));
@@ -114,6 +192,15 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	KnobRoll->setRange(-30.0, 30.0, 1.0);
 	connect(KnobRoll, SIGNAL(valueChanged(double)), this,
 			SLOT(setBankingLabel(double)));
+
+	KnobHeading->setRange(-180, 180, 5.0);
+	KnobHeading->setTotalAngle(360.0);
+	connect(KnobHeading, SIGNAL(valueChanged(double)), this,
+			SLOT(setHeadingLabel(double)));
+
+	KnobCircle->setRange(300, 1000, 10.0);
+	connect(KnobCircle, SIGNAL(valueChanged(double)), this,
+			SLOT(setCircleLabel(double)));
 
 	checkBoxClimbController->setChecked(false);
 	connect(checkBoxClimbController, SIGNAL(toggled(bool)), this,
@@ -410,6 +497,170 @@ void PIDParametersDialog::setBankingLabel(double roll) {
 	qwtPlotRoll->replot();
 }
 
+void PIDParametersDialog::setDValueHeading(void) {
+	double mantissa = doubleSpinBoxDValueHeading->value();
+	int exp = spinBoxExpDValueHeading->value();
+	double value = mantissa * exp10(exp);
+//	qDebug()<< "value changed: " << value << endl;
+	lineEditDParameterHeading->setText(QString::number(value, 'g'));
+	valDHeading = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPHeading, valIHeading, valDHeading);
+}
+void PIDParametersDialog::setIValueHeading(void) {
+	double mantissa = doubleSpinBoxIValueHeading->value();
+	int exp = spinBoxExpIValueHeading->value();
+	double value = mantissa * exp10(exp);
+//	qDebug()<< "value changed: " << value << endl;
+	lineEditIParameterHeading->setText(QString::number(value, 'g'));
+	valIHeading = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPHeading, valIHeading, valDHeading);
+}
+void PIDParametersDialog::setPValueHeading(void) {
+	double mantissa = doubleSpinBoxPValueHeading->value();
+	int exp = spinBoxExpPValueHeading->value();
+	double value = mantissa * exp10(exp);
+//	qDebug()<< "value changed: " << value << endl;
+	lineEditPParameterHeading->setText(QString::number(value, 'g'));
+	valPHeading = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPHeading, valIHeading, valDHeading);
+}
+
+void PIDParametersDialog::setDSpinnersHeading(QString text) {
+	double value = text.toDouble();
+	double exp = floor(log10(fabs(value)));
+	if (exp < minExp - 1) {
+		doubleSpinBoxDValueHeading->setValue(0.0);
+		return;
+	}
+	double mantissa = value / exp10(exp);
+	if (minExp <= exp && exp <= maxExp) {
+		doubleSpinBoxDValueHeading->setValue(mantissa);
+		spinBoxExpDValueHeading->setValue(exp);
+		valDHeading = value;
+	}
+}
+
+void PIDParametersDialog::setPSpinnersHeading(QString text) {
+	double value = text.toDouble();
+	double exp = floor(log10(fabs(value)));
+	if (exp < minExp - 1) {
+		doubleSpinBoxPValueHeading->setValue(0.0);
+		return;
+	}
+	double mantissa = value / exp10(exp);
+	if (minExp <= exp && exp <= maxExp) {
+		doubleSpinBoxPValueHeading->setValue(mantissa);
+		spinBoxExpPValueHeading->setValue(exp);
+		valP = value;
+	}
+}
+
+void PIDParametersDialog::setISpinnersHeading(QString text) {
+	double value = text.toDouble();
+	double exp = floor(log10(fabs(value)));
+	if (exp < minExp - 1) {
+		doubleSpinBoxIValueHeading->setValue(0.0);
+		return;
+	}
+	double mantissa = value / exp10(exp);
+	if (minExp <= exp && exp <= maxExp) {
+		doubleSpinBoxIValueHeading->setValue(mantissa);
+		spinBoxExpIValueHeading->setValue(exp);
+		valIHeading = value;
+	}
+}
+
+void PIDParametersDialog::setHeadingLabel(double heading) {
+	valHeading= heading;
+	headingLabel->setText("Heading: " + QString::number(valHeading) + " [deg]");
+	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, heading);
+	headingMarker->setYValue(valHeading);
+	headingMarker->setLabel("heading = " + QString::number(valHeading));
+	qwtPlotHeading->replot();
+}
+
+void PIDParametersDialog::setDValueCircle(void) {
+	double mantissa = doubleSpinBoxDValueCircle->value();
+	int exp = spinBoxExpDValueCircle->value();
+	double value = mantissa * exp10(exp);
+//	qDebug()<< "value changed: " << value << endl;
+	lineEditDParameterCircle->setText(QString::number(value, 'g'));
+	valDCircle = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPCircle, valICircle, valDCircle);
+}
+void PIDParametersDialog::setIValueCircle(void) {
+	double mantissa = doubleSpinBoxIValueCircle->value();
+	int exp = spinBoxExpIValueCircle->value();
+	double value = mantissa * exp10(exp);
+//	qDebug()<< "value changed: " << value << endl;
+	lineEditIParameterCircle->setText(QString::number(value, 'g'));
+	valICircle = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPCircle, valICircle, valDCircle);
+}
+void PIDParametersDialog::setPValueCircle(void) {
+	double mantissa = doubleSpinBoxPValueCircle->value();
+	int exp = spinBoxExpPValueCircle->value();
+	double value = mantissa * exp10(exp);
+//	qDebug()<< "value changed: " << value << endl;
+	lineEditPParameterCircle->setText(QString::number(value, 'g'));
+	valPCircle = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPCircle, valICircle, valDCircle);
+}
+
+void PIDParametersDialog::setDSpinnersCircle(QString text) {
+	double value = text.toDouble();
+	double exp = floor(log10(fabs(value)));
+	if (exp < minExp - 1) {
+		doubleSpinBoxDValueCircle->setValue(0.0);
+		return;
+	}
+	double mantissa = value / exp10(exp);
+	if (minExp <= exp && exp <= maxExp) {
+		doubleSpinBoxDValueCircle->setValue(mantissa);
+		spinBoxExpDValueCircle->setValue(exp);
+		valDCircle = value;
+	}
+}
+
+void PIDParametersDialog::setPSpinnersCircle(QString text) {
+	double value = text.toDouble();
+	double exp = floor(log10(fabs(value)));
+	if (exp < minExp - 1) {
+		doubleSpinBoxPValueCircle->setValue(0.0);
+		return;
+	}
+	double mantissa = value / exp10(exp);
+	if (minExp <= exp && exp <= maxExp) {
+		doubleSpinBoxPValueCircle->setValue(mantissa);
+		spinBoxExpPValueCircle->setValue(exp);
+		valP = value;
+	}
+}
+
+void PIDParametersDialog::setISpinnersCircle(QString text) {
+	double value = text.toDouble();
+	double exp = floor(log10(fabs(value)));
+	if (exp < minExp - 1) {
+		doubleSpinBoxIValueCircle->setValue(0.0);
+		return;
+	}
+	double mantissa = value / exp10(exp);
+	if (minExp <= exp && exp <= maxExp) {
+		doubleSpinBoxIValueCircle->setValue(mantissa);
+		spinBoxExpIValueCircle->setValue(exp);
+		valICircle = value;
+	}
+}
+
+void PIDParametersDialog::setCircleLabel(double radius) {
+	valCircle= radius;
+	circleRadiusLabel->setText("radius: " + QString::number(valCircle) + " [m]");
+	emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, valCircle);
+	circleMarker->setYValue(valCircle);
+	circleMarker->setLabel("radius = " + QString::number(valCircle));
+	qwtPlotCircle->replot();
+}
+
 void PIDParametersDialog::tempomatActiveStateChanged(bool active) {
 	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
 	emit sigRequestedSetValueChanged(ctrlType::CLIMB_CONTROL, valClimbRate);
@@ -656,4 +907,103 @@ void PIDParametersDialog::setupPlot(void) {
 
 	qwtPlotRoll->replot();
 	qwtPlotRoll->show();
+
+	qwtPlotCircle->setTitle("Circle Radius");
+
+// axes
+	qwtPlotCircle->setAxisTitle(qwtPlotCircle->xBottom, "t -->");
+	qwtPlotCircle->setAxisScale(qwtPlotCircle->xBottom, 0.0, plotDataSize);
+
+	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yLeft, "Circle angle [deg] -->");
+	qwtPlotCircle->setAxisScale(qwtPlotCircle->yLeft, -30, 30);
+
+	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yRight, "<-- aileron");
+	qwtPlotCircle->setAxisScale(qwtPlotCircle->yRight, -0.75, 0.75);
+
+	qwtPlotCircle->enableAxis(QwtPlot::xBottom);
+	qwtPlotCircle->enableAxis(QwtPlot::yLeft);
+	qwtPlotCircle->enableAxis(QwtPlot::yRight);
+
+//  ...a horizontal line at y = 0...
+	circleMarker = new QwtPlotMarker();
+	circleMarker->setLabelAlignment(Qt::AlignRight | Qt::AlignTop);
+	circleMarker->setLineStyle(QwtPlotMarker::HLine);
+	circleMarker->attach(qwtPlotCircle);
+
+	zoom_yLeftCircle = new QwtPlotMagnifier(qwtPlotCircle->canvas());
+	zoom_yLeftCircle->setWheelButtonState(Qt::NoModifier);
+	zoom_yLeftCircle->setAxisEnabled(QwtPlot::xBottom, false);
+	zoom_yLeftCircle->setAxisEnabled(QwtPlot::yLeft, true);
+	zoom_yLeftCircle->setAxisEnabled(QwtPlot::yRight, false);
+
+	drag_yLeftCircle = new QwtPlotPanner(qwtPlotCircle->canvas());
+	drag_yLeftCircle->setMouseButton(Qt::LeftButton, Qt::NoModifier);
+	drag_yLeftCircle->setAxisEnabled(QwtPlot::xBottom, false);
+	drag_yLeftCircle->setAxisEnabled(QwtPlot::yLeft, true);
+	drag_yLeftCircle->setAxisEnabled(QwtPlot::yRight, false);
+
+	zoom_yRightCircle = new QwtPlotMagnifier(qwtPlotCircle->canvas());
+	zoom_yRightCircle->setWheelButtonState(Qt::ControlModifier);
+	zoom_yRightCircle->setAxisEnabled(QwtPlot::xBottom, false);
+	zoom_yRightCircle->setAxisEnabled(QwtPlot::yLeft, false);
+	zoom_yRightCircle->setAxisEnabled(QwtPlot::yRight, true);
+
+	drag_yRightCircle = new QwtPlotPanner(qwtPlotCircle->canvas());
+	drag_yRightCircle->setMouseButton(Qt::LeftButton, Qt::ControlModifier);
+	drag_yRightCircle->setAxisEnabled(QwtPlot::xBottom, false);
+	drag_yRightCircle->setAxisEnabled(QwtPlot::yLeft, false);
+	drag_yRightCircle->setAxisEnabled(QwtPlot::yRight, true);
+
+	qwtPlotCircle->replot();
+	qwtPlotCircle->show();
+
+
+	qwtPlotHeading->setTitle("Heading");
+
+// axes
+	qwtPlotHeading->setAxisTitle(qwtPlotHeading->xBottom, "t -->");
+	qwtPlotHeading->setAxisScale(qwtPlotHeading->xBottom, 0.0, plotDataSize);
+
+	qwtPlotHeading->setAxisTitle(qwtPlotHeading->yLeft, "Heading angle [deg] -->");
+	qwtPlotHeading->setAxisScale(qwtPlotHeading->yLeft, -30, 30);
+
+	qwtPlotHeading->setAxisTitle(qwtPlotHeading->yRight, "<-- aileron");
+	qwtPlotHeading->setAxisScale(qwtPlotHeading->yRight, -0.75, 0.75);
+
+	qwtPlotHeading->enableAxis(QwtPlot::xBottom);
+	qwtPlotHeading->enableAxis(QwtPlot::yLeft);
+	qwtPlotHeading->enableAxis(QwtPlot::yRight);
+
+//  ...a horizontal line at y = 0...
+	headingMarker = new QwtPlotMarker();
+	headingMarker->setLabelAlignment(Qt::AlignRight | Qt::AlignTop);
+	headingMarker->setLineStyle(QwtPlotMarker::HLine);
+	headingMarker->attach(qwtPlotHeading);
+
+	zoom_yLeftHeading = new QwtPlotMagnifier(qwtPlotHeading->canvas());
+	zoom_yLeftHeading->setWheelButtonState(Qt::NoModifier);
+	zoom_yLeftHeading->setAxisEnabled(QwtPlot::xBottom, false);
+	zoom_yLeftHeading->setAxisEnabled(QwtPlot::yLeft, true);
+	zoom_yLeftHeading->setAxisEnabled(QwtPlot::yRight, false);
+
+	drag_yLeftHeading = new QwtPlotPanner(qwtPlotHeading->canvas());
+	drag_yLeftHeading->setMouseButton(Qt::LeftButton, Qt::NoModifier);
+	drag_yLeftHeading->setAxisEnabled(QwtPlot::xBottom, false);
+	drag_yLeftHeading->setAxisEnabled(QwtPlot::yLeft, true);
+	drag_yLeftHeading->setAxisEnabled(QwtPlot::yRight, false);
+
+	zoom_yRightHeading = new QwtPlotMagnifier(qwtPlotHeading->canvas());
+	zoom_yRightHeading->setWheelButtonState(Qt::ControlModifier);
+	zoom_yRightHeading->setAxisEnabled(QwtPlot::xBottom, false);
+	zoom_yRightHeading->setAxisEnabled(QwtPlot::yLeft, false);
+	zoom_yRightHeading->setAxisEnabled(QwtPlot::yRight, true);
+
+	drag_yRightHeading = new QwtPlotPanner(qwtPlotHeading->canvas());
+	drag_yRightHeading->setMouseButton(Qt::LeftButton, Qt::ControlModifier);
+	drag_yRightHeading->setAxisEnabled(QwtPlot::xBottom, false);
+	drag_yRightHeading->setAxisEnabled(QwtPlot::yLeft, false);
+	drag_yRightHeading->setAxisEnabled(QwtPlot::yRight, true);
+
+	qwtPlotHeading->replot();
+	qwtPlotHeading->show();
 }

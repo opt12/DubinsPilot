@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tabClimb">
     <attribute name="title">
@@ -1335,6 +1335,649 @@
      </layout>
     </widget>
    </widget>
+   <widget class="QWidget" name="tabHeadingHold">
+    <attribute name="title">
+     <string>&amp;Heading Hold</string>
+    </attribute>
+    <widget class="QWidget" name="layoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1003</width>
+       <height>602</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_7">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayoutBankParams_2">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutPValueBank_2">
+            <item>
+             <widget class="QLabel" name="labelPValueBank_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>P value:</string>
+              </property>
+              <property name="buddy">
+               <cstring>SliderIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QwtSlider" name="SliderPValueHeading">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxPValueHeading"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelPExpBank_2">
+              <property name="text">
+               <string>Exp</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinBoxExpIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxExpPValueHeading"/>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditPParameterHeading">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutIValueBank_2">
+            <item>
+             <widget class="QLabel" name="labelIValueBank_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>I value:</string>
+              </property>
+              <property name="buddy">
+               <cstring>SliderIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QwtSlider" name="SliderIValueHeading">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxIValueHeading"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelIExpBank_2">
+              <property name="text">
+               <string>Exp</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinBoxExpIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxExpIValueHeading"/>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditIParameterHeading">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutDValueBank_2">
+            <item>
+             <widget class="QLabel" name="labelDvalueBank_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>D value:</string>
+              </property>
+              <property name="buddy">
+               <cstring>SliderIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QwtSlider" name="SliderDValueHeading">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxDValueHeading"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelDExpBank_2">
+              <property name="text">
+               <string>Exp</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinBoxExpIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxExpDValueHeading"/>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditDParameterHeading">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QCheckBox" name="checkBoxHeadingController">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>PID Control enable</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QLedIndicator" name="ledIndicatorRoll_2">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Led indicator/button</string>
+              </property>
+              <property name="whatsThis">
+               <string>Led indicator/button</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <property name="offColor1">
+               <color>
+                <red>255</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </property>
+              <property name="offColor2">
+               <color>
+                <red>0</red>
+                <green>0</green>
+                <blue>255</blue>
+               </color>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="xPlaneConnectedHeading">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>XPlane Connection</string>
+              </property>
+              <property name="buddy">
+               <cstring>ledIndicator</cstring>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QwtKnob" name="KnobHeading">
+            <property name="focusPolicy">
+             <enum>Qt::WheelFocus</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="headingLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>34</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Roll: 0 °</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotHeading">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>1001</width>
+          <height>311</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tabCircle">
+    <attribute name="title">
+     <string>Circle Fly</string>
+    </attribute>
+    <widget class="QWidget" name="layoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1003</width>
+       <height>543</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_9">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutPValue_2">
+            <item>
+             <widget class="QLabel" name="labelPValue_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>P value:</string>
+              </property>
+              <property name="buddy">
+               <cstring>SliderIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QwtSlider" name="SliderPValueCircle">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxPValueCircle"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelPExp_2">
+              <property name="text">
+               <string>Exp</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinBoxExpIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxExpPValueCircle"/>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditPParameterCircle">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutIValue_2">
+            <item>
+             <widget class="QLabel" name="labelIValue_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>I value:</string>
+              </property>
+              <property name="buddy">
+               <cstring>SliderIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QwtSlider" name="SliderIValueCircle">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxIValueCircle"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelIExp_2">
+              <property name="text">
+               <string>Exp</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinBoxExpIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxExpIValueCircle"/>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditIParameterCircle">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutDValue_2">
+            <item>
+             <widget class="QLabel" name="labelDvalue_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>D value:</string>
+              </property>
+              <property name="buddy">
+               <cstring>SliderIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QwtSlider" name="SliderDValueCircle">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxDValueCircle"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelDExp_2">
+              <property name="text">
+               <string>Exp</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinBoxExpIValue</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxExpDValueCircle"/>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditDParameterCircle">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_11">
+          <item>
+           <widget class="QCheckBox" name="checkBoxCircleController">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>PID Control enable</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <widget class="QLedIndicator" name="ledIndicator_2">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Led indicator/button</string>
+              </property>
+              <property name="whatsThis">
+               <string>Led indicator/button</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <property name="offColor1">
+               <color>
+                <red>255</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </property>
+              <property name="offColor2">
+               <color>
+                <red>0</red>
+                <green>0</green>
+                <blue>255</blue>
+               </color>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="xPlaneConnectedCircle">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>XPlane Connection</string>
+              </property>
+              <property name="buddy">
+               <cstring>ledIndicator</cstring>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QwtKnob" name="KnobCircle">
+            <property name="focusPolicy">
+             <enum>Qt::WheelFocus</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="circleRadiusLabel">
+            <property name="text">
+             <string>climb: 50 ft/min, 9.843m/sec</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QwtPlot" name="qwtPlotCircle">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>1001</width>
+          <height>311</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <customwidgets>
@@ -1641,12 +2284,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>203</x>
-     <y>186</y>
+     <x>217</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>202</x>
-     <y>223</y>
+     <x>217</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -1657,12 +2300,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>135</x>
-     <y>221</y>
+     <x>204</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>135</x>
-     <y>258</y>
+     <x>204</x>
+     <y>297</y>
     </hint>
    </hints>
   </connection>
@@ -1673,12 +2316,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>167</x>
-     <y>255</y>
+     <x>217</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
-     <x>169</x>
-     <y>291</y>
+     <x>217</x>
+     <y>339</y>
     </hint>
    </hints>
   </connection>
@@ -1689,12 +2332,204 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>192</x>
-     <y>285</y>
+     <x>217</x>
+     <y>339</y>
     </hint>
     <hint type="destinationlabel">
-     <x>292</x>
-     <y>356</y>
+     <x>462</x>
+     <y>407</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderPValueHeading</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>doubleSpinBoxPValueHeading</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>407</x>
+     <y>62</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>574</x>
+     <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderIValueHeading</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>doubleSpinBoxIValueHeading</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>479</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>136</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderDValueHeading</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>doubleSpinBoxDValueHeading</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>476</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>552</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxPValueHeading</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SliderPValueHeading</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>583</x>
+     <y>60</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>465</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxIValueHeading</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SliderIValueHeading</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>485</x>
+     <y>136</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxDValueHeading</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SliderDValueHeading</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>562</x>
+     <y>210</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>488</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderPValueCircle</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>doubleSpinBoxPValueCircle</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>450</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>562</x>
+     <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxPValueCircle</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SliderPValueCircle</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>566</x>
+     <y>77</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>447</x>
+     <y>77</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderIValueCircle</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>doubleSpinBoxIValueCircle</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>434</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>551</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxIValueCircle</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SliderIValueCircle</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>575</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>137</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderDValueCircle</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>doubleSpinBoxDValueCircle</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>460</x>
+     <y>223</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>545</x>
+     <y>229</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxDValueCircle</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SliderDValueCircle</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>564</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>
