@@ -149,10 +149,10 @@ void XPlaneBeaconListener::runListener() {
 
 		if (recv_len < 0) {
 
-			// TODO XXX : This needs to be fixed, but it throws when debugging
 			// see https://github.com/dotsha747/libXPlane-UDP-Client/issues/1
-			break;
-			if (errno != EWOULDBLOCK) {
+			if(errno == EINTR && !quitFlag)
+				continue;	//see http://250bpm.com/blog:12
+			if (errno != EWOULDBLOCK && errno != EAGAIN) {
 				ostringstream buf;
 				buf << "recvfrom returned " << recv_len << " errno is " << errno
 						<< endl;

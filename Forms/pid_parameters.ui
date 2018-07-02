@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tabClimb">
     <attribute name="title">
@@ -1562,7 +1562,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
-             <widget class="QLedIndicator" name="ledIndicatorRoll_2">
+             <widget class="QLedIndicator" name="ledIndicatorHeading">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -1888,7 +1888,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
-             <widget class="QLedIndicator" name="ledIndicator_2">
+             <widget class="QLedIndicator" name="ledIndicatorCircle">
               <property name="enabled">
                <bool>false</bool>
               </property>

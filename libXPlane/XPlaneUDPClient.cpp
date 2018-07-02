@@ -206,7 +206,10 @@ void XPlaneUDPClient::listenerThread() {
 		if ((recv_len = recvfrom(sock, buf, sizeof(buf), 0,
 				(struct sockaddr *) &remoteAddr, &slen)) < 0) {
 
-			if (errno != EWOULDBLOCK) {
+			// see https://github.com/dotsha747/libXPlane-UDP-Client/issues/1
+			if(errno == EINTR && !quitFlag)
+				continue;	//see http://250bpm.com/blog:12
+			if (errno != EWOULDBLOCK && errno != EAGAIN) {
 				ostringstream buf;
 				buf << "recvfrom returned " << recv_len << " errno is " << errno
 						<< endl;

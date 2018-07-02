@@ -28,3 +28,13 @@ double knots_to_ms(const double valKnots){
 	return valKnots*0.51444444444;
 }
 
+//taken from https://rosettacode.org/wiki/Angle_difference_between_two_bearings#C.2B.2B
+double getAngularDifference(double b1, double b2) {
+	double r = fmod(b2 - b1, 360.0);
+	if (r < -180.0)
+		r += 360.0;
+	if (r >= 180.0)
+		r -= 360.0;
+	return r;
+}
+

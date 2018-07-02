@@ -20,4 +20,6 @@ double knots_to_ms(const double valKnots);
 // positive rotDeg rotates clockwise
 void rotatePoint(const double x, const double y, const double rotDeg, double& outX, double& outY);
 
+double getAngularDifference(double b1, double b2);
+
 #endif /* UTILS_H_ */

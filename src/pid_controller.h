@@ -44,6 +44,8 @@
 //*********************************************************************************
 #include <stdint.h>
 #include <stdbool.h>
+#include <functional>
+
 
 //*********************************************************************************
 // Macros and Globals
@@ -97,8 +99,8 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        PIDControl(float kp, float ki, float kd, float sampleTimeSeconds, 
-                   float minOutput, float maxOutput, PIDMode mode, 
+        PIDControl(double kp, double ki, double kd, double sampleTimeSeconds,
+                   double minOutput, double maxOutput, PIDMode mode,
                    PIDDirection controllerDirection);     	
         
         // 
@@ -141,7 +143,7 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        void PIDOutputLimitsSet(float min, float max); 							  							  
+        void PIDOutputLimitsSet(double min, double max);
         
         // 
         // PID Tunings Set
@@ -154,7 +156,7 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        void PIDTuningsSet(float kp, float ki, float kd);         	                                         
+        void PIDTuningsSet(double kp, double ki, double kd);
         
         // 
         // PID Tuning Gain Constant P Set
@@ -165,7 +167,7 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        void PIDTuningKpSet(float kp);
+        void PIDTuningKpSet(double kp);
         
         // 
         // PID Tuning Gain Constant I Set
@@ -176,7 +178,7 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        void PIDTuningKiSet(float ki);
+        void PIDTuningKiSet(double ki);
         
         // 
         // PID Tuning Gain Constant D Set
@@ -187,7 +189,7 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        void PIDTuningKdSet(float kd);
+        void PIDTuningKdSet(double kd);
         
         // 
         // PID Controller Direction Set
@@ -212,7 +214,7 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        void PIDSampleTimeSet(float sampleTimeSeconds);                                                       									  									  									   
+        void PIDSampleTimeSet(double sampleTimeSeconds);
         
         // 
         // PID Setpoint Set
@@ -224,7 +226,7 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        inline void PIDSetpointSet(float setpoint) { this->setpoint = setpoint; }
+        inline void PIDSetpointSet(double setpoint) { this->setpoint = setpoint; }
         
         // 
         // PID Input Set
@@ -236,7 +238,7 @@ PIDControl
         // Returns:
         //      Nothing.
         // 
-        inline void PIDInputSet(float input) { this->input = input; }
+        inline void PIDInputSet(double input) { this->input = input; }
         
         // 
         // PID Output Get
@@ -248,7 +250,7 @@ PIDControl
         // Returns:
         //      The output of the specific PID controller.
         // 
-        inline float PIDOutputGet() { return this->output; }
+        inline double PIDOutputGet() { return this->output; }
         
         // 
         // PID Proportional Gain Constant Get
@@ -260,7 +262,7 @@ PIDControl
         // Returns:
         //      The proportional gain constant.
         // 
-        inline float PIDKpGet() { return this->dispKp; }
+        inline double PIDKpGet() { return this->dispKp; }
         
         // 
         // PID Integral Gain Constant Get
@@ -272,7 +274,7 @@ PIDControl
         // Returns:
         //      The integral gain constant.
         // 
-        inline float PIDKiGet() { return this->dispKi; }
+        inline double PIDKiGet() { return this->dispKi; }
         
         // 
         // PID Derivative Gain Constant Get
@@ -284,7 +286,7 @@ PIDControl
         // Returns:
         //      The derivative gain constant.
         // 
-        inline float PIDKdGet() { return this->dispKd; }
+        inline double PIDKdGet() { return this->dispKd; }
         
         // 
         // PID Mode Get
@@ -310,59 +312,83 @@ PIDControl
         // 
         inline PIDDirection PIDDirectionGet() { return this->controllerDirection; }
         
+        inline double lastErrorGet() { return this->error; }
+
+        //
+        // Calculate the error to counteract upon. Overriding the default may
+        // be used to have more complex forms of error calculation available
+        // Description:
+        //      returns the error between setpoint and input value
+        // Parameters:
+        //      setpoint and input
+        // Returns:
+        //      The calculated and somehow weighted error
+        //TODO check how to get this function inline
+        std::function<double(double, double)> calculateError =
+			[this](double _setpoint, double _input)
+			{
+        		return _setpoint - _input;
+			};
+
+
     private:
         // 
         // Input to the PID Controller
         // 
-        float input;
+        double input;
         
         // 
         // Previous input to the PID Controller
         // 
-        float lastInput;
+        double lastInput;
         
         // 
+        // Last error of the PID controller (for logging purposes)
+        //
+        double error;
+
+        //
         // Output of the PID Controller
         // 
-        float output;
+        double output;
         
         // 
         // Gain constant values that were passed by the user
         // These are for display purposes
         // 
-        float dispKp;
-        float dispKi;
-        float dispKd;
+        double dispKp;
+        double dispKi;
+        double dispKd;
         
         // 
         // Gain constant values that the controller alters for
         // its own use
         // 
-        float alteredKp;
-        float alteredKi;
-        float alteredKd;
+        double alteredKp;
+        double alteredKi;
+        double alteredKd;
         
         // 
         // The Integral Term
         // 
-        float iTerm;
+        double iTerm;
         
         // 
         // The interval (in seconds) on which the PID controller
         // will be called
         // 
-        float sampleTime;
+        double sampleTime;
         
         // 
         // The values that the output will be constrained to
         // 
-        float outMin;
-        float outMax;
+        double outMin;
+        double outMax;
         
         // 
         // The user chosen operating point
         // 
-        float setpoint;
+        double setpoint;
         
         // 
         // The sense of direction of the controller

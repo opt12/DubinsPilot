@@ -37,6 +37,7 @@ template<typename T> int sgn(T val) {
 DataCenter * DataCenter::instance = NULL;
 int DataCenter::UPDATE_RATE = 20;
 
+
 DataCenter::DataCenter(QObject* parent) :
 		QObject(parent) {
 
@@ -47,7 +48,7 @@ DataCenter::DataCenter(QObject* parent) :
 	QObject::connect(basicTimer, SIGNAL(timeout()), this, SLOT(timerExpired()));
 
 	//TODO XXX comment out to Debug
-	connectToXPlane();
+	connectToXPlane();	//TODO Das funktioniert nicht immer zuverlässig. Was ist da los?
 //	QTimer::singleShot(0, this, setConnected(true));	//only enqueue this into the event queue
 }
 
@@ -64,6 +65,10 @@ DataCenter::~DataCenter() {
 
 //Private Slots:
 void DataCenter::timerExpired(void) {
+	//TODO Das ist nicht schön, aber da ich den setConnected() Slot nicht per singleShot Timer aufrufen kann ist das die einfachste Lösung.
+	//TODO Die connection zu XPlane läuft noch nicht so, wie es sein soll. Er erkennt aktuell keinen Abriss
+	emit XPlaneConnectionChanged(connected);
+
 	if (loggingActive) {
 		*outLog << curDat.csvDataRecord();
 //		std::cout << curDat.csvDataRecord().toStdString();
@@ -90,6 +95,7 @@ void DataCenter::receiverBeaconCallback(
 	host = server.host;
 	port = server.receivePort;
 
+	//TODO ist das besser, wenn ich das in die queue einreihe? Das klappt irgendwie nicht ganz immer
 	setConnected(exists);
 }
 
@@ -175,10 +181,10 @@ void DataCenter::receiverCallbackString(std::string dataref,
 
 void DataCenter::connectToXPlane() {
 	//XXX This does not work with the debugger. check why!
+	XPlaneBeaconListener::getInstance()->setDebug(1);
 	XPlaneBeaconListener::getInstance()->registerNotificationCallback(
 			[this](XPlaneBeaconListener::XPlaneServer server,
 					bool exists) {return receiverBeaconCallback(server, exists);});
-	XPlaneBeaconListener::getInstance()->setDebug(0);
 }
 
 //void DataCenter::setRequestedAltitude(double altitudeAboveGround) {
@@ -287,6 +293,7 @@ void DataCenter::SendXPDataRef(const char* dataRefName, bool state){
 void DataCenter::setConnected(bool connected) {
 	if (connected != this->connected) {
 		this->connected = connected;
+		//TODO Die connection zu XPlane läuft noch nicht so, wie es sein soll. Er erkennt aktuell keinen Abriss
 		emit XPlaneConnectionChanged(connected);
 	}
 	//now create a proper XPlaneUDPClient

@@ -78,6 +78,10 @@ public:
 		return curDat.true_phi;
 	}
 
+	double getTrue_psi() {
+		return curDat.true_psi;
+	}
+
 	double getTrue_airspeed() {
 		return curDat.true_airspeed;
 	}
@@ -140,14 +144,15 @@ private:
 	void receiverCallbackString(std::string dataref, std::string value);
 	void connectToXPlane();
 
-	std::string host = "";
-	uint16_t port = 0;
 	bool connected = false;
 
 	bool loggingActive = false;
 	QTextStream *outLog = NULL;
 
 	bool originSet = false;
+
+	std::string host = "";
+	uint16_t port = 0;
 
 protected:
 	static DataCenter *instance;

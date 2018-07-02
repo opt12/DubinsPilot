@@ -43,7 +43,8 @@ private:
 		double p=0.0, i=0.0, d=0.0;
 		double requestedTargetValue=0.0;
 		double currentValue=0.0;
-		const char* dataRef="";
+		std::function<double(void)> getMeasurement = [this](void){return 0.0;};
+		std::function<void(double output)> publishOutput = [this](double output) {};
 		double output=0.0;
 		bool controlActive = false;
 		QwtPlotCurve *currentValueCurve=NULL, *outputValueCurve=NULL;
@@ -59,6 +60,9 @@ public slots:
 	void requestCtrlTargetValue(ctrlType ctrl, double target);
 	void setControllerParameters(ctrlType ctrl, double P, double I, double D);
 
+	private slots:
+	void attachPlots(void);
+
 signals:
 	void sigSendXPDataRef(const char*, bool);
 	void sigSendXPDataRef(const char*, double);
@@ -66,6 +70,9 @@ signals:
 	void sigAttachControllerCurve(ctrlType ctrl, QwtPlotCurve* ControllerCurve);
 
 	void sigReplotControllerCurve(ctrlType ctrl);
+
+	void sigRequestRoll(double requestedRoll);
+	void sigRequestClimb(double requestedClimb);
 
 private:
 	static DataCenter *dc;

@@ -44,6 +44,8 @@ public slots:
 	void replotControllerCurve(ctrlType c);
 	void showOriginCoords(Position_WGS84 origin);
 	void showElfCoords(Position_WGS84 elf, Position_Cartesian elf_Cart, double elfHeading);
+	void setRollControlKnob(double roll);	//TODO anschliessen
+	void setClimbRateControlKnob(double glideAngle);	//TODO anschliessen
 
 private slots:
 	void setDValue(void);
@@ -82,8 +84,10 @@ private slots:
 	void setISpinnersCircle(QString text);
 	void setCircleLabel(double val);
 
-	void tempomatActiveStateChanged(bool);
-	void bankControlActiveStateChanged(bool);
+	void tempomatActiveStateChanged(bool active);
+	void bankControlActiveStateChanged(bool active);
+	void headingControlActiveStateChanged(bool active);
+	void circleControlActiveStateChanged(bool active);
 
 	void writeSettings();
 

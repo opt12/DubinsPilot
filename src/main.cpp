@@ -124,6 +124,12 @@ int main(int argc, char *argv[]) {
 			pidParams, SLOT(attachControllerCurve(ctrlType, QwtPlotCurve*)));
 	QObject::connect(&ap, SIGNAL(sigReplotControllerCurve(ctrlType)), pidParams,
 			SLOT(replotControllerCurve(ctrlType)));
+	QObject::connect(&ap, SIGNAL(sigRequestRoll(double)), pidParams,
+			SLOT(setRollControlKnob(double)));
+	QObject::connect(&ap, SIGNAL(sigRequestClimb(double)), pidParams,
+			SLOT(setClimbRateControlKnob(double)));
+	std::cout<< "Connected AutoPilot --> PIDParametersDialog\n";
+
 
 	//connections from SockServer --> RequestDispatcher
 	QObject::connect(sock, SIGNAL(sigDispatchSockMessage(json)), &rqd,

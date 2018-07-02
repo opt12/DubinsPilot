@@ -13,7 +13,6 @@
 #include <qwt_plot_curve.h>
 #include "utils.h"
 
-
 #include <iostream>
 
 DataCenter *AutoPilot::dc = DataCenter::getInstance();
@@ -21,33 +20,76 @@ DataCenter *AutoPilot::dc = DataCenter::getInstance();
 AutoPilot::AutoPilot(QObject* parent) :
 		QObject(parent) {
 
-
 	basicTimer = new QTimer();
 	QObject::connect(basicTimer, SIGNAL(timeout()), this, SLOT(timerExpired()));
 
 	ctrl = std::vector<Controller>(ctrlType::_size());
-	ctrl[ctrlType::CLIMB_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1, -1.0, 1.0, MANUAL,
-			DIRECT);
-//	ctrl[ctrlType::CLIMB_CONTROL].dataRef = "sim/joystick/artstab_pitch_ratio";
-	ctrl[ctrlType::CLIMB_CONTROL].dataRef = "sim/joystick/yoke_pitch_ratio";
-	ctrl[ctrlType::ROLL_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1, -1.0, 1.0, MANUAL,
-			DIRECT);
-//	ctrl[ctrlType::ROLL_CONTROL].dataRef = "sim/joystick/artstab_roll_ratio";
-	ctrl[ctrlType::ROLL_CONTROL].dataRef = "sim/joystick/yoke_roll_ratio";
+	ctrl[ctrlType::CLIMB_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0,
+			0.1, -1.0, 1.0, MANUAL, DIRECT);
+	ctrl[ctrlType::CLIMB_CONTROL].publishOutput = [this](double _output)
+	{
+		emit sigSendXPDataRef("sim/joystick/yoke_pitch_ratio", _output);
+	};
+	ctrl[ctrlType::CLIMB_CONTROL].getMeasurement = [this](void)
+	{// wir müssen den Gleitwinkel selber rechnen aus true_airspeed und sinkrate
+	 // der von XPlane ausgegebene Winkel ist bezogen auf ground_speed und damit bei wind unbrauchbar.
+				double tas = dc->getTrue_airspeed();
+				double sinkrate = dc->getVh_ind();
+	 //in case we have no airspeed measurement yet, we must avoid div by zero and just return the requested target value
+	 // dirty but effective.
+				return tas != 0.0? to_degrees(atan(sinkrate/tas)) : ctrl[ctrlType::CLIMB_CONTROL].requestedTargetValue;
+			};
 
+	ctrl[ctrlType::ROLL_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0, 0.1,
+			-1.0, 1.0, MANUAL, DIRECT);
+	ctrl[ctrlType::ROLL_CONTROL].publishOutput = [this](double _output)
+	{
+		emit sigSendXPDataRef("sim/joystick/yoke_roll_ratio", _output);
+	};
+	ctrl[ctrlType::ROLL_CONTROL].getMeasurement =
+			[this](void) {return dc->getTrue_phi();};
+
+	ctrl[ctrlType::HEADING_CONTROL].controller = new PIDControl(1.0, 0.0, 0.0,
+			0.1, -30.0, 30.0, MANUAL, REVERSE);
+	ctrl[ctrlType::HEADING_CONTROL].publishOutput = [this](double output)
+	{
+		ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue = output;	//set the roll target for the lower level controller
+			emit sigRequestRoll(output);//adapt the knob in the GUI
+		};
+	ctrl[ctrlType::HEADING_CONTROL].getMeasurement = [this](void) {
+		double true_psi = dc->getTrue_psi();
+		true_psi = true_psi>180.0?true_psi-360: true_psi;//convert to (-180, 180]
+			return true_psi;
+		};
+	ctrl[ctrlType::HEADING_CONTROL].controller->calculateError =
+			[this](double _setpoint, double _input)
+			{
+				return getAngularDifference(_setpoint, _input);
+			};
+
+	ctrl[ctrlType::RADIUS_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0,
+			0.1, -30.0, 30.0, MANUAL, DIRECT);
 
 	//hier kann ich noch keinen attach ausführen, weil die Verbindung in main noch nicht besteht.
+	// Aber ich kann den attach in die event queue einreihen und dann geht das.
+	QTimer::singleShot(0, this, SLOT(attachPlots(void)));
+
+	//Den Timer können wir gleich starten, dann laufen die Plots auch schon los.
+	basicTimer->start(timerMilliseconds);
+
 }
 
 AutoPilot::~AutoPilot() {
 	// TODO Auto-generated destructor stub
 	free(ctrl[ctrlType::CLIMB_CONTROL].controller);
 	free(ctrl[ctrlType::ROLL_CONTROL].controller);
+	free(ctrl[ctrlType::HEADING_CONTROL].controller);
+	free(ctrl[ctrlType::RADIUS_CONTROL].controller);
 	basicTimer->stop();
 	free(basicTimer);
 }
 
-AutoPilot::Controller::Controller(){
+AutoPilot::Controller::Controller() {
 	//initialize the plot data to all zeroes;
 	for (int i = 0; i < plotDataSize; ++i) {
 		currentValueHistory[i] = 0.0;
@@ -64,7 +106,7 @@ AutoPilot::Controller::Controller(){
 	outputValueCurve->setSamples(timeData, outputValueHistory, plotDataSize);
 	outputValueCurve->setPen(QPen(Qt::blue, 2));
 	outputValueCurve->setAxes(QwtPlot::xBottom, QwtPlot::yRight);
-	std::cout<<"\t\tConstructor for inner Controller\n";
+	std::cout << "\t\tConstructor for inner Controller\n";
 }
 
 AutoPilot::Controller::~Controller() {
@@ -74,40 +116,39 @@ AutoPilot::Controller::~Controller() {
 
 //public Slots:
 void AutoPilot::invokeController(ctrlType _ct, bool active) {
-	if(!ctrl[_ct].controlActive && active){
-		//Das ist nicht die schönste Stelle hier, aber es sollte gehen.
-		emit sigAttachControllerCurve(_ct, ctrl[_ct].currentValueCurve);
-		emit sigAttachControllerCurve(_ct, ctrl[_ct].outputValueCurve);
-		emit sigReplotControllerCurve(_ct);
-	}
-
-	if(!basicTimer->isActive()){
+	if (!basicTimer->isActive()) {
 		basicTimer->start(timerMilliseconds);
 	}
 	ctrl[_ct].controlActive = active;
 	if (active) {
 		std::cout << _ct._to_string() << " invoked\n";
-		ctrl[_ct].controller->PIDTuningsSet(ctrl[_ct].p, ctrl[_ct].i, ctrl[_ct].d);
+		ctrl[_ct].controller->PIDTuningsSet(ctrl[_ct].p, ctrl[_ct].i,
+				ctrl[_ct].d);
 		ctrl[_ct].controller->PIDModeSet(AUTOMATIC);
 
-		//in the if we need the +Operator as seen on https://github.com/aantron/better-enums/issues/23
-		if(_ct == +ctrlType::CLIMB_CONTROL){
+		//betterEnums: in the if we need the +Operator as seen on https://github.com/aantron/better-enums/issues/23
+		if (_ct == +ctrlType::CLIMB_CONTROL) {
 			//we need this override to be active for those controllers
-			emit sigSendXPDataRef("sim/operation/override/override_joystick_pitch", true);
+			emit sigSendXPDataRef(
+					"sim/operation/override/override_joystick_pitch", true);
 		}
-		if(_ct == +ctrlType::ROLL_CONTROL){
+		if (_ct == +ctrlType::ROLL_CONTROL) {
 			//we need this override to be active for those controllers
-			emit sigSendXPDataRef("sim/operation/override/override_joystick_roll", true);
+			emit sigSendXPDataRef(
+					"sim/operation/override/override_joystick_roll", true);
 		}
 	} else {
 		std::cout << _ct._to_string() << " deactivated\n";
 		ctrl[_ct].controller->PIDModeSet(MANUAL);
-		emit sigSendXPDataRef(ctrl[_ct].dataRef, ctrl[_ct].output);
+		ctrl[_ct].publishOutput(ctrl[_ct].output);
+//		emit sigSendXPDataRef(ctrl[_ct].dataRef, ctrl[_ct].output);
 		if (!ctrl[ctrlType::CLIMB_CONTROL].controlActive) {
-			emit sigSendXPDataRef("sim/operation/override/override_joystick_pitch", false);
+			emit sigSendXPDataRef(
+					"sim/operation/override/override_joystick_pitch", false);
 		}
 		if (!ctrl[ctrlType::ROLL_CONTROL].controlActive) {
-			emit sigSendXPDataRef("sim/operation/override/override_joystick_roll", false);
+			emit sigSendXPDataRef(
+					"sim/operation/override/override_joystick_roll", false);
 		}
 	}
 }
@@ -131,35 +172,26 @@ void AutoPilot::setControllerParameters(ctrlType _ct, double _p, double _i,
 			<< _p << "; I= " << _i << "; D= " << _d << ";\n";
 }
 
-
 void AutoPilot::timerExpired(void) {
-	//set the latest measurements
-//	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVh_ind();
-	//TODO
-//	ctrl[ctrlType::CLIMB_CONTROL].currentValue= dc->getVh_ind();
-	{	// wir müssen den Gleitwinkel selber rechnen aus true_airspeed und sinkrate
-		// der von XPlane ausgegebene Winkel ist bezogen auf ground_speed und damit bei wind unbrauchbar.
-		double tas = dc->getTrue_airspeed();
-		double sinkrate = dc->getVh_ind();
-		ctrl[ctrlType::CLIMB_CONTROL].currentValue = to_degrees(atan(sinkrate/tas));
-	}
-//	ctrl[ctrlType::CLIMB_CONTROL].currentValue = dc->getVpath();
-	ctrl[ctrlType::ROLL_CONTROL].currentValue= dc->getTrue_phi();
 
 	//calculate new control output for all controllers
-	for (ctrlType c : ctrlType::_values()){
-//		ctrl[c].currentValue = ctrl[c].getMeasurement();
+	for (ctrlType c : ctrlType::_values()) {
+		ctrl[c].currentValue = ctrl[c].getMeasurement();
 		ctrl[c].controller->PIDSetpointSet(ctrl[c].requestedTargetValue);
 		ctrl[c].controller->PIDInputSet(ctrl[c].currentValue);
 		ctrl[c].controller->PIDCompute();
 		if (ctrl[c].controlActive) {
 			ctrl[c].output = ctrl[c].controller->PIDOutputGet();
-			emit sigSendXPDataRef(ctrl[c].dataRef, ctrl[c].output);
-			if (debug && !(count % 10)) {
-				std::cout << c._to_string()<<": currentValue = " << ctrl[c].currentValue
-						<< ";\requestedTargetValue = " << ctrl[c].requestedTargetValue
-						<< ";\tDeviation= " << ctrl[c].requestedTargetValue - ctrl[c].currentValue
-						<< "; \n";
+			//TODO hier müssen die higher level controller stattdessen den set value der lower levels ändern
+			//TODO Reihenfolge beachten!!!
+			ctrl[c].publishOutput(ctrl[c].output);
+			//			emit sigSendXPDataRef(ctrl[c].dataRef, ctrl[c].output);
+			//TODO
+			if (false && debug && !(count % 10)) {
+				std::cout << c._to_string() << ": currentValue = "
+						<< ctrl[c].currentValue << ";\trequestedTargetValue = "
+						<< ctrl[c].requestedTargetValue << ";\tDeviation= "
+						<< ctrl[c].controller->lastErrorGet() << "; \n";
 				std::cout << "\tNew output value is " << ctrl[c].output << "\n";
 			}
 			dc->setControllerOutputs(c, ctrl[c].output);
@@ -170,8 +202,8 @@ void AutoPilot::timerExpired(void) {
 }
 
 void AutoPilot::updateAllPlots() {
-	for (ctrlType c : ctrlType::_values()){
-		ctrl[c].updatePlot();	//updatePlot() is private and hence cannot be called from outside;
+	for (ctrlType c : ctrlType::_values()) {
+		ctrl[c].updatePlot();//updatePlot() is private and hence cannot be called from outside;
 		emit sigReplotControllerCurve(c);
 	}
 }
@@ -191,4 +223,12 @@ void AutoPilot::Controller::updatePlot(void) {
 	outputValueCurve->setSamples(timeData, outputValueHistory, plotDataSize);
 }
 
+void AutoPilot::attachPlots(void) {
+	std::cout << "attaching the plots now \n";
+	for (ctrlType _ct : ctrlType::_values()) {
+		emit sigAttachControllerCurve(_ct, ctrl[_ct].currentValueCurve);
+		emit sigAttachControllerCurve(_ct, ctrl[_ct].outputValueCurve);
+		emit sigReplotControllerCurve(_ct);
+	}
+}
 

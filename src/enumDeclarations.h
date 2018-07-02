@@ -10,7 +10,7 @@
 
 #include"enum.h"
 
-BETTER_ENUM(ctrlType, int, ROLL_CONTROL, CLIMB_CONTROL, HEADING_CONTROL, RADIUS_CONTROL)
+BETTER_ENUM(ctrlType, int, HEADING_CONTROL, RADIUS_CONTROL, ROLL_CONTROL, CLIMB_CONTROL)
 BETTER_ENUM(pathTypeEnum, int, LSL, RSR, LSR, RSL)
 /*the types RLR and LRL are omitted as we cannot extend their lengths to our needs;*/
 
