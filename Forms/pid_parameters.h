@@ -31,6 +31,7 @@ signals:
 	void sigPidParametersChanged(ctrlType ctrl, double P, double I, double D);
 	void sigCtrlActiveStateChanged(ctrlType ctrl, bool active);
 	void sigRequestedSetValueChanged(ctrlType ctrl, double setValue);
+	void sigCircleDirectionChanged(bool isLeftCircle, double radius);
 
 	void sigSendXPDataRef(const char*, double);
 
@@ -44,8 +45,9 @@ public slots:
 	void replotControllerCurve(ctrlType c);
 	void showOriginCoords(Position_WGS84 origin);
 	void showElfCoords(Position_WGS84 elf, Position_Cartesian elf_Cart, double elfHeading);
-	void setRollControlKnob(double roll);	//TODO anschliessen
-	void setClimbRateControlKnob(double glideAngle);	//TODO anschliessen
+	void setRollControlKnob(double roll);
+	void setClimbRateControlKnob(double glideAngle);
+	void setHeadingControlKnob(double requestedHeading);
 
 private slots:
 	void setDValue(void);
@@ -85,9 +87,10 @@ private slots:
 	void setCircleLabel(double val);
 
 	void tempomatActiveStateChanged(bool active);
-	void bankControlActiveStateChanged(bool active);
+	void rollControlActiveStateChanged(bool active);
 	void headingControlActiveStateChanged(bool active);
 	void circleControlActiveStateChanged(bool active);
+	void radioButtonCircleClicked(void);
 
 	void writeSettings();
 
@@ -108,8 +111,8 @@ private:
 		return false;
 	} //maybe I don't want to always save the parameters at closing
 	void readSettings();
-	double valP, valI, valD, valClimbRate;
-	double valPBank, valIBank, valDBank, valRoll;
+	double valPClimb, valIClimb, valDClimb, valClimbRate;
+	double valPRoll, valIRoll, valDRoll, valRoll;
 	double valPHeading, valIHeading, valDHeading, valHeading;
 	double valPCircle, valICircle, valDCircle, valCircle;
 

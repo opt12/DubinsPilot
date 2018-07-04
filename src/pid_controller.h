@@ -314,6 +314,13 @@ PIDControl
         
         inline double lastErrorGet() { return this->error; }
 
+        inline void PIDResetInternals() {
+        	iTerm = 0.0f;
+        	input = 0.0f;
+        	lastInput = 0.0f;
+        	output = 0.0f;
+        }
+
         //
         // Calculate the error to counteract upon. Overriding the default may
         // be used to have more complex forms of error calculation available

@@ -90,6 +90,9 @@ int main(int argc, char *argv[]) {
 	QObject::connect(pidParams,
 			SIGNAL(sigRequestedSetValueChanged(ctrlType, double)), &ap,
 			SLOT(requestCtrlTargetValue(ctrlType, double)));
+	QObject::connect(pidParams,
+			SIGNAL(sigCircleDirectionChanged(bool, double)), &ap,
+			SLOT(requestCircleDirection(bool, double)));
 
 	//connections from PIDParametersDialog --> DataCenter
 	QObject::connect(pidParams,
@@ -128,6 +131,8 @@ int main(int argc, char *argv[]) {
 			SLOT(setRollControlKnob(double)));
 	QObject::connect(&ap, SIGNAL(sigRequestClimb(double)), pidParams,
 			SLOT(setClimbRateControlKnob(double)));
+	QObject::connect(&ap, SIGNAL(sigRequestHeading(double)), pidParams,
+			SLOT(setHeadingControlKnob(double)));
 	std::cout<< "Connected AutoPilot --> PIDParametersDialog\n";
 
 

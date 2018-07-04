@@ -86,6 +86,14 @@ public:
 		return curDat.true_airspeed;
 	}
 
+	Position_WGS84 getPosition_WGS84() {
+		return curDat.pos.getOrigin_WGS84();
+	}
+
+	Position getPosition() {
+		return curDat.pos;
+	}
+
 public slots:
 //void setRequestedAltitude(double altitudeAboveGround);
 

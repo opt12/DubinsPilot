@@ -15,6 +15,9 @@
 #include <qwt_magnifier.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_knob.h>
+#include <qwt_compass.h>
+#include <qwt_compass_rose.h>
+#include <qwt_dial_needle.h>
 #include <math.h>       /* tan */
 #include "Dataset.h"
 #include "utils.h"
@@ -191,9 +194,11 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(KnobRoll, SIGNAL(valueChanged(double)), this,
 			SLOT(setBankingLabel(double)));
 
-	KnobHeading->setRange(-180, 180, 5.0);
-	KnobHeading->setTotalAngle(360.0);
-	connect(KnobHeading, SIGNAL(valueChanged(double)), this,
+	CompassHeading->setNeedle( new QwtDialSimpleNeedle( QwtDialSimpleNeedle::Arrow,
+            true, Qt::red ) );
+	CompassHeading->setRose(new QwtSimpleCompassRose( 4, 1 ));
+	CompassHeading->setRange(0.0, 360.0, 5.0, 1);
+	connect(CompassHeading, SIGNAL(valueChanged(double)), this,
 			SLOT(setHeadingLabel(double)));
 
 	KnobCircle->setRange(300, 1000, 10.0);
@@ -220,9 +225,8 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	checkBoxCircleController->setChecked(false);
 
 	connect(checkBoxRollController, SIGNAL(toggled(bool)), this,
-			SLOT(bankControlActiveStateChanged(bool)));
+			SLOT(rollControlActiveStateChanged(bool)));
 	ledIndicatorRoll->setChecked(false);
-
 
 	//logging
 	connect(toggleLogButton, SIGNAL(clicked()), this, SLOT(logButtonClicked()));
@@ -254,6 +258,13 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(pushButtonSubmitElf, SIGNAL(clicked()), this,
 			SLOT(submitElfData(void)));
 
+	connect(radioButtonCircleLeft, SIGNAL(clicked()), this,
+			SLOT(radioButtonCircleClicked()));
+	connect(radioButtonCircleRight, SIGNAL(clicked()), this,
+			SLOT(radioButtonCircleClicked()));
+
+
+
 	//TODO weil das eigentlich erst nach dem Connect passieren soll. aber für's Debugging
 //	checkBoxClimbController->setEnabled(true);
 //	checkBoxRollController->setEnabled(true);
@@ -272,7 +283,7 @@ void PIDParametersDialog::closeEvent(QCloseEvent *event) {
 }
 
 void PIDParametersDialog::setXPlaneConnection(bool active) {
-	if(ledIndicator->isChecked()!= active){
+	if (ledIndicator->isChecked() != active) {
 		qDebug() << "XPlane Connection changed" << endl;
 		ledIndicator->setChecked(active);
 		ledIndicatorRoll->setChecked(active);
@@ -365,8 +376,9 @@ void PIDParametersDialog::setDValue(void) {
 	double value = mantissa * exp10(exp);
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditDParameter->setText(QString::number(value, 'g'));
-	valD = value;
-	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
+	valDClimb = value;
+	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valPClimb, valIClimb,
+			valDClimb);
 }
 void PIDParametersDialog::setIValue(void) {
 	double mantissa = doubleSpinBoxIValue->value();
@@ -374,8 +386,9 @@ void PIDParametersDialog::setIValue(void) {
 	double value = mantissa * exp10(exp);
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditIParameter->setText(QString::number(value, 'g'));
-	valI = value;
-	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
+	valIClimb = value;
+	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valPClimb, valIClimb,
+			valDClimb);
 }
 void PIDParametersDialog::setPValue(void) {
 	double mantissa = doubleSpinBoxPValue->value();
@@ -383,8 +396,9 @@ void PIDParametersDialog::setPValue(void) {
 	double value = mantissa * exp10(exp);
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditPParameter->setText(QString::number(value, 'g'));
-	valP = value;
-	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
+	valPClimb = value;
+	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valPClimb, valIClimb,
+			valDClimb);
 }
 
 void PIDParametersDialog::setDSpinners(QString text) {
@@ -400,7 +414,7 @@ void PIDParametersDialog::setDSpinners(QString text) {
 	if (minExp <= exp && exp <= maxExp) {
 		doubleSpinBoxDValue->setValue(mantissa);
 		spinBoxExpDValue->setValue(exp);
-		valD = value;
+		valDClimb = value;
 	}
 }
 
@@ -417,7 +431,7 @@ void PIDParametersDialog::setPSpinners(QString text) {
 	if (minExp <= exp && exp <= maxExp) {
 		doubleSpinBoxPValue->setValue(mantissa);
 		spinBoxExpPValue->setValue(exp);
-		valP = value;
+		valPClimb = value;
 	}
 }
 
@@ -434,7 +448,7 @@ void PIDParametersDialog::setISpinners(QString text) {
 	if (minExp <= exp && exp <= maxExp) {
 		doubleSpinBoxIValue->setValue(mantissa);
 		spinBoxExpIValue->setValue(exp);
-		valI = value;
+		valIClimb = value;
 	}
 }
 
@@ -453,15 +467,19 @@ void PIDParametersDialog::setClimbRateControlKnob(double glideAngle) {
 	KnobClimb->setValue(glideAngle);
 }
 
+void PIDParametersDialog::setHeadingControlKnob(double requestedHeading) {
+	CompassHeading->setValue(requestedHeading);
+}
+
 void PIDParametersDialog::setDValueBank(void) {
 	double mantissa = doubleSpinBoxDValueBank->value();
 	int exp = spinBoxExpDValueBank->value();
 	double value = mantissa * exp10(exp);
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditDParameterBank->setText(QString::number(value, 'g'));
-	valDBank = value;
-	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPBank, valIBank,
-			valDBank);
+	valDRoll = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPRoll, valIRoll,
+			valDRoll);
 }
 void PIDParametersDialog::setIValueBank(void) {
 	double mantissa = doubleSpinBoxIValueBank->value();
@@ -469,9 +487,9 @@ void PIDParametersDialog::setIValueBank(void) {
 	double value = mantissa * exp10(exp);
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditIParameterBank->setText(QString::number(value, 'g'));
-	valIBank = value;
-	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPBank, valIBank,
-			valDBank);
+	valIRoll = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPRoll, valIRoll,
+			valDRoll);
 }
 void PIDParametersDialog::setPValueBank(void) {
 	double mantissa = doubleSpinBoxPValueBank->value();
@@ -479,9 +497,9 @@ void PIDParametersDialog::setPValueBank(void) {
 	double value = mantissa * exp10(exp);
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditPParameterBank->setText(QString::number(value, 'g'));
-	valPBank = value;
-	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPBank, valIBank,
-			valDBank);
+	valPRoll = value;
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPRoll, valIRoll,
+			valDRoll);
 }
 
 void PIDParametersDialog::setDSpinnersBank(QString text) {
@@ -495,7 +513,7 @@ void PIDParametersDialog::setDSpinnersBank(QString text) {
 	if (minExp <= exp && exp <= maxExp) {
 		doubleSpinBoxDValueBank->setValue(mantissa);
 		spinBoxExpDValueBank->setValue(exp);
-		valDBank = value;
+		valDRoll = value;
 	}
 }
 
@@ -510,7 +528,7 @@ void PIDParametersDialog::setPSpinnersBank(QString text) {
 	if (minExp <= exp && exp <= maxExp) {
 		doubleSpinBoxPValueBank->setValue(mantissa);
 		spinBoxExpPValueBank->setValue(exp);
-		valP = value;
+		valPRoll = value;
 	}
 }
 
@@ -525,7 +543,7 @@ void PIDParametersDialog::setISpinnersBank(QString text) {
 	if (minExp <= exp && exp <= maxExp) {
 		doubleSpinBoxIValueBank->setValue(mantissa);
 		spinBoxExpIValueBank->setValue(exp);
-		valIBank = value;
+		valIRoll = value;
 	}
 }
 
@@ -599,7 +617,7 @@ void PIDParametersDialog::setPSpinnersHeading(QString text) {
 	if (minExp <= exp && exp <= maxExp) {
 		doubleSpinBoxPValueHeading->setValue(mantissa);
 		spinBoxExpPValueHeading->setValue(exp);
-		valP = value;
+		valPHeading = value;
 	}
 }
 
@@ -634,8 +652,8 @@ void PIDParametersDialog::setDValueCircle(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditDParameterCircle->setText(QString::number(value, 'g'));
 	valDCircle = value;
-	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle, valICircle,
-			valDCircle);
+	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
+			valICircle, valDCircle);
 }
 void PIDParametersDialog::setIValueCircle(void) {
 	double mantissa = doubleSpinBoxIValueCircle->value();
@@ -644,8 +662,8 @@ void PIDParametersDialog::setIValueCircle(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditIParameterCircle->setText(QString::number(value, 'g'));
 	valICircle = value;
-	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle, valICircle,
-			valDCircle);
+	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
+			valICircle, valDCircle);
 }
 void PIDParametersDialog::setPValueCircle(void) {
 	double mantissa = doubleSpinBoxPValueCircle->value();
@@ -654,8 +672,8 @@ void PIDParametersDialog::setPValueCircle(void) {
 //	qDebug()<< "value changed: " << value << endl;
 	lineEditPParameterCircle->setText(QString::number(value, 'g'));
 	valPCircle = value;
-	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle, valICircle,
-			valDCircle);
+	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
+			valICircle, valDCircle);
 }
 
 void PIDParametersDialog::setDSpinnersCircle(QString text) {
@@ -684,7 +702,7 @@ void PIDParametersDialog::setPSpinnersCircle(QString text) {
 	if (minExp <= exp && exp <= maxExp) {
 		doubleSpinBoxPValueCircle->setValue(mantissa);
 		spinBoxExpPValueCircle->setValue(exp);
-		valP = value;
+		valPCircle = value;
 	}
 }
 
@@ -714,45 +732,50 @@ void PIDParametersDialog::setCircleLabel(double radius) {
 }
 
 void PIDParametersDialog::tempomatActiveStateChanged(bool active) {
-	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valP, valI, valD);
+	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valPClimb, valIClimb,
+			valDClimb);
 	emit sigRequestedSetValueChanged(ctrlType::CLIMB_CONTROL, valClimbRate);
 	emit sigCtrlActiveStateChanged(ctrlType::CLIMB_CONTROL, active);
 }
 
-void PIDParametersDialog::bankControlActiveStateChanged(bool active) {
+void PIDParametersDialog::rollControlActiveStateChanged(bool active) {
 	emit sigCtrlActiveStateChanged(ctrlType::ROLL_CONTROL, active);
 	emit sigRequestedSetValueChanged(ctrlType::ROLL_CONTROL, valRoll);
-	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPBank, valIBank,
-			valDBank);
+	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPRoll, valIRoll,
+			valDRoll);
 }
 
 void PIDParametersDialog::headingControlActiveStateChanged(bool active) {
-//	// we need to activate the roll control
-//	bankControlActiveStateChanged(active);
-//	//and we also want to enable the climb controller
-//	tempomatActiveStateChanged(active);
-	emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, active);
+	//we need the roll controller for circle flight
+	rollControlActiveStateChanged(true);
+	checkBoxRollController->setChecked(true);//the heading control uses the roll controller on low level
+	// while the heading control is active, we don't want anybody else control the low level controllers
+	checkBoxRollController->setEnabled(!active);
+
 	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, valHeading);
 	emit sigPidParametersChanged(ctrlType::HEADING_CONTROL, valPHeading,
 			valIHeading, valDHeading);
-//	TODO// while the heading control is active, we don't want anybody else control the low level controllers
-	checkBoxRollController->setChecked(true);	//the heading control uses the roll controller on low level
-	checkBoxRollController->setEnabled(!active);
-	checkBoxClimbController->setEnabled(!active);
+	emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, active);
 }
 void PIDParametersDialog::circleControlActiveStateChanged(bool active) {
-	// we need to activate the roll control
-	bankControlActiveStateChanged(active);
-	//and we also want to enable the climb controller
-	tempomatActiveStateChanged(active);
-	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, active);
+	//we need the heading controller for circle flight
+	headingControlActiveStateChanged(true);
+	checkBoxHeadingController->setChecked(true);
+	// while the heading control is active, we don't want anybody else control the low level controllers
+	checkBoxHeadingController->setEnabled(!active);
+
 	emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, valCircle);
 	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
 			valICircle, valDCircle);
-//	TODO// while the heading control is active, we don't want anybody else control the low level controllers
-//	checkBoxRollController->setEnabled(!active);
-//	checkBoxClimbController->setEnabled(!active);
+	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(), valCircle);
+	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, active);
 }
+
+void PIDParametersDialog::radioButtonCircleClicked(void){
+	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(), valCircle);
+}
+
+
 
 void PIDParametersDialog::readSettings() {
 	QSettings settings("EEE", "PID_Parameters");
@@ -761,57 +784,87 @@ void PIDParametersDialog::readSettings() {
 
 	restoreGeometry(settings.value("geometry").toByteArray());
 
-	valP = settings.value("valP").toDouble();
-	qDebug() << "valP: " << valP;
-	lineEditPParameter->setText(QString::number(valP, 'g'));
-	valI = settings.value("valI").toDouble();
-	qDebug() << "\tvalI: " << valI;
-	lineEditIParameter->setText(QString::number(valI, 'g'));
-	valD = settings.value("valD").toDouble();
-	qDebug() << "\tvalD: " << valD;
-	lineEditDParameter->setText(QString::number(valD, 'g'));
+	valPClimb = settings.value("valPClimb").toDouble();
+	qDebug() << "valP: " << valPClimb;
+	lineEditPParameter->setText(QString::number(valPClimb, 'g'));
+	valIClimb = settings.value("valIClimb").toDouble();
+	qDebug() << "\tvalI: " << valIClimb;
+	lineEditIParameter->setText(QString::number(valIClimb, 'g'));
+	valDClimb = settings.value("valDClimb").toDouble();
+	qDebug() << "\tvalD: " << valDClimb;
+	lineEditDParameter->setText(QString::number(valDClimb, 'g'));
 	valClimbRate = settings.value("valClimbRate").toDouble();
 	KnobClimb->setValue(valClimbRate);
 	setClimbRateLabel(valClimbRate);//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
-	qDebug() << "\tvalSpeed: " << valClimbRate << endl;
-	checkBoxClimbController->setChecked(
-			settings.value("climbControlActive").toBool());
+	qDebug() << "\tvalClimbRate: " << valClimbRate << endl;
+//	checkBoxClimbController->setChecked(
+//			settings.value("climbControlActive").toBool());
 
-	valPBank = settings.value("valPBank").toDouble();
-	qDebug() << "valPBank: " << valPBank;
-	lineEditPParameterBank->setText(QString::number(valPBank, 'g'));
-	valIBank = settings.value("valIBank").toDouble();
-	qDebug() << "\tvalIBank: " << valIBank;
-	lineEditIParameterBank->setText(QString::number(valIBank, 'g'));
-	valDBank = settings.value("valDBank").toDouble();
-	qDebug() << "\tvalDBank: " << valDBank;
-	lineEditDParameterBank->setText(QString::number(valDBank, 'g'));
-	valRoll = settings.value("valBanking").toDouble();
+	valPRoll = settings.value("valPRoll").toDouble();
+	qDebug() << "valPBank: " << valPRoll;
+	lineEditPParameterBank->setText(QString::number(valPRoll, 'g'));
+	valIRoll = settings.value("valIRoll").toDouble();
+	qDebug() << "\tvalIBank: " << valIRoll;
+	lineEditIParameterBank->setText(QString::number(valIRoll, 'g'));
+	valDRoll = settings.value("valDRoll").toDouble();
+	qDebug() << "\tvalDBank: " << valDRoll;
+	lineEditDParameterBank->setText(QString::number(valDRoll, 'g'));
+	valRoll = settings.value("valRoll").toDouble();
 	KnobRoll->setValue(valRoll);
 	setBankingLabel(valRoll);//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
 	qDebug() << "\tvalBanking: " << valRoll << endl;
-	checkBoxRollController->setChecked(
-			settings.value("rollControlActive").toBool());
+//	checkBoxRollController->setChecked(
+//			settings.value("rollControlActive").toBool());
+
+	valPHeading = settings.value("valPHeading").toDouble();
+	lineEditPParameterHeading->setText(QString::number(valPHeading, 'g'));
+	valIHeading = settings.value("valIHeading").toDouble();
+	lineEditIParameterHeading->setText(QString::number(valIHeading, 'g'));
+	valDHeading = settings.value("valDHeading").toDouble();
+	lineEditDParameterHeading->setText(QString::number(valDHeading, 'g'));
+	valHeading = settings.value("valHeading").toDouble();
+	CompassHeading->setValue(valHeading);
+	setHeadingLabel(valHeading);//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
+
+	valPCircle = settings.value("valPCircle").toDouble();
+	lineEditPParameterCircle->setText(QString::number(valPCircle, 'g'));
+	valICircle = settings.value("valICircle").toDouble();
+	lineEditIParameterCircle->setText(QString::number(valICircle, 'g'));
+	valDCircle = settings.value("valDCircle").toDouble();
+	lineEditDParameterCircle->setText(QString::number(valDCircle, 'g'));
+	valCircle = settings.value("valCircle").toDouble();
+	KnobCircle->setValue(valCircle);
+	setCircleLabel(valCircle);//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
 
 	initialLogFileDir = settings.value("initialLogFileDir").toString();
 }
 
 void PIDParametersDialog::writeSettings() {
 	QSettings settings("EEE", "PID_Parameters");
-	qDebug() << "Saving: valP: " << valP;
-	qDebug() << "\tvalI: " << valI;
-	qDebug() << "\tvalD: " << valD;
+	qDebug() << "Saving: valP: " << valPClimb;
+	qDebug() << "\tvalI: " << valIClimb;
+	qDebug() << "\tvalD: " << valDClimb;
 	qDebug() << "\tvalSpeed: " << valClimbRate << endl;
 
-	settings.setValue("valP", QVariant::fromValue(valP));
-	settings.setValue("valI", QVariant::fromValue(valI));
-	settings.setValue("valD", QVariant::fromValue(valD));
+	settings.setValue("valPClimb", QVariant::fromValue(valPClimb));
+	settings.setValue("valIClimb", QVariant::fromValue(valIClimb));
+	settings.setValue("valDClimb", QVariant::fromValue(valDClimb));
 	settings.setValue("valClimbRate", QVariant::fromValue(valClimbRate));
 
-	settings.setValue("valPBank", QVariant::fromValue(valPBank));
-	settings.setValue("valIBank", QVariant::fromValue(valIBank));
-	settings.setValue("valDBank", QVariant::fromValue(valDBank));
-	settings.setValue("valBanking", QVariant::fromValue(valRoll));
+	settings.setValue("valPRoll", QVariant::fromValue(valPRoll));
+	settings.setValue("valIRoll", QVariant::fromValue(valIRoll));
+	settings.setValue("valDRoll", QVariant::fromValue(valDRoll));
+	settings.setValue("valRoll", QVariant::fromValue(valRoll));
+
+	settings.setValue("valPHeading", QVariant::fromValue(valPHeading));
+	settings.setValue("valIHeading", QVariant::fromValue(valIHeading));
+	settings.setValue("valDHeading", QVariant::fromValue(valDHeading));
+	settings.setValue("valHeading", QVariant::fromValue(valHeading));
+
+	settings.setValue("valPCircle", QVariant::fromValue(valPCircle));
+	settings.setValue("valICircle", QVariant::fromValue(valICircle));
+	settings.setValue("valDCircle", QVariant::fromValue(valDCircle));
+	settings.setValue("valCircle", QVariant::fromValue(valCircle));
 
 	settings.setValue("initialLogFileDir",
 			QVariant::fromValue(initialLogFileDir));
@@ -999,11 +1052,11 @@ void PIDParametersDialog::setupPlot(void) {
 	qwtPlotCircle->setAxisTitle(qwtPlotCircle->xBottom, "t -->");
 	qwtPlotCircle->setAxisScale(qwtPlotCircle->xBottom, 0.0, plotDataSize);
 
-	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yLeft, "Circle angle [deg] -->");
-	qwtPlotCircle->setAxisScale(qwtPlotCircle->yLeft, -30, 30);
+	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yLeft, "Circle Radius [m] -->");
+	qwtPlotCircle->setAxisScale(qwtPlotCircle->yLeft, 250, 1050);
 
-	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yRight, "<-- aileron");
-	qwtPlotCircle->setAxisScale(qwtPlotCircle->yRight, -0.75, 0.75);
+	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yRight, "<-- Roll Correction [deg]");
+	qwtPlotCircle->setAxisScale(qwtPlotCircle->yRight, -5, 5);
 
 	qwtPlotCircle->enableAxis(QwtPlot::xBottom);
 	qwtPlotCircle->enableAxis(QwtPlot::yLeft);
@@ -1049,11 +1102,11 @@ void PIDParametersDialog::setupPlot(void) {
 	qwtPlotHeading->setAxisScale(qwtPlotHeading->xBottom, 0.0, plotDataSize);
 
 	qwtPlotHeading->setAxisTitle(qwtPlotHeading->yLeft,
-			"Heading angle [deg] -->");
-	qwtPlotHeading->setAxisScale(qwtPlotHeading->yLeft, -30, 30);
+			"Heading Angle [deg] -->");
+	qwtPlotHeading->setAxisScale(qwtPlotHeading->yLeft, 0, 360);
 
-	qwtPlotHeading->setAxisTitle(qwtPlotHeading->yRight, "<-- aileron");
-	qwtPlotHeading->setAxisScale(qwtPlotHeading->yRight, -0.75, 0.75);
+	qwtPlotHeading->setAxisTitle(qwtPlotHeading->yRight, "<-- Roll Setpoint [deg]");
+	qwtPlotHeading->setAxisScale(qwtPlotHeading->yRight, -30, 30);
 
 	qwtPlotHeading->enableAxis(QwtPlot::xBottom);
 	qwtPlotHeading->enableAxis(QwtPlot::yLeft);

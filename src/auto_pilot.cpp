@@ -31,12 +31,12 @@ AutoPilot::AutoPilot(QObject* parent) :
 		emit sigSendXPDataRef("sim/joystick/yoke_pitch_ratio", _output);
 	};
 	ctrl[ctrlType::CLIMB_CONTROL].getMeasurement = [this](void)
-	{// wir müssen den Gleitwinkel selber rechnen aus true_airspeed und sinkrate
-	 // der von XPlane ausgegebene Winkel ist bezogen auf ground_speed und damit bei wind unbrauchbar.
+	{ // wir müssen den Gleitwinkel selber rechnen aus true_airspeed und sinkrate
+	  // der von XPlane ausgegebene Winkel ist bezogen auf ground_speed und damit bei wind unbrauchbar.
 				double tas = dc->getTrue_airspeed();
 				double sinkrate = dc->getVh_ind();
-	 //in case we have no airspeed measurement yet, we must avoid div by zero and just return the requested target value
-	 // dirty but effective.
+	  //in case we have no airspeed measurement yet, we must avoid div by zero and just return the requested target value
+	  // dirty but effective.
 				return tas != 0.0? to_degrees(atan(sinkrate/tas)) : ctrl[ctrlType::CLIMB_CONTROL].requestedTargetValue;
 			};
 
@@ -50,7 +50,7 @@ AutoPilot::AutoPilot(QObject* parent) :
 			[this](void) {return dc->getTrue_phi();};
 
 	ctrl[ctrlType::HEADING_CONTROL].controller = new PIDControl(1.0, 0.0, 0.0,
-			0.1, -30.0, 30.0, MANUAL, REVERSE);
+			0.1, -40.0, 40.0, MANUAL, REVERSE);
 	ctrl[ctrlType::HEADING_CONTROL].publishOutput = [this](double output)
 	{
 		ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue = output;	//set the roll target for the lower level controller
@@ -58,9 +58,8 @@ AutoPilot::AutoPilot(QObject* parent) :
 		};
 	ctrl[ctrlType::HEADING_CONTROL].getMeasurement = [this](void) {
 		double true_psi = dc->getTrue_psi();
-		true_psi = true_psi>180.0?true_psi-360: true_psi;//convert to (-180, 180]
-			return true_psi;
-		};
+		return true_psi;
+	};
 	ctrl[ctrlType::HEADING_CONTROL].controller->calculateError =
 			[this](double _setpoint, double _input)
 			{
@@ -68,7 +67,19 @@ AutoPilot::AutoPilot(QObject* parent) :
 			};
 
 	ctrl[ctrlType::RADIUS_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0,
-			0.1, -30.0, 30.0, MANUAL, DIRECT);
+			0.1, -180.0, 180.0, MANUAL, DIRECT);
+	ctrl[ctrlType::RADIUS_CONTROL].getMeasurement = [this](void) {
+		// the target value is the radius of the circle
+			Position curPos = dc->getPosition();
+			return curPos.getDistanceCart(circleCenter);
+		};
+	ctrl[ctrlType::RADIUS_CONTROL].publishOutput = [this](double output)
+	{
+		// TODO erstmal nix machen, sondern nur staunen
+		circleRadiusCorrection = output;
+		//		ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue += output;	//add the radius correction
+//			emit sigRequestRoll(ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue);//adapt the knob in the GUI
+		};
 
 	//hier kann ich noch keinen attach ausführen, weil die Verbindung in main noch nicht besteht.
 	// Aber ich kann den attach in die event queue einreihen und dann geht das.
@@ -80,7 +91,6 @@ AutoPilot::AutoPilot(QObject* parent) :
 }
 
 AutoPilot::~AutoPilot() {
-	// TODO Auto-generated destructor stub
 	free(ctrl[ctrlType::CLIMB_CONTROL].controller);
 	free(ctrl[ctrlType::ROLL_CONTROL].controller);
 	free(ctrl[ctrlType::HEADING_CONTROL].controller);
@@ -137,6 +147,9 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 			emit sigSendXPDataRef(
 					"sim/operation/override/override_joystick_roll", true);
 		}
+		if (_ct == +ctrlType::RADIUS_CONTROL) {
+			circleFlightActive = active;
+		}
 	} else {
 		std::cout << _ct._to_string() << " deactivated\n";
 		ctrl[_ct].controller->PIDModeSet(MANUAL);
@@ -150,12 +163,20 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 			emit sigSendXPDataRef(
 					"sim/operation/override/override_joystick_roll", false);
 		}
+		if (_ct == +ctrlType::RADIUS_CONTROL) {
+			circleFlightActive = active;
+		}
+		if (_ct == +ctrlType::HEADING_CONTROL) {
+			//we want to go straight afterwards
+			ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue = 0.0;//set the roll target for the lower level controller
+			emit sigRequestRoll(0.0);	//adapt the knob in the GUI
+		}
 	}
 }
 
 void AutoPilot::requestCtrlTargetValue(ctrlType _ct, double _targetValue) {
 	ctrl[_ct].requestedTargetValue = _targetValue;
-	if (debug) {
+	if (false && debug) {
 		std::cout << "New targetValue requested for " << _ct._to_string()
 				<< ": targetValue= " << _targetValue << ";\n";
 		dc->setRequestedTargetValue(_ct, _targetValue);
@@ -172,7 +193,36 @@ void AutoPilot::setControllerParameters(ctrlType _ct, double _p, double _i,
 			<< _p << "; I= " << _i << "; D= " << _d << ";\n";
 }
 
+void AutoPilot::requestCircleDirection(bool isLeftCircle, double radius) {
+	circleDirectionLeft = isLeftCircle;
+	//set the controller direction
+	isLeftCircle ?
+			ctrl[ctrlType::RADIUS_CONTROL].controller->PIDControllerDirectionSet(
+					DIRECT) :
+			ctrl[ctrlType::RADIUS_CONTROL].controller->PIDControllerDirectionSet(
+					REVERSE);
+	//set the centerpoint of the circle. This is either left or right of the current position;
+	double deltaX, deltaY;
+	rotatePoint(0, radius, dc->getTrue_psi() + (isLeftCircle ? -90.0 : +90),
+			deltaX, deltaY);
+	circleCenter = Position(dc->getPosition().getPosition_WGS84(), deltaX,
+			deltaY, 0.0);
+	//TODO I Anteil im Regler auf jeden Fall zurücksetzen.
+	ctrl[ctrlType::RADIUS_CONTROL].controller->PIDResetInternals();
+	std::cout << "Current_Position: \t"<< dc->getPosition().getPosition_Cart().asJson()<< std::endl;
+	std::cout << "Circle Center Po: \t"<< circleCenter.getPosition_Cart().asJson()<< std::endl;
+}
+
 void AutoPilot::timerExpired(void) {
+
+	if(circleFlightActive){
+		// when in circle flight, we need to permanently update the heading
+		double circleAngle = circleCenter.getHeadingCart(dc->getPosition());
+		double newHeading = circleAngle + (circleDirectionLeft?-90.0:+90.0) + circleRadiusCorrection;
+		ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = fmod(newHeading, 360.0);
+//		std::cout << "CircleFlight Direction = "<< ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue<<"\n";
+		emit sigRequestHeading(ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue);//adapt the knob in the GUI
+	}
 
 	//calculate new control output for all controllers
 	for (ctrlType c : ctrlType::_values()) {
@@ -182,11 +232,8 @@ void AutoPilot::timerExpired(void) {
 		ctrl[c].controller->PIDCompute();
 		if (ctrl[c].controlActive) {
 			ctrl[c].output = ctrl[c].controller->PIDOutputGet();
-			//TODO hier müssen die higher level controller stattdessen den set value der lower levels ändern
-			//TODO Reihenfolge beachten!!!
 			ctrl[c].publishOutput(ctrl[c].output);
-			//			emit sigSendXPDataRef(ctrl[c].dataRef, ctrl[c].output);
-			//TODO
+			//TODO false wieder rausnehmen und dafür debug richtig setzen in dialogbox
 			if (false && debug && !(count % 10)) {
 				std::cout << c._to_string() << ": currentValue = "
 						<< ctrl[c].currentValue << ";\trequestedTargetValue = "

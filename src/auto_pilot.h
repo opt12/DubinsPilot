@@ -44,7 +44,7 @@ private:
 		double requestedTargetValue=0.0;
 		double currentValue=0.0;
 		std::function<double(void)> getMeasurement = [this](void){return 0.0;};
-		std::function<void(double output)> publishOutput = [this](double output) {};
+		std::function<void(double output)> publishOutput = [this](double output) {return output;};
 		double output=0.0;
 		bool controlActive = false;
 		QwtPlotCurve *currentValueCurve=NULL, *outputValueCurve=NULL;
@@ -59,6 +59,7 @@ public slots:
 	void invokeController(ctrlType ctrl, bool active);
 	void requestCtrlTargetValue(ctrlType ctrl, double target);
 	void setControllerParameters(ctrlType ctrl, double P, double I, double D);
+	void requestCircleDirection(bool isLeftCircle, double radius);
 
 	private slots:
 	void attachPlots(void);
@@ -73,6 +74,7 @@ signals:
 
 	void sigRequestRoll(double requestedRoll);
 	void sigRequestClimb(double requestedClimb);
+	void sigRequestHeading(double requestedHeading);
 
 private:
 	static DataCenter *dc;
@@ -82,6 +84,12 @@ private:
 
 	int count=0;
 	bool debug = true;
+
+	//For flying circles
+	bool circleDirectionLeft = true;	//TODO kann ich das auch sinnvoll im Controller unterbringen?
+	Position circleCenter = Position();
+	bool circleFlightActive = false;
+	double circleRadiusCorrection = 0.0;
 
 private slots:
 	void timerExpired(void);

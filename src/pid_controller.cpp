@@ -91,6 +91,7 @@ bool PIDControl::PIDCompute() {
 
 	// Take the "derivative on measurement" instead of "derivative on error"
 	dInput = input - lastInput;
+	dInput = calculateError(input, lastInput);
 //    std::cout<< "dInput = "<<dInput<<std::endl;
 	// Run all the terms together to get the overall output
 	output = alteredKp * error + iTerm - alteredKd * dInput;
