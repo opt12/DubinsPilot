@@ -37,7 +37,6 @@ template<typename T> int sgn(T val) {
 DataCenter * DataCenter::instance = NULL;
 int DataCenter::UPDATE_RATE = 20;
 
-
 DataCenter::DataCenter(QObject* parent) :
 		QObject(parent) {
 
@@ -48,7 +47,7 @@ DataCenter::DataCenter(QObject* parent) :
 	QObject::connect(basicTimer, SIGNAL(timeout()), this, SLOT(timerExpired()));
 
 	//TODO XXX comment out to Debug
-	connectToXPlane();	//TODO Das funktioniert nicht immer zuverlässig. Was ist da los?
+	connectToXPlane();//TODO Das funktioniert nicht immer zuverlässig. Was ist da los?
 //	QTimer::singleShot(0, this, setConnected(true));	//only enqueue this into the event queue
 }
 
@@ -76,12 +75,27 @@ void DataCenter::timerExpired(void) {
 
 	//store curDat to archive
 	curDat.timestamp = QTime::currentTime();
-	dataSeries.push_back(curDat);	//copies the curDat and is hence save to use here
+	dataSeries.push_back(curDat);//copies the curDat and is hence save to use here
+
+	//integrate over the windDisplacement
+	// when the direction is updated, I also update the integration over the wind displacement
+	curDat.windDisplacement.x -= sin(to_radians(curDat.wind_direction_degt))
+			* curDat.wind_speed_ms / (1000/timerMilliseconds);
+	curDat.windDisplacement.y -= cos(to_radians(curDat.wind_direction_degt))
+			* curDat.wind_speed_ms / (1000/timerMilliseconds);
+	{static int count = 0;
+	if(!(count%(1000/timerMilliseconds)))
+			std::cout << "timestamp: "<< QTime::currentTime().toString("hh:mm:ss.zzz").toStdString().c_str()<<";\twindDisplacement: "
+					<< curDat.windDisplacement.asJson().dump(4)
+					<< std::endl;
+	count++;
+	}
+
 
 	//send the entire Dataset out to the ipc-socket The node.js app can listen if it wants to
 	//no need to implement a question answer protocol
 	//TODO das sollte wirklich alle 100msec raus und nicht nur jede Sekunde
-	if(!(count%1)){
+	if (!(count % 1)) {
 		on_rqd_requested_getPlaneState(0);
 	}
 
@@ -158,15 +172,18 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 		curDat.roll_electric_deg_pilot = value;
 		break;
 	case hash("sim/weather/wind_direction_degt"):
+		if (fabs(curDat.wind_direction_degt - value) >= 0.1) {
+			emit sigWindChanged(value, curDat.wind_speed_ms);
+		}
 		curDat.wind_direction_degt = value;
-		// when the direction is updated, I also update the integration over the wind displacement
-		curDat.windDisplacement.x += sin(to_radians(value))
-				* curDat.wind_speed_ms/UPDATE_RATE;
-		curDat.windDisplacement.y += cos(to_radians(value))
-				* curDat.wind_speed_ms/UPDATE_RATE;
 		break;
 	case hash("sim/weather/wind_speed_kt"):
-		curDat.wind_speed_ms = knots_to_ms(value);
+		if (fabs(curDat.wind_speed_ms - value) >= 0.1) {
+		// XXX In contrast to the docs, wind speed is given directly in m/s instead of knots;
+			emit sigWindChanged(curDat.wind_direction_degt, (value<=0.1)?0.0:value);
+		}
+		// XXX In contrast to the docs, wind speed is given directly in m/s instead of knots;
+		curDat.wind_speed_ms = value;
 		break;
 	default:
 		break;
@@ -197,14 +214,12 @@ void DataCenter::connectToXPlane() {
 //
 
 void DataCenter::on_rqd_requested_getPosition(int requestId) {
-	emit sigSocketSendData(std::string("POSITION"),
-			requestId,
+	emit sigSocketSendData(std::string("POSITION"), requestId,
 			curDat.getPosition_WGS84().asJson());
 }
 
 void DataCenter::on_rpd_requested_getPositionXY(int requestId) {
-	emit sigSocketSendData(std::string("POSITION_XY"),
-			requestId,
+	emit sigSocketSendData(std::string("POSITION_XY"), requestId,
 			curDat.getPosition_Cart().asJson());
 }
 
@@ -212,31 +227,34 @@ void DataCenter::on_rqd_requested_getOrigin(int requestId) {
 }
 
 void DataCenter::on_rqd_requested_getPlaneState(int requestId) {
-		emit sigSocketSendData(std::string("PLANE_STATE"),
-				requestId,
-				curDat.asJson());
+	emit sigSocketSendData(std::string("PLANE_STATE"), requestId,
+			curDat.asJson());
 }
 
-void DataCenter::setElfLocation(double forward, double right, double height, double rotation){
+void DataCenter::setElfLocation(double forward, double right, double height,
+		double rotation) {
 	//we don't necessarily need the origin set to define an ELF file
 	//we only need it when starting to calculate the path to do this in XY cartesian coords
-	curDat.setElfPos_relative(forward, right, height, rotation);	//relative to current position
-	std::cout << "ELF set to "<< curDat.elf.getPosition_WGS84().asJson().dump(4)<< std::endl;
+	curDat.setElfPos_relative(forward, right, height, rotation);//relative to current position
+	std::cout << "ELF set to "
+			<< curDat.elf.getPosition_WGS84().asJson().dump(4) << std::endl;
 	std::cout << "ELF heading set to " << curDat.elfHeading << std::endl;
-	std::cout << "ELF distance from here is " << curDat.pos.getDistanceCart(curDat.elf);
-	std::cout << ", heading is "<< curDat.pos.getHeadingCart(curDat.elf) << std::endl;
-
+	std::cout << "ELF distance from here is "
+			<< curDat.pos.getDistanceCart(curDat.elf);
+	std::cout << ", heading is " << curDat.pos.getHeadingCart(curDat.elf)
+			<< std::endl;
 
 	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(),
 			curDat.elf.getPosition_Cart(), curDat.elfHeading);
 }
 
-void DataCenter::setOrigin(void){
-	Position_WGS84 pos =  curDat.getPosition_WGS84();
+void DataCenter::setOrigin(void) {
+	Position_WGS84 pos = curDat.getPosition_WGS84();
 	Position::setOrigin(pos);
 	originSet = true;
-	std::cout <<"Origin set to: " << Position::getOrigin_WGS84().asJson().dump(4) << std::endl;
-	if(outLog){
+	std::cout << "Origin set to: "
+			<< Position::getOrigin_WGS84().asJson().dump(4) << std::endl;
+	if (outLog) {
 		//insert the new Origin into the logfile, if it exists
 		QString origin = "origin:\n"
 				"latitude;"
@@ -255,7 +273,7 @@ void DataCenter::setOrigin(void){
 			curDat.elf.getPosition_Cart(), curDat.elfHeading);
 }
 
-void DataCenter::resetWindDisplacement(void){
+void DataCenter::resetWindDisplacement(void) {
 	curDat.resetWindDisplacement();
 }
 
@@ -263,7 +281,7 @@ void DataCenter::invokeLogging(bool active, QFile* fileLog) {
 	loggingActive = active;
 	if (active) {
 		outLog = new QTextStream(fileLog);
-		if(! originSet){
+		if (!originSet) {
 			setOrigin();
 			resetWindDisplacement();
 		}
@@ -276,19 +294,17 @@ void DataCenter::invokeLogging(bool active, QFile* fileLog) {
 			<< fileLog->fileName().toStdString() << std::endl;
 }
 
-void DataCenter::SendXPDataRef(const char* dataRefName, double value){
-		if (xp) {
-			xp->setDataRef(dataRefName, value);
-		}
+void DataCenter::SendXPDataRef(const char* dataRefName, double value) {
+	if (xp) {
+		xp->setDataRef(dataRefName, value);
+	}
 }
 
-void DataCenter::SendXPDataRef(const char* dataRefName, bool state){
+void DataCenter::SendXPDataRef(const char* dataRefName, bool state) {
 	if (xp) {
 		xp->setDataRef(dataRefName, state);
 	}
 }
-
-
 
 void DataCenter::setConnected(bool connected) {
 	if (connected != this->connected) {
@@ -305,22 +321,26 @@ void DataCenter::setConnected(bool connected) {
 		xp = new XPlaneUDPClient(host, port,
 				[this](std::string dataref, float value) {
 					return receiverCallbackFloat(dataref, value);
-				},
-				[this](std::string dataref, std::string value) {
+				}, [this](std::string dataref, std::string value) {
 					return receiverCallbackString(dataref, value);
 				});
 		xp->setDebug(0);
 
-		xp->subscribeDataRef("sim/flightmodel/position/indicated_airspeed", UPDATE_RATE);
-		xp->subscribeDataRef("sim/flightmodel/position/true_airspeed", UPDATE_RATE);
-		xp->subscribeDataRef("sim/flightmodel/position/groundspeed", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/indicated_airspeed",
+				UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/true_airspeed",
+				UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/groundspeed",
+				UPDATE_RATE);
 
-		xp->subscribeDataRef("sim/flightmodel/position/vh_ind_fpm", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/vh_ind_fpm",
+				UPDATE_RATE);
 		xp->subscribeDataRef("sim/flightmodel/position/vh_ind", UPDATE_RATE);
 
 		xp->subscribeDataRef("sim/flightmodel/position/vpath", UPDATE_RATE);
 		xp->subscribeDataRef("sim/flightmodel/position/alpha", UPDATE_RATE);
-		xp->subscribeDataRef("sim/flightmodel/position/true_theta", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/true_theta",
+				UPDATE_RATE);
 		xp->subscribeDataRef("sim/flightmodel/position/true_phi", UPDATE_RATE);
 		xp->subscribeDataRef("sim/flightmodel/position/true_psi", UPDATE_RATE);
 
@@ -331,7 +351,9 @@ void DataCenter::setConnected(bool connected) {
 				UPDATE_RATE);
 		xp->subscribeDataRef("sim/flightmodel/position/y_agl", UPDATE_RATE);
 		xp->subscribeDataRef(
-				"sim/cockpit2/gauges/indicators/roll_electric_deg_pilot", UPDATE_RATE);
+				"sim/cockpit2/gauges/indicators/roll_electric_deg_pilot",
+				UPDATE_RATE);
+		// XXX at least the wind is not emitted with the subscribed update rate!!!
 		xp->subscribeDataRef("sim/weather/wind_direction_degt", UPDATE_RATE);
 		xp->subscribeDataRef("sim/weather/wind_speed_kt", UPDATE_RATE);
 

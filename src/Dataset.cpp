@@ -70,8 +70,8 @@ QString Dataset::csvDataRecord() {
 			+ QString::number(pos.getPosition_Cart().z, 'g', 8) + ";"
 			+ QString::number(wind_direction_degt, 'g', 6) + ";"
 			+ QString::number(wind_speed_ms, 'g', 6) + ";"
-			+ QString::number(windDisplacement.x, 'g', 6) + ";"
-			+ QString::number(windDisplacement.y, 'g', 6) + ";" + "\n";
+			+ QString::number(windDisplacement.x, 'g', 12) + ";"
+			+ QString::number(windDisplacement.y, 'g', 12) + ";" + "\n";
 }
 
 json Dataset::asJson() {

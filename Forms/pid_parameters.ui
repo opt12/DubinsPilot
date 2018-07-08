@@ -31,7 +31,7 @@
      <x>0</x>
      <y>0</y>
      <width>1011</width>
-     <height>591</height>
+     <height>681</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tabClimb">
     <attribute name="title">
@@ -1001,6 +1001,9 @@
       </item>
       <item>
        <widget class="QwtPlot" name="qwtPlotHeading">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
           <horstretch>1</horstretch>
@@ -1010,7 +1013,7 @@
         <property name="minimumSize">
          <size>
           <width>1001</width>
-          <height>311</height>
+          <height>300</height>
          </size>
         </property>
        </widget>
@@ -1535,7 +1538,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>120</y>
+       <y>100</y>
        <width>181</width>
        <height>17</height>
       </rect>
@@ -1548,7 +1551,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>140</y>
+       <y>120</y>
        <width>491</width>
        <height>239</height>
       </rect>
@@ -2010,6 +2013,125 @@
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>370</y>
+       <width>312</width>
+       <height>182</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_14">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_12">
+        <item>
+         <widget class="QwtCompass" name="CompassWind">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="lineWidth">
+           <number>4</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QwtSlider" name="SliderWindVelocity">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::WheelFocus</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_13">
+        <item>
+         <widget class="QLabel" name="label_14">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>selected Wind:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelSelectedWindV">
+          <property name="text">
+           <string>x [m/s]</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelSelectedWindFrom">
+          <property name="text">
+           <string>from: xxx [deg]</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>current Wind:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelCurrentWindV">
+          <property name="text">
+           <string>x [m/s]</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelCurrentWindFrom">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>from: xxx [deg]</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </widget>
   </widget>
  </widget>
@@ -2046,25 +2168,25 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>spinBoxExpDValue</tabstop>
+  <tabstop>SliderPValue</tabstop>
   <tabstop>doubleSpinBoxPValue</tabstop>
-  <tabstop>saveButton</tabstop>
-  <tabstop>lineEditAltitude</tabstop>
-  <tabstop>setHeightButton</tabstop>
-  <tabstop>lineEditFileName</tabstop>
-  <tabstop>choseFileNameButton</tabstop>
-  <tabstop>toggleLogButton</tabstop>
-  <tabstop>lineEditForward</tabstop>
-  <tabstop>lineEditRight</tabstop>
-  <tabstop>lineEditHeight</tabstop>
-  <tabstop>lineEditRotation</tabstop>
-  <tabstop>radioButtonLSL</tabstop>
+  <tabstop>spinBoxExpPValue</tabstop>
+  <tabstop>lineEditPParameter</tabstop>
+  <tabstop>SliderIValue</tabstop>
+  <tabstop>doubleSpinBoxIValue</tabstop>
+  <tabstop>spinBoxExpIValue</tabstop>
+  <tabstop>lineEditIParameter</tabstop>
+  <tabstop>SliderDValue</tabstop>
+  <tabstop>doubleSpinBoxDValue</tabstop>
+  <tabstop>spinBoxExpDValue</tabstop>
+  <tabstop>lineEditDParameter</tabstop>
   <tabstop>radioButtonRSR</tabstop>
-  <tabstop>pushButtonResetOrigin</tabstop>
   <tabstop>pushButtonResetElf</tabstop>
-  <tabstop>pushButtonSubmitElf</tabstop>
-  <tabstop>graphicsView</tabstop>
+  <tabstop>checkBoxClimbController</tabstop>
+  <tabstop>ledIndicator</tabstop>
+  <tabstop>KnobClimb</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>graphicsView</tabstop>
   <tabstop>lineEditPParameterBank</tabstop>
   <tabstop>SliderIValueBank</tabstop>
   <tabstop>doubleSpinBoxIValueBank</tabstop>
@@ -2077,22 +2199,56 @@
   <tabstop>checkBoxRollController</tabstop>
   <tabstop>ledIndicatorRoll</tabstop>
   <tabstop>KnobRoll</tabstop>
-  <tabstop>SliderPValue</tabstop>
-  <tabstop>spinBoxExpPValue</tabstop>
-  <tabstop>lineEditPParameter</tabstop>
-  <tabstop>SliderIValue</tabstop>
-  <tabstop>doubleSpinBoxIValue</tabstop>
-  <tabstop>spinBoxExpIValue</tabstop>
-  <tabstop>lineEditDParameter</tabstop>
-  <tabstop>checkBoxClimbController</tabstop>
-  <tabstop>lineEditIParameter</tabstop>
-  <tabstop>SliderDValue</tabstop>
-  <tabstop>doubleSpinBoxDValue</tabstop>
+  <tabstop>lineEditHeight</tabstop>
+  <tabstop>lineEditAltitude</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>setHeightButton</tabstop>
+  <tabstop>lineEditFileName</tabstop>
+  <tabstop>choseFileNameButton</tabstop>
+  <tabstop>lineEditRotation</tabstop>
+  <tabstop>pushButtonResetOrigin</tabstop>
+  <tabstop>toggleLogButton</tabstop>
+  <tabstop>lineEditForward</tabstop>
+  <tabstop>lineEditRight</tabstop>
   <tabstop>spinBoxExpPValueBank</tabstop>
   <tabstop>doubleSpinBoxPValueBank</tabstop>
   <tabstop>SliderPValueBank</tabstop>
-  <tabstop>ledIndicator</tabstop>
-  <tabstop>KnobClimb</tabstop>
+  <tabstop>radioButtonLSL</tabstop>
+  <tabstop>pushButtonSubmitElf</tabstop>
+  <tabstop>SliderPValueHeading</tabstop>
+  <tabstop>doubleSpinBoxPValueHeading</tabstop>
+  <tabstop>spinBoxExpPValueHeading</tabstop>
+  <tabstop>lineEditPParameterHeading</tabstop>
+  <tabstop>SliderIValueHeading</tabstop>
+  <tabstop>doubleSpinBoxIValueHeading</tabstop>
+  <tabstop>spinBoxExpIValueHeading</tabstop>
+  <tabstop>lineEditIParameterHeading</tabstop>
+  <tabstop>SliderDValueHeading</tabstop>
+  <tabstop>doubleSpinBoxDValueHeading</tabstop>
+  <tabstop>spinBoxExpDValueHeading</tabstop>
+  <tabstop>lineEditDParameterHeading</tabstop>
+  <tabstop>checkBoxHeadingController</tabstop>
+  <tabstop>ledIndicatorHeading</tabstop>
+  <tabstop>CompassHeading</tabstop>
+  <tabstop>SliderPValueCircle</tabstop>
+  <tabstop>doubleSpinBoxPValueCircle</tabstop>
+  <tabstop>spinBoxExpPValueCircle</tabstop>
+  <tabstop>lineEditPParameterCircle</tabstop>
+  <tabstop>SliderIValueCircle</tabstop>
+  <tabstop>doubleSpinBoxIValueCircle</tabstop>
+  <tabstop>spinBoxExpIValueCircle</tabstop>
+  <tabstop>lineEditIParameterCircle</tabstop>
+  <tabstop>SliderDValueCircle</tabstop>
+  <tabstop>doubleSpinBoxDValueCircle</tabstop>
+  <tabstop>spinBoxExpDValueCircle</tabstop>
+  <tabstop>lineEditDParameterCircle</tabstop>
+  <tabstop>checkBoxCircleController</tabstop>
+  <tabstop>ledIndicatorCircle</tabstop>
+  <tabstop>KnobCircle</tabstop>
+  <tabstop>radioButtonCircleLeft</tabstop>
+  <tabstop>radioButtonCircleRight</tabstop>
+  <tabstop>CompassWind</tabstop>
+  <tabstop>SliderWindVelocity</tabstop>
  </tabstops>
  <resources/>
  <connections>

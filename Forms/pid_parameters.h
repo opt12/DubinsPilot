@@ -48,6 +48,8 @@ public slots:
 	void setRollControlKnob(double roll);
 	void setClimbRateControlKnob(double glideAngle);
 	void setHeadingControlKnob(double requestedHeading);
+	void displayCurrentWind(double windDirFrom, double windVelocity);
+
 
 private slots:
 	void setDValue(void);
@@ -102,6 +104,8 @@ private slots:
 
 	void clearInputFields(void);
 	void submitElfData(void);
+
+	void setWind(void);
 
 protected:
 	void closeEvent(QCloseEvent *event);

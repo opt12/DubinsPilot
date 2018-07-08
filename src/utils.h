@@ -15,6 +15,7 @@ double to_degrees(const double radians);
 double deg2rad(const double deg);
 double to_radians(const double degrees);
 double knots_to_ms(const double valKnots);
+double ms_to_knots(const double valKnots);
 
 //rotates a coordinate pair (x, y) by rotDeg degrees around the origin (0,0)
 // positive rotDeg rotates clockwise

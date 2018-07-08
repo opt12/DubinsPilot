@@ -70,6 +70,14 @@ public:
 		return j;
 	}
 
+	friend Position_Cartesian operator+(const Position_Cartesian &p1, const Position_Cartesian &p2){
+		return Position_Cartesian(p1.x+p2.x, p1.y+p2.y, p1.z+p2.z);
+	}
+
+	friend Position_Cartesian operator-(const Position_Cartesian &p1, const Position_Cartesian &p2){
+		return Position_Cartesian(p1.x-p2.x, p1.y-p2.y, p1.z-p2.z);
+	}
+
 	double x = 0.0, y = 0.0, z = 0.0;
 };
 
@@ -97,14 +105,22 @@ public:
 	 * distances are given in cartesian coordinates, height pointing upwards
 	 *
 	 */
-	Position(Position_WGS84 reference, double x, double y, double h) {
+	Position(const Position_WGS84 &reference, const double x, const double y, const double h) {
 		GeographicLib::LocalCartesian tempProj = GeographicLib::LocalCartesian(
 				reference.lati, reference.longi, reference.height, earth);
 
 		tempProj.Reverse(x, y, h, this->pos.lati, this->pos.longi,
 				this->pos.height);
-		std::cout << "Position Constructor: yielded   height: "
-				<< this->pos.height << std::endl;
+//		std::cout << "Position Constructor: yielded   height: "
+//				<< this->pos.height << std::endl;
+	}
+
+	friend Position operator+(const Position &pos, const Position_Cartesian &translation){
+		return Position(pos.pos, translation.x, translation.y, translation.z);
+	}
+
+	friend Position operator-(const Position &pos, const Position_Cartesian &translation){
+		return Position(pos.pos, -translation.x, -translation.y, -translation.z);
 	}
 
 	virtual ~Position();

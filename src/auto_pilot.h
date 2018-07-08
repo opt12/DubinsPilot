@@ -14,10 +14,16 @@
 
 #include <pid_controller.h>
 #include "enumDeclarations.h"
+#include "Position.h"
 
 #include <string>
 #include <vector>
 #include <functional>
+
+#include "json.hpp"
+// for convenience
+using json = nlohmann::json;
+
 
 class QTimer;
 
@@ -76,6 +82,8 @@ signals:
 	void sigRequestClimb(double requestedClimb);
 	void sigRequestHeading(double requestedHeading);
 
+	void sigSocketSendData(std::string msgType, int requestId, json data);
+
 private:
 	static DataCenter *dc;
 	QTimer *basicTimer;
@@ -90,6 +98,9 @@ private:
 	Position circleCenter = Position();
 	bool circleFlightActive = false;
 	double circleRadiusCorrection = 0.0;
+	Position_Cartesian initialDisplacement={0.0, 0.0, 0.0};;
+
+	json getCircleDataAsJson(void);
 
 private slots:
 	void timerExpired(void);

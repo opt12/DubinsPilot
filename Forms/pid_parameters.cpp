@@ -194,9 +194,9 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(KnobRoll, SIGNAL(valueChanged(double)), this,
 			SLOT(setBankingLabel(double)));
 
-	CompassHeading->setNeedle( new QwtDialSimpleNeedle( QwtDialSimpleNeedle::Arrow,
-            true, Qt::red ) );
-	CompassHeading->setRose(new QwtSimpleCompassRose( 4, 1 ));
+	CompassHeading->setNeedle(
+			new QwtDialSimpleNeedle(QwtDialSimpleNeedle::Arrow, true, Qt::red));
+	CompassHeading->setRose(new QwtSimpleCompassRose(4, 1));
 	CompassHeading->setRange(0.0, 360.0, 5.0, 1);
 	connect(CompassHeading, SIGNAL(valueChanged(double)), this,
 			SLOT(setHeadingLabel(double)));
@@ -236,9 +236,6 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 			SLOT(fileNameEditingFinished()));
 	toggleLogButton->setEnabled(false);
 
-	//do this last to have everything wired together already
-	readSettings();
-
 	if (initialLogFileDir.isEmpty())
 		initialLogFileDir = QDir::homePath();
 	logFileName = generateLogfilename();
@@ -263,12 +260,22 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(radioButtonCircleRight, SIGNAL(clicked()), this,
 			SLOT(radioButtonCircleClicked()));
 
+	CompassWind->setNeedle(
+			new QwtCompassWindArrow(QwtCompassWindArrow::Style2, Qt::darkBlue,
+					Qt::red));
+	CompassWind->setRose(new QwtSimpleCompassRose(4, 1));
+	CompassWind->setRange(0.0, 360.0, 5.0, 1);
+	connect(CompassWind, SIGNAL(valueChanged(double)), this, SLOT(setWind()));
 
+	SliderWindVelocity->setRange(0.0, ms_to_knots(45.0), ms_to_knots(0.25));
+	connect(SliderWindVelocity, SIGNAL(valueChanged(double)), this,
+			SLOT(setWind()));
 
 	//TODO weil das eigentlich erst nach dem Connect passieren soll. aber für's Debugging
 //	checkBoxClimbController->setEnabled(true);
 //	checkBoxRollController->setEnabled(true);
-
+	//do this last to have everything wired together already
+	readSettings();
 }
 
 //Implementation of protected functions
@@ -767,15 +774,15 @@ void PIDParametersDialog::circleControlActiveStateChanged(bool active) {
 	emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, valCircle);
 	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
 			valICircle, valDCircle);
-	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(), valCircle);
+	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(),
+			valCircle);
 	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, active);
 }
 
-void PIDParametersDialog::radioButtonCircleClicked(void){
-	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(), valCircle);
+void PIDParametersDialog::radioButtonCircleClicked(void) {
+	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(),
+			valCircle);
 }
-
-
 
 void PIDParametersDialog::readSettings() {
 	QSettings settings("EEE", "PID_Parameters");
@@ -939,6 +946,37 @@ void PIDParametersDialog::submitElfData(void) {
 
 }
 
+void PIDParametersDialog::setWind(void) {
+	// Eingabe sind Knoten, Rückgabe sind Meter pro Sekunde
+	double windDirFrom = CompassWind->value();
+	labelSelectedWindFrom->setText(
+			"from "+QString::number(windDirFrom, 'g') + " [deg]");
+	double windVelocity = SliderWindVelocity->value();
+	windVelocity = windVelocity+0.0;
+	labelSelectedWindV->setText(
+			QString::number(knots_to_ms(windVelocity), 'g') + " [m/s]");
+	emit sigSendXPDataRef("sim/weather/wind_altitude_msl_m[0]", 1000.0);
+	emit sigSendXPDataRef("sim/weather/wind_direction_degt[0]", windDirFrom);
+	emit sigSendXPDataRef("sim/weather/wind_speed_kt[0]",
+			(windVelocity));
+	emit sigSendXPDataRef("sim/weather/wind_altitude_msl_m[1]", 2000.0);
+	emit sigSendXPDataRef("sim/weather/wind_direction_degt[1]", windDirFrom);
+	emit sigSendXPDataRef("sim/weather/wind_speed_kt[1]",
+			(windVelocity));
+	emit sigSendXPDataRef("sim/weather/wind_altitude_msl_m[1]", 3000.0);
+	emit sigSendXPDataRef("sim/weather/wind_direction_degt[1]", windDirFrom);
+	emit sigSendXPDataRef("sim/weather/wind_speed_kt[1]",
+			(windVelocity));
+}
+
+void PIDParametersDialog::displayCurrentWind(double windDirFrom, double windVelocity){
+	labelCurrentWindFrom->setText(
+			"from "+QString::number(windDirFrom, 'f', 1) + " [deg]");
+	labelCurrentWindV->setText(
+			QString::number(windVelocity, 'f', 2) + " [m/s]");
+}
+
+
 QString PIDParametersDialog::generateLogfilename() {
 	QString DateString =
 			QDateTime::currentDateTime().toString(Qt::ISODate).replace('-', '_').replace(
@@ -1055,7 +1093,8 @@ void PIDParametersDialog::setupPlot(void) {
 	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yLeft, "Circle Radius [m] -->");
 	qwtPlotCircle->setAxisScale(qwtPlotCircle->yLeft, 250, 1050);
 
-	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yRight, "<-- Roll Correction [deg]");
+	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yRight,
+			"<-- Roll Correction [deg]");
 	qwtPlotCircle->setAxisScale(qwtPlotCircle->yRight, -5, 5);
 
 	qwtPlotCircle->enableAxis(QwtPlot::xBottom);
@@ -1105,7 +1144,8 @@ void PIDParametersDialog::setupPlot(void) {
 			"Heading Angle [deg] -->");
 	qwtPlotHeading->setAxisScale(qwtPlotHeading->yLeft, 0, 360);
 
-	qwtPlotHeading->setAxisTitle(qwtPlotHeading->yRight, "<-- Roll Setpoint [deg]");
+	qwtPlotHeading->setAxisTitle(qwtPlotHeading->yRight,
+			"<-- Roll Setpoint [deg]");
 	qwtPlotHeading->setAxisScale(qwtPlotHeading->yRight, -30, 30);
 
 	qwtPlotHeading->enableAxis(QwtPlot::xBottom);

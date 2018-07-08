@@ -32,7 +32,7 @@ AutoPilot::AutoPilot(QObject* parent) :
 	};
 	ctrl[ctrlType::CLIMB_CONTROL].getMeasurement = [this](void)
 	{ // wir müssen den Gleitwinkel selber rechnen aus true_airspeed und sinkrate
-	  // der von XPlane ausgegebene Winkel ist bezogen auf ground_speed und damit bei wind unbrauchbar.
+	  // der von XPlane ausgegebene Winkel ist bezogen auf ground_speed und damit bei Wind unbrauchbar.
 				double tas = dc->getTrue_airspeed();
 				double sinkrate = dc->getVh_ind();
 	  //in case we have no airspeed measurement yet, we must avoid div by zero and just return the requested target value
@@ -71,7 +71,8 @@ AutoPilot::AutoPilot(QObject* parent) :
 	ctrl[ctrlType::RADIUS_CONTROL].getMeasurement = [this](void) {
 		// the target value is the radius of the circle
 			Position curPos = dc->getPosition();
-			return curPos.getDistanceCart(circleCenter);
+			Position displacedCircleCenter = circleCenter+(dc->getWindDisplacement()-initialDisplacement);
+			return curPos.getDistanceCart(displacedCircleCenter);
 		};
 	ctrl[ctrlType::RADIUS_CONTROL].publishOutput = [this](double output)
 	{
@@ -150,7 +151,7 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 		if (_ct == +ctrlType::RADIUS_CONTROL) {
 			circleFlightActive = active;
 		}
-	} else {
+	} else {	//deactivation
 		std::cout << _ct._to_string() << " deactivated\n";
 		ctrl[_ct].controller->PIDModeSet(MANUAL);
 		ctrl[_ct].publishOutput(ctrl[_ct].output);
@@ -165,6 +166,7 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 		}
 		if (_ct == +ctrlType::RADIUS_CONTROL) {
 			circleFlightActive = active;
+			emit sigSocketSendData(std::string("CIRCLE_DATA"), 0, getCircleDataAsJson());
 		}
 		if (_ct == +ctrlType::HEADING_CONTROL) {
 			//we want to go straight afterwards
@@ -207,21 +209,40 @@ void AutoPilot::requestCircleDirection(bool isLeftCircle, double radius) {
 			deltaX, deltaY);
 	circleCenter = Position(dc->getPosition().getPosition_WGS84(), deltaX,
 			deltaY, 0.0);
+	initialDisplacement = dc->getWindDisplacement();
 	//TODO I Anteil im Regler auf jeden Fall zurücksetzen.
 	ctrl[ctrlType::RADIUS_CONTROL].controller->PIDResetInternals();
 	std::cout << "Current_Position: \t"<< dc->getPosition().getPosition_Cart().asJson()<< std::endl;
 	std::cout << "Circle Center Po: \t"<< circleCenter.getPosition_Cart().asJson()<< std::endl;
 }
 
+json AutoPilot::getCircleDataAsJson(void){
+	json j;
+	Position displacedCircleCenter = circleCenter+(dc->getWindDisplacement()-initialDisplacement);
+	if(circleFlightActive){
+		j["center"] = displacedCircleCenter.getPosition_WGS84().asJson();
+		j["radius"] = ctrl[ctrlType::RADIUS_CONTROL].requestedTargetValue;
+		j["directionLeft"] = circleDirectionLeft;
+	}
+	else {
+		j["center"] = "none";
+		j["radius"] = "none";
+		j["directionLeft"] = "none";
+	}
+	return j;
+}
+
 void AutoPilot::timerExpired(void) {
 
 	if(circleFlightActive){
 		// when in circle flight, we need to permanently update the heading
-		double circleAngle = circleCenter.getHeadingCart(dc->getPosition());
+		Position displacedCircleCenter = circleCenter+(dc->getWindDisplacement()-initialDisplacement);
+		double circleAngle = displacedCircleCenter.getHeadingCart(dc->getPosition());
 		double newHeading = circleAngle + (circleDirectionLeft?-90.0:+90.0) + circleRadiusCorrection;
 		ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = fmod(newHeading, 360.0);
 //		std::cout << "CircleFlight Direction = "<< ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue<<"\n";
 		emit sigRequestHeading(ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue);//adapt the knob in the GUI
+		emit sigSocketSendData(std::string("CIRCLE_DATA"), 0, getCircleDataAsJson());
 	}
 
 	//calculate new control output for all controllers

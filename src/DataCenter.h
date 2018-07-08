@@ -94,6 +94,10 @@ public:
 		return curDat.pos;
 	}
 
+	Position_Cartesian getWindDisplacement() {
+		return curDat.windDisplacement;
+	}
+
 public slots:
 //void setRequestedAltitude(double altitudeAboveGround);
 
@@ -120,6 +124,7 @@ signals:
 	void sigSocketSendData(std::string msgType, int requestId, json data);
 	void originSetTo(Position_WGS84 origin);
 	void sigElfCoordsSet(Position_WGS84 elf, Position_Cartesian elfCart, double elfHeading);
+	void sigWindChanged(double windDirFrom, double windVelocity);
 
 
 private:

@@ -119,6 +119,8 @@ int main(int argc, char *argv[]) {
 			SLOT(showOriginCoords(Position_WGS84)));
 	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position_WGS84, Position_Cartesian, double)), pidParams,
 			SLOT(showElfCoords(Position_WGS84, Position_Cartesian, double)));
+	QObject::connect(dc, SIGNAL(sigWindChanged(double, double)), pidParams,
+			SLOT(displayCurrentWind(double, double)));
 
 
 	//connections from AutoPilot --> PIDParametersDialog
@@ -153,6 +155,10 @@ int main(int argc, char *argv[]) {
 	//connections from DataCenter --> SockServer
 	QObject::connect(dc, SIGNAL(sigSocketSendData(std::string, int, json)),
 			sock, SLOT(socketSendData(std::string, int, json)));
+	//connections from AutoPilot --> SockServer
+	QObject::connect(&ap, SIGNAL(sigSocketSendData(std::string, int, json)),
+			sock, SLOT(socketSendData(std::string, int, json)));
+
 
 	return app.exec();
 #endif
