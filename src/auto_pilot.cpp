@@ -50,7 +50,7 @@ AutoPilot::AutoPilot(QObject* parent) :
 			[this](void) {return dc->getTrue_phi();};
 
 	ctrl[ctrlType::HEADING_CONTROL].controller = new PIDControl(1.0, 0.0, 0.0,
-			0.1, -40.0, 40.0, MANUAL, REVERSE);
+			0.1, -20.0, 20.0, MANUAL, REVERSE);
 	ctrl[ctrlType::HEADING_CONTROL].publishOutput = [this](double output)
 	{
 		ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue = output;	//set the roll target for the lower level controller
@@ -67,7 +67,7 @@ AutoPilot::AutoPilot(QObject* parent) :
 			};
 
 	ctrl[ctrlType::RADIUS_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0,
-			0.1, -180.0, 180.0, MANUAL, DIRECT);
+			0.1, -10.0, 10.0, MANUAL, DIRECT);
 	ctrl[ctrlType::RADIUS_CONTROL].getMeasurement = [this](void) {
 		// the target value is the radius of the circle
 			Position curPos = dc->getPosition();
@@ -77,8 +77,9 @@ AutoPilot::AutoPilot(QObject* parent) :
 	ctrl[ctrlType::RADIUS_CONTROL].publishOutput = [this](double output)
 	{
 		// TODO erstmal nix machen, sondern nur staunen
+		//TODO XXX Hier können wir das roll limit noch nachkorrigieren mit Regler
 		circleRadiusCorrection = output;
-		//		ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue += output;	//add the radius correction
+//			ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue += output;//add the radius correction
 //			emit sigRequestRoll(ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue);//adapt the knob in the GUI
 		};
 
@@ -165,8 +166,17 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 					"sim/operation/override/override_joystick_roll", false);
 		}
 		if (_ct == +ctrlType::RADIUS_CONTROL) {
+			// deactivate the circle flight
 			circleFlightActive = active;
+			// hide the circle in the visualization
 			emit sigSocketSendData(std::string("CIRCLE_DATA"), 0, getCircleDataAsJson());
+			// set the heading to the current value to leave the circle in a tangential way
+			Position displacedCircleCenter = circleCenter+(dc->getWindDisplacement()-initialDisplacement);
+			double circleAngle = displacedCircleCenter.getHeadingCart(dc->getPosition());
+			double newHeading = circleAngle + (circleDirectionLeft?-90.0:+90.0);// + circleRadiusCorrection;
+			ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = newHeading;
+			emit sigRequestHeading(newHeading); //adapt the knob in the GUI
+
 		}
 		if (_ct == +ctrlType::HEADING_CONTROL) {
 			//we want to go straight afterwards
@@ -238,10 +248,18 @@ void AutoPilot::timerExpired(void) {
 		// when in circle flight, we need to permanently update the heading
 		Position displacedCircleCenter = circleCenter+(dc->getWindDisplacement()-initialDisplacement);
 		double circleAngle = displacedCircleCenter.getHeadingCart(dc->getPosition());
-		double newHeading = circleAngle + (circleDirectionLeft?-90.0:+90.0) + circleRadiusCorrection;
+		// during the circle flight we permanently oversteer to hold the plane in max. roll angle
+		double newHeading = circleAngle + (circleDirectionLeft?-90.0-45:+90.0+45);
+		// this roll angle is calculated with respect to the requested radius
+		double bankingLimit = getRollAngle(dc->getTrue_airspeed(), ctrl[ctrlType::RADIUS_CONTROL].requestedTargetValue);
+		ctrl[ctrlType::HEADING_CONTROL].controller->PIDOutputLimitsSet(
+				-bankingLimit + circleRadiusCorrection,
+				bankingLimit + circleRadiusCorrection);
+		std::cout << "Banking Limit set to " << bankingLimit << " [deg] + "
+				<< circleRadiusCorrection << " [deg]\n";
 		ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = fmod(newHeading, 360.0);
 //		std::cout << "CircleFlight Direction = "<< ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue<<"\n";
-		emit sigRequestHeading(ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue);//adapt the knob in the GUI
+		emit sigRequestHeading(newHeading);//adapt the knob in the GUI
 		emit sigSocketSendData(std::string("CIRCLE_DATA"), 0, getCircleDataAsJson());
 	}
 

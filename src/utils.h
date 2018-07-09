@@ -23,4 +23,6 @@ void rotatePoint(const double x, const double y, const double rotDeg, double& ou
 
 double getAngularDifference(double b1, double b2);
 
+double getRollAngle(double tas, double radius);
+
 #endif /* UTILS_H_ */

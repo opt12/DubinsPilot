@@ -42,3 +42,12 @@ double getAngularDifference(double b1, double b2) {
 	return r;
 }
 
+double getRollAngle(double tas, double radius){
+	//see Clancy, L.J, Equation 14.9; https://en.wikipedia.org/wiki/Banked_turn
+	// r = \frac{v²}{g \tan \theta}
+	// \tan \theta = \frac{v²}{gr}
+	const double g = 9.81;
+	return to_degrees(atan(tas*tas/(g*radius)));
+}
+
+
