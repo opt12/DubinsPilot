@@ -44,10 +44,10 @@ public:
 		elf.setPosition_WGS84(lati, longi, height);
 	}
 
-	void setElfPos_relative(double forward, double right, double height, double rotation){
+	void setElfPos_relative(Position _pos, double forward, double right, double height, double rotation){
 		// ELf distance need to be transformed from Aircraft CoSy to Earth frame
 		// The aircraft has a heading of true_psi
-		// We need a rotation of the ccordinates by -true_psi
+		// We need a rotation of the coordinates by -true_psi
 		//TODO XXX
 		double true_psi_rad = to_radians(true_psi);
 		double xTransf = cos(-true_psi_rad)*right - sin(-true_psi_rad)*forward;
@@ -56,15 +56,15 @@ public:
 		std::cout << "Coordinate Transform yielded with true_Psi= "<<
 				to_degrees(true_psi_rad) <<std::endl;
 		std::cout << "xTransf= "<< xTransf << "; yTransf= "<< yTransf << "; hTransf= "<< hTransf <<std::endl;
-		elf = Position(pos.getPosition_WGS84(), xTransf, yTransf, hTransf);
+		elf = Position(_pos.getPosition_WGS84(), xTransf, yTransf, hTransf);
 		std::cout <<"elf set to: "<< elf.getPosition_WGS84().asJson().dump(4) << std::endl;
 		std::cout <<"elf set to: "<< elf.getPosition_Cart().asJson().dump(4) << std::endl;
 		elfHeading = true_psi + rotation;
 		isElfSet = true;
 	}
 
-	void setElfPos(Position elfPosition, double _elfHeading){
-		elf = elfPosition;
+	void setElfPos(Position_WGS84 elfPosition, double _elfHeading){
+		elf = Position(elfPosition);
 		elfHeading = _elfHeading;
 		isElfSet = true;
 	}

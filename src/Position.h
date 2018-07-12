@@ -121,8 +121,9 @@ public:
 		pos.set(lati, longi, height);
 	}
 
-	Position(Position_WGS84 pos_WGS84) {
-		Position(pos_WGS84.lati, pos_WGS84.longi, pos_WGS84.height);
+	Position(Position_WGS84 pos_WGS84) :
+			Position(pos_WGS84.lati, pos_WGS84.longi, pos_WGS84.height) {
+		;	// delegating constructor
 	}
 
 	Position(Position_Cartesian pos_Cart) : Position(Position::origin.pos, pos_Cart.x, pos_Cart.y, pos_Cart.z) {
@@ -187,11 +188,14 @@ public:
 
 	Position_Cartesian getPosition_Cart();
 	Position_Cartesian convertToCart();
+	Position_Cartesian getCartesianDifference(const Position pointB) const;
 
-	double getDistanceCart(Position pointB);
-	double getHeadingCart(Position pointB);
+	double getDistanceCart(const Position pointB) const;
+	double getHeadingCart(const Position pointB) const;
 
 private:
+	// TODO Das ist noch ein bisschen unschön, dass ich das eine ebene geschachtelt habe
+	// Gibt es sowas wie einen standard-Typecast zu  Position_WGS84, der dann pos zurückliefert
 	static Position origin;
 	Position_WGS84 pos;
 	static GeographicLib::Geocentric earth;

@@ -38,15 +38,15 @@ signals:
 	void sigLoggingActiveStateChanged(bool active, QFile* fileLog);
 	void resetOrigin(void);
 	void sigSetElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
-	void sigSetElfLocation(Position elfPosition, double heading, pathTypeEnum pathType);
+	void sigSetElfLocation(Position_WGS84 elfPosition, double heading, pathTypeEnum pathType);
 	void sigResetElf(void);
 
 public slots:
 	void setXPlaneConnection(bool);
 	void attachControllerCurve(ctrlType c, QwtPlotCurve* ctrlCurve);
 	void replotControllerCurve(ctrlType c);
-	void showOriginCoords(Position_WGS84 origin);
-	void showElfCoords(Position_WGS84 elf, Position_Cartesian elf_Cart, double elfHeading);
+//	void showOriginCoords(Position_WGS84 origin);
+	void showElfCoords(Position_WGS84 elf, double elfHeading);
 	void setRollControlKnob(double roll);
 	void setClimbRateControlKnob(double glideAngle);
 	void setHeadingControlKnob(double requestedHeading);
@@ -95,6 +95,8 @@ private slots:
 	void headingControlActiveStateChanged(bool active);
 	void circleControlActiveStateChanged(bool active);
 	void radioButtonCircleClicked(void);
+	void continuousDubinsCalc(bool active);
+	void contCalcTimerExpired(void);
 
 	void writeSettings();
 
@@ -145,9 +147,11 @@ private:
 	QFile fileLog;
 	QTextStream *outLog;
 	bool elfInputFieldsDirty = true;
-	Position elfPosition;
+	Position_WGS84 elfPosition;
 	double elfHeading = 0.0;
 	bool isElfSet = false;
+	QTimer *contCalcTimer = NULL;
+	const int timerMilliseconds = 500;
 
 };
 

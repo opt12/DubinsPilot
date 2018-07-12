@@ -237,7 +237,7 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 		double rotation, pathTypeEnum pathType) {
 	//we don't necessarily need the origin set to define an ELF file
 	//we only need it when starting to calculate the path to do this in XY cartesian coords
-	curDat.setElfPos_relative(forward, right, height, rotation);//relative to current position
+	curDat.setElfPos_relative(curDat.pos, forward, right, height, rotation);//relative to current position
 	std::cout << "ELF set to "
 			<< curDat.elf.getPosition_WGS84().asJson().dump(4) << std::endl;
 	std::cout << "ELF heading set to " << curDat.elfHeading << std::endl;
@@ -246,15 +246,13 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 	std::cout << ", heading is " << curDat.pos.getHeadingCart(curDat.elf)
 			<< std::endl;
 
-	emit sigElfCoordsSet(curDat.elf,
-			curDat.elf.getPosition_Cart(), curDat.elfHeading);
+	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(), curDat.elfHeading);
 	emit sigCalculateDubinsPath(pathType);
 }
 
-void DataCenter::setElfLocation(Position elfPosition, double elfHeading, pathTypeEnum pathType){
+void DataCenter::setElfLocation(Position_WGS84 elfPosition, double elfHeading, pathTypeEnum pathType){
 	curDat.setElfPos(elfPosition, elfHeading);
-	emit sigElfCoordsSet(curDat.elf,
-			curDat.elf.getPosition_Cart(), curDat.elfHeading);
+	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(), curDat.elfHeading);
 	emit sigCalculateDubinsPath(pathType);
 }
 
@@ -301,8 +299,6 @@ void DataCenter::setOrigin(void) {
 		*outLog << origin;
 	}
 	emit originSetTo(Position::getOrigin_WGS84());
-	emit sigElfCoordsSet(curDat.elf,
-			curDat.elf.getPosition_Cart(), curDat.elfHeading);
 }
 
 void DataCenter::resetWindDisplacement(void) {

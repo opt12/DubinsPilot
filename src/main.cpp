@@ -107,8 +107,8 @@ int main(int argc, char *argv[]) {
 			SIGNAL(sigSetElfLocation(double, double, double, double, pathTypeEnum)), dc,
 			SLOT(setElfLocation(double, double, double, double, pathTypeEnum)));
 	QObject::connect(pidParams,
-			SIGNAL(sigSetElfLocation(Position, double, pathTypeEnum)), dc,
-			SLOT(setElfLocation(Position, double, pathTypeEnum)));
+			SIGNAL(sigSetElfLocation(Position_WGS84, double, pathTypeEnum)), dc,
+			SLOT(setElfLocation(Position_WGS84, double, pathTypeEnum)));
 	QObject::connect(pidParams,
 			SIGNAL(sigResetElf(void)), dc,
 			SLOT(resetElfLocation(void)));
@@ -122,10 +122,10 @@ int main(int argc, char *argv[]) {
 	//connections from DataCenter --> PIDParametersDialog
 	QObject::connect(dc, SIGNAL(XPlaneConnectionChanged(bool)), pidParams,
 			SLOT(setXPlaneConnection(bool)));
-	QObject::connect(dc, SIGNAL(originSetTo(Position_WGS84)), pidParams,
-			SLOT(showOriginCoords(Position_WGS84)));
-	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position, Position_Cartesian, double)), pidParams,
-			SLOT(showElfCoords(Position, Position_Cartesian, double)));
+//	QObject::connect(dc, SIGNAL(originSetTo(Position_WGS84)), pidParams,
+//			SLOT(showOriginCoords(Position_WGS84)));
+	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position_WGS84, double)), pidParams,
+			SLOT(showElfCoords(Position_WGS84, double)));
 	QObject::connect(dc, SIGNAL(sigWindChanged(double, double)), pidParams,
 			SLOT(displayCurrentWind(double, double)));
 

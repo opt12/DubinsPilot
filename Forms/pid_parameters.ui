@@ -1551,9 +1551,9 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>120</y>
-       <width>491</width>
-       <height>241</height>
+       <y>130</y>
+       <width>373</width>
+       <height>201</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1562,14 +1562,68 @@
         <property name="sizeConstraint">
          <enum>QLayout::SetMinimumSize</enum>
         </property>
-        <item row="1" column="3">
-         <widget class="Line" name="line_6">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEditRotation">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
+        <item row="2" column="3">
+         <widget class="QLabel" name="labelLonElf">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Lon: ELF</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLabel" name="labelLatElf">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Lat: ELF</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEditRight">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
          <widget class="QLabel" name="label_8">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1582,7 +1636,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
+        <item row="3" column="2">
          <widget class="QLabel" name="label_9">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1595,7 +1649,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="4" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
            <widget class="QRadioButton" name="radioButtonLSL">
@@ -1628,7 +1682,7 @@
           </item>
          </layout>
         </item>
-        <item row="4" column="1">
+        <item row="2" column="1">
          <widget class="QLineEdit" name="lineEditHeight">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1638,7 +1692,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_4">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1654,7 +1708,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_5">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1670,17 +1724,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="lineEditRotation">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
+        <item row="0" column="0">
          <widget class="QLabel" name="label_2">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1696,7 +1740,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="0" column="1">
          <widget class="QLineEdit" name="lineEditForward">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1706,17 +1750,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="lineEditRight">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="label_3">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1732,7 +1766,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
+        <item row="0" column="2">
          <widget class="QLabel" name="label_10">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1745,7 +1779,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
+        <item row="2" column="2">
          <widget class="QLabel" name="label_11">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1758,87 +1792,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="4">
-         <widget class="QLabel" name="labelXElf">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>X = xxx m</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="4">
-         <widget class="QLabel" name="labelYElf">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Y = yyy m</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="4">
-         <widget class="QLabel" name="labelZElf">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Z = hhhh m</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="6">
-         <widget class="QLabel" name="labelLatElf">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Lat: ELF</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="6">
-         <widget class="QLabel" name="labelLonElf">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Lon: ELF</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="4">
+        <item row="3" column="3">
          <widget class="QLabel" name="labelHeadingElf">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1846,124 +1800,21 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string>heading: hhh °</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="6">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>Origin:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="6">
-         <widget class="QLabel" name="labelLatOrigin">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Lat: Origin</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="6">
-         <widget class="QLabel" name="labelLonOrigin">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Lon: Origin</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="4">
-         <widget class="QPushButton" name="pushButtonResetOrigin">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Set Origin</string>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-          <property name="default">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="Line" name="line_5">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="3">
-         <widget class="Line" name="line_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="4">
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="3">
-         <widget class="Line" name="line_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="4">
-         <widget class="QLabel" name="label_7">
+         <widget class="QCheckBox" name="checkBoxCont">
           <property name="text">
-           <string>Relative to Origin:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="4">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="5">
-         <widget class="Line" name="line_7">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="5">
-         <widget class="Line" name="line_8">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="5">
-         <widget class="Line" name="line_9">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="5">
-         <widget class="Line" name="line_10">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <string>cont. Calc.</string>
           </property>
          </widget>
         </item>
@@ -2142,6 +1993,117 @@
       </item>
      </layout>
     </widget>
+    <widget class="QPushButton" name="pushButtonResetOrigin">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>390</x>
+       <y>540</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Set Origin</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>390</x>
+       <y>376</y>
+       <width>121</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Relative to Origin:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelYElf">
+     <property name="geometry">
+      <rect>
+       <x>390</x>
+       <y>432</y>
+       <width>62</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Y = yyy m</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelZElf">
+     <property name="geometry">
+      <rect>
+       <x>390</x>
+       <y>465</y>
+       <width>73</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Z = hhhh m</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelXElf">
+     <property name="geometry">
+      <rect>
+       <x>390</x>
+       <y>399</y>
+       <width>63</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>X = xxx m</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>390</x>
+       <y>490</y>
+       <width>144</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Origin:</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
@@ -2192,8 +2154,6 @@
   <tabstop>radioButtonRSR</tabstop>
   <tabstop>pushButtonResetElf</tabstop>
   <tabstop>pushButtonSubmitElf</tabstop>
-  <tabstop>comboElfSelector</tabstop>
-  <tabstop>pushButtonResetOrigin</tabstop>
   <tabstop>CompassWind</tabstop>
   <tabstop>SliderWindVelocity</tabstop>
   <tabstop>graphicsView</tabstop>
@@ -2494,12 +2454,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>231</y>
+     <x>205</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>264</y>
+     <x>205</x>
+     <y>222</y>
     </hint>
    </hints>
   </connection>
@@ -2510,12 +2470,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>204</x>
-     <y>264</y>
+     <x>205</x>
+     <y>222</y>
     </hint>
     <hint type="destinationlabel">
-     <x>204</x>
-     <y>297</y>
+     <x>205</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>
@@ -2526,12 +2486,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>297</y>
+     <x>205</x>
+     <y>255</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>339</y>
+     <x>205</x>
+     <y>288</y>
     </hint>
    </hints>
   </connection>
@@ -2542,12 +2502,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>339</y>
+     <x>205</x>
+     <y>288</y>
     </hint>
     <hint type="destinationlabel">
-     <x>462</x>
-     <y>407</y>
+     <x>242</x>
+     <y>356</y>
     </hint>
    </hints>
   </connection>
@@ -2575,7 +2535,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>528</x>
-     <y>153</y>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>555</x>
@@ -2591,11 +2551,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>528</x>
-     <y>228</y>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
      <x>601</x>
-     <y>232</y>
+     <y>213</y>
     </hint>
    </hints>
   </connection>
@@ -2623,7 +2583,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>601</x>
-     <y>156</y>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>485</x>
@@ -2643,7 +2603,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>528</x>
-     <y>228</y>
+     <y>210</y>
     </hint>
    </hints>
   </connection>

@@ -110,7 +110,7 @@ public slots:
 	void resetWindDisplacement(void);
 	void invokeLogging(bool active, QFile* fileLog);
 	void setElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
-	void setElfLocation(Position elfPosition, double elfHeading, pathTypeEnum pathType);
+	void setElfLocation(Position_WGS84 elfPosition, double elfHeading, pathTypeEnum pathType);
 	void resetElfLocation(void);
 
 	void SendXPDataRef(const char* dataRefName, double value);
@@ -127,7 +127,7 @@ signals:
 
 	void sigSocketSendData(std::string msgType, int requestId, json data);
 	void originSetTo(Position_WGS84 origin);
-	void sigElfCoordsSet(Position elf, Position_Cartesian elfCart, double elfHeading);
+	void sigElfCoordsSet(Position_WGS84 elf, double elfHeading);
 	void sigWindChanged(double windDirFrom, double windVelocity);
 	void sigCalculateDubinsPath(pathTypeEnum pathType);
 

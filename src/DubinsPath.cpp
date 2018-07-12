@@ -110,15 +110,19 @@ void DubinsPath::updateCaches(void) {
 	cachesDirty = false;
 }
 
-void DubinsPath::calculateDubinsPath(Position start, Position end,
-		double startHeading, double endHeading, double _circleRadius,
-		double _circleGlideRatio, double _straightGlideRatio,
-		pathTypeEnum _pathType, double windVelocity, double windHeading) {
+void DubinsPath::calculateDubinsPath(const Position start, const Position end,
+		const double startHeading, const double endHeading, const double _circleRadius,
+		const double _circleGlideRatio, const double _straightGlideRatio,
+		const pathTypeEnum _pathType, const double windVelocity, const double windHeading) {
 
 	pathType = _pathType;
 	// get the cartesian coordinates of the start, and endpoints
-	Position_Cartesian startCart = start.getPosition_Cart(),
-			endCart = end.getPosition_Cart();
+//	Position_Cartesian startCart = start.getPosition_Cart(),
+//			endCart = end.getPosition_Cart();
+	// get the cartesian coordinates of the start, and endpoints
+	// firstly, the endpoint is used as the origin
+	Position_Cartesian startCart = end.getCartesianDifference(start),
+			endCart = Position_Cartesian(0, 0, 0);
 
 	// rotate the system to have the endHeading in 270° direction (-X-axis)
 	double rotation = 270.0 - endHeading;
@@ -271,34 +275,34 @@ void DubinsPath::calculateDubinsPath(Position start, Position end,
 	//now unrotate the coordinate system
 	Position_Cartesian temp;
 	rotatePoint(circleEntry_t[0].x, circleEntry_t[0].y, -rotation, temp.x, temp.y);
-	circleEntry[0] = Position(temp);
+	circleEntry[0] = Position(end, temp);
 	rotatePoint(circleExit_t[0].x, circleExit_t[0].y, -rotation, temp.x, temp.y);
-	circleExit[0] = Position(temp);
+	circleExit[0] = Position(end, temp);
 	rotatePoint(circleEntry_t[1].x, circleEntry_t[1].y, -rotation, temp.x, temp.y);
-	circleEntry[1] = Position(temp);
+	circleEntry[1] = Position(end, temp);
 	rotatePoint(circleExit_t[1].x, circleExit_t[1].y, -rotation, temp.x, temp.y);
-	circleExit[1] = Position(temp);
+	circleExit[1] = Position(end, temp);
 
 	rotatePoint(circleCenter_t[0].x, circleCenter_t[0].y, -rotation, temp.x, temp.y);
-	circleCenter[0] = Position(temp);
+	circleCenter[0] = Position(end, temp);
 	rotatePoint(circleCenter_t[1].x, circleCenter_t[1].y, -rotation, temp.x, temp.y);
-	circleCenter[1] = Position(temp);
+	circleCenter[1] = Position(end, temp);
 
 	// and now the extended path
 
 	rotatePoint(circleEntryExt_t[0].x, circleEntryExt_t[0].y, -rotation, temp.x, temp.y);
-	circleEntryExt[0] = Position(temp);
+	circleEntryExt[0] = Position(end, temp);
 	rotatePoint(circleExitExt_t[0].x, circleExitExt_t[0].y, -rotation, temp.x, temp.y);
-	circleExitExt[0] = Position(temp);
+	circleExitExt[0] = Position(end, temp);
 	rotatePoint(circleEntryExt_t[1].x, circleEntryExt_t[1].y, -rotation, temp.x, temp.y);
-	circleEntryExt[1] = Position(temp);
+	circleEntryExt[1] = Position(end, temp);
 	rotatePoint(circleExitExt_t[1].x, circleExitExt_t[1].y, -rotation, temp.x, temp.y);
-	circleExitExt[1] = Position(temp);
+	circleExitExt[1] = Position(end, temp);
 
 	rotatePoint(circleCenterExt_t[0].x, circleCenterExt_t[0].y, -rotation, temp.x, temp.y);
-	circleCenterExt[0] = Position(temp);
+	circleCenterExt[0] = Position(end, temp);
 	rotatePoint(circleCenterExt_t[1].x, circleCenterExt_t[1].y, -rotation, temp.x, temp.y);
-	circleCenterExt[1] = Position(temp);
+	circleCenterExt[1] = Position(end, temp);
 
 
 	//set everything else in the DubinsPath object
@@ -331,6 +335,7 @@ json DubinsPath::asJson(){
 json DubinsPath::trochoidAsJson(Position circleCenter, double circleRadius,
 		double entryAngleDeg, double exitAngleDeg,
 		Position_Cartesian displacement){
+	const int DEGREE_SCALE = 10;
 	json j;
 	j["trochoRadius"] = circleRadius;
 	j["trochoCenterStart"] = {circleCenter.getPosition_WGS84().lati, circleCenter.getPosition_WGS84().longi};
@@ -339,7 +344,7 @@ json DubinsPath::trochoidAsJson(Position circleCenter, double circleRadius,
 			(circleCenter+displacement).getPosition_WGS84().longi
 	};
 
-	int steps = abs((exitAngleDeg-entryAngleDeg)/5)+1;	//one point each ~5°
+	int steps = abs((exitAngleDeg-entryAngleDeg)/DEGREE_SCALE)+1;	//one point each ~5°
 	double stepSize = (exitAngleDeg-entryAngleDeg)/steps;	// hw many degrees exactly, including sign
 	std::vector<Position> points = std::vector<Position>(steps+1);
 	for(int i=0; i<= steps; i++){

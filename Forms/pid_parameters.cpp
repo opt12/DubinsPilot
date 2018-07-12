@@ -275,6 +275,12 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(radioButtonCircleRight, SIGNAL(clicked()), this,
 			SLOT(radioButtonCircleClicked()));
 
+	connect(checkBoxCont, SIGNAL(clicked(bool)), this,
+			SLOT(continuousDubinsCalc(bool)));
+	contCalcTimer = new QTimer();
+	connect(contCalcTimer, SIGNAL(timeout()), this, SLOT(contCalcTimerExpired()));
+
+
 	CompassWind->setNeedle(
 			new QwtCompassWindArrow(QwtCompassWindArrow::Style2, Qt::darkBlue,
 					Qt::red));
@@ -379,23 +385,19 @@ void PIDParametersDialog::clearInputFields(void) {
 	emit sigResetElf();
 }
 
-void PIDParametersDialog::showOriginCoords(Position_WGS84 origin) {
-	pushButtonResetOrigin->setText("ResetOrigin");
-	labelLatOrigin->setText("Lat: " + QString::number(origin.lati, 'g'));
-	labelLonOrigin->setText("Lon: " + QString::number(origin.longi, 'g'));
-}
+//void PIDParametersDialog::showOriginCoords(Position_WGS84 origin) {
+//	pushButtonResetOrigin->setText("ResetOrigin");
+//	labelLatOrigin->setText("Lat: " + QString::number(origin.lati, 'g'));
+//	labelLonOrigin->setText("Lon: " + QString::number(origin.longi, 'g'));
+//}
 
-void PIDParametersDialog::showElfCoords(Position_WGS84 elf,
-		Position_Cartesian elf_Cart, double elfHeading) {
+void PIDParametersDialog::showElfCoords(Position_WGS84 elf, double elfHeading) {
 	this->elfPosition = elf;
 	this->elfHeading = elfHeading;
 	this->isElfSet = true;
 	labelLatElf->setText("Lat: " + QString::number(elf.lati, 'g'));
 	labelLonElf->setText("Lon: " + QString::number(elf.longi, 'g'));
 	labelHeadingElf->setText("heading: " + QString::number(elfHeading, 'g'));
-	labelXElf->setText("X: " + QString::number(elf_Cart.x, 'g'));
-	labelYElf->setText("Y: " + QString::number(elf_Cart.y, 'g'));
-	labelZElf->setText("Z: " + QString::number(elf_Cart.z, 'g'));
 }
 
 void PIDParametersDialog::setDValue(void) {
@@ -804,6 +806,19 @@ void PIDParametersDialog::radioButtonCircleClicked(void) {
 	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(),
 			valCircle);
 }
+
+void PIDParametersDialog::continuousDubinsCalc(bool active){
+	if(active){
+		contCalcTimer->start(timerMilliseconds);
+	} else {
+		contCalcTimer->stop();
+	}
+}
+
+void PIDParametersDialog::contCalcTimerExpired(void) {
+	submitElfData();
+}
+
 
 void PIDParametersDialog::readSettings() {
 	QSettings settings("EEE", "PID_Parameters");

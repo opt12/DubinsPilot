@@ -18,7 +18,7 @@ Geocentric Position::earth = Geocentric(Constants::WGS84_a(),
 LocalCartesian Position::proj = LocalCartesian(origin.pos.lati, origin.pos.longi, origin.pos.height,
 		earth);
 
-double Position::getDistanceCart(Position pointB) {
+double Position::getDistanceCart(const Position pointB) const {
 	LocalCartesian tempProj = LocalCartesian(pos.lati, pos.longi, pos.height,earth);
 
 	double x, y, z;
@@ -26,7 +26,15 @@ double Position::getDistanceCart(Position pointB) {
 	return sqrt(x*x +y*y);	//height difference is neglected as only the straight glide path is relevant
 }
 
-double Position::getHeadingCart(Position pointB) {
+Position_Cartesian Position::getCartesianDifference(const Position pointB) const {
+	LocalCartesian tempProj = LocalCartesian(pos.lati, pos.longi, pos.height,earth);
+
+	double x, y, z;
+	tempProj.Forward(pointB.pos.lati, pointB.pos.longi, pointB.pos.height, x, y, z);
+	return Position_Cartesian(x, y, z);
+}
+
+double Position::getHeadingCart(const Position pointB) const {
 	LocalCartesian tempProj = LocalCartesian(pos.lati, pos.longi, pos.height,earth);
 
 	double x, y, z;
