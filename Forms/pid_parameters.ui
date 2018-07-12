@@ -1553,7 +1553,7 @@
        <x>20</x>
        <y>120</y>
        <width>491</width>
-       <height>239</height>
+       <height>241</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1591,7 +1591,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>m</string>
+           <string>°</string>
           </property>
          </widget>
         </item>
@@ -1994,7 +1994,7 @@
          <widget class="QPushButton" name="pushButtonSubmitElf">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>2</horstretch>
+            <horstretch>1</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
@@ -2006,6 +2006,16 @@
           </property>
           <property name="default">
            <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboElfSelector">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>2</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
          </widget>
         </item>
@@ -2168,24 +2178,24 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>SliderPValue</tabstop>
-  <tabstop>doubleSpinBoxPValue</tabstop>
-  <tabstop>spinBoxExpPValue</tabstop>
-  <tabstop>lineEditPParameter</tabstop>
-  <tabstop>SliderIValue</tabstop>
-  <tabstop>doubleSpinBoxIValue</tabstop>
-  <tabstop>spinBoxExpIValue</tabstop>
-  <tabstop>lineEditIParameter</tabstop>
-  <tabstop>SliderDValue</tabstop>
-  <tabstop>doubleSpinBoxDValue</tabstop>
-  <tabstop>spinBoxExpDValue</tabstop>
-  <tabstop>lineEditDParameter</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>lineEditAltitude</tabstop>
+  <tabstop>setHeightButton</tabstop>
+  <tabstop>lineEditFileName</tabstop>
+  <tabstop>choseFileNameButton</tabstop>
+  <tabstop>toggleLogButton</tabstop>
+  <tabstop>lineEditForward</tabstop>
+  <tabstop>lineEditRight</tabstop>
+  <tabstop>lineEditHeight</tabstop>
+  <tabstop>lineEditRotation</tabstop>
+  <tabstop>radioButtonLSL</tabstop>
   <tabstop>radioButtonRSR</tabstop>
   <tabstop>pushButtonResetElf</tabstop>
-  <tabstop>checkBoxClimbController</tabstop>
-  <tabstop>ledIndicator</tabstop>
-  <tabstop>KnobClimb</tabstop>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>pushButtonSubmitElf</tabstop>
+  <tabstop>comboElfSelector</tabstop>
+  <tabstop>pushButtonResetOrigin</tabstop>
+  <tabstop>CompassWind</tabstop>
+  <tabstop>SliderWindVelocity</tabstop>
   <tabstop>graphicsView</tabstop>
   <tabstop>lineEditPParameterBank</tabstop>
   <tabstop>SliderIValueBank</tabstop>
@@ -2199,22 +2209,22 @@
   <tabstop>checkBoxRollController</tabstop>
   <tabstop>ledIndicatorRoll</tabstop>
   <tabstop>KnobRoll</tabstop>
-  <tabstop>lineEditHeight</tabstop>
-  <tabstop>lineEditAltitude</tabstop>
-  <tabstop>saveButton</tabstop>
-  <tabstop>setHeightButton</tabstop>
-  <tabstop>lineEditFileName</tabstop>
-  <tabstop>choseFileNameButton</tabstop>
-  <tabstop>lineEditRotation</tabstop>
-  <tabstop>pushButtonResetOrigin</tabstop>
-  <tabstop>toggleLogButton</tabstop>
-  <tabstop>lineEditForward</tabstop>
-  <tabstop>lineEditRight</tabstop>
+  <tabstop>SliderDValue</tabstop>
+  <tabstop>doubleSpinBoxPValue</tabstop>
+  <tabstop>SliderPValue</tabstop>
+  <tabstop>spinBoxExpPValue</tabstop>
+  <tabstop>lineEditPParameter</tabstop>
+  <tabstop>SliderIValue</tabstop>
+  <tabstop>doubleSpinBoxDValue</tabstop>
+  <tabstop>ledIndicator</tabstop>
+  <tabstop>doubleSpinBoxIValue</tabstop>
+  <tabstop>spinBoxExpIValue</tabstop>
+  <tabstop>lineEditIParameter</tabstop>
   <tabstop>spinBoxExpPValueBank</tabstop>
   <tabstop>doubleSpinBoxPValueBank</tabstop>
   <tabstop>SliderPValueBank</tabstop>
-  <tabstop>radioButtonLSL</tabstop>
-  <tabstop>pushButtonSubmitElf</tabstop>
+  <tabstop>spinBoxExpDValue</tabstop>
+  <tabstop>lineEditDParameter</tabstop>
   <tabstop>SliderPValueHeading</tabstop>
   <tabstop>doubleSpinBoxPValueHeading</tabstop>
   <tabstop>spinBoxExpPValueHeading</tabstop>
@@ -2247,8 +2257,9 @@
   <tabstop>KnobCircle</tabstop>
   <tabstop>radioButtonCircleLeft</tabstop>
   <tabstop>radioButtonCircleRight</tabstop>
-  <tabstop>CompassWind</tabstop>
-  <tabstop>SliderWindVelocity</tabstop>
+  <tabstop>KnobClimb</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>checkBoxClimbController</tabstop>
  </tabstops>
  <resources/>
  <connections>

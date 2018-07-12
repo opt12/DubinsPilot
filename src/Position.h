@@ -78,6 +78,36 @@ public:
 		return Position_Cartesian(p1.x-p2.x, p1.y-p2.y, p1.z-p2.z);
 	}
 
+	friend Position_Cartesian operator/(const Position_Cartesian &p1, const int div){
+		return Position_Cartesian(p1.x/div, p1.y/div, p1.z/div);
+	}
+
+	friend Position_Cartesian operator/(const Position_Cartesian &p1, const double div){
+		return Position_Cartesian(p1.x/div, p1.y/div, p1.z/div);
+	}
+
+	friend Position_Cartesian operator*(const Position_Cartesian &p1, const int mult){
+		return Position_Cartesian(p1.x*mult, p1.y*mult, p1.z*mult);
+	}
+
+	friend Position_Cartesian operator*(const Position_Cartesian &p1, const double mult){
+		return Position_Cartesian(p1.x*mult, p1.y*mult, p1.z*mult);
+	}
+
+	friend Position_Cartesian operator*(const int mult, const Position_Cartesian &p1){
+		return Position_Cartesian(p1.x*mult, p1.y*mult, p1.z*mult);
+	}
+
+	friend Position_Cartesian operator*(const double mult, const Position_Cartesian &p1){
+		return Position_Cartesian(p1.x*mult, p1.y*mult, p1.z*mult);
+	}
+
+	Position_Cartesian rotate(const double angleDeg) const {
+		double x, y;
+		rotatePoint(this->x, this->y, angleDeg, x, y);
+		return Position_Cartesian(x, y, this->z);
+	}
+
 	double x = 0.0, y = 0.0, z = 0.0;
 };
 
@@ -96,8 +126,16 @@ public:
 	}
 
 	Position(Position_Cartesian pos_Cart) : Position(Position::origin.pos, pos_Cart.x, pos_Cart.y, pos_Cart.z) {
+			// delegating constructor
+			//calls the "cartesian" constructor with with reference to the origin
+			;
+		}
+
+	Position(const Position &reference,
+			const Position_Cartesian &displacement) :
+			Position(reference.pos, displacement.x, displacement.y, displacement.z) {
 		// delegating constructor
-		//calls the "cartesian" constructor with with reference to the origin
+		//calls the "cartesian" constructor with with reference to the given reference
 		;
 	}
 

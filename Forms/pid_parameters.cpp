@@ -247,10 +247,25 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(pushButtonResetElf, SIGNAL(clicked()), this,
 			SLOT(clearInputFields(void)));
 
+	// TODO Das will ich eigentlich nicht unbedingt direkt submitten, wenn ich draufkicke
+	connect(radioButtonLSL, SIGNAL(clicked()), this,
+			SLOT(submitElfData()));
+	connect(radioButtonRSR, SIGNAL(clicked()), this,
+			SLOT(submitElfData()));
+
+
 	lineEditForward->setValidator(new QDoubleValidator);
+	connect(lineEditForward, SIGNAL(textChanged(QString)), this,
+			SLOT(elfInputFieldsetDirty(void)));
 	lineEditRight->setValidator(new QDoubleValidator);
+	connect(lineEditRight, SIGNAL(textChanged(QString)), this,
+			SLOT(elfInputFieldsetDirty(void)));
 	lineEditHeight->setValidator(new QDoubleValidator);
+	connect(lineEditHeight, SIGNAL(textChanged(QString)), this,
+			SLOT(elfInputFieldsetDirty(void)));
 	lineEditRotation->setValidator(new QDoubleValidator);
+	connect(lineEditRotation, SIGNAL(textChanged(QString)), this,
+			SLOT(elfInputFieldsetDirty(void)));
 
 	connect(pushButtonSubmitElf, SIGNAL(clicked()), this,
 			SLOT(submitElfData(void)));
@@ -359,6 +374,9 @@ void PIDParametersDialog::clearInputFields(void) {
 	lineEditRight->clear();
 	lineEditHeight->clear();
 	lineEditRotation->clear();
+	elfInputFieldsDirty = false;
+	this->isElfSet = false;
+	emit sigResetElf();
 }
 
 void PIDParametersDialog::showOriginCoords(Position_WGS84 origin) {
@@ -369,6 +387,9 @@ void PIDParametersDialog::showOriginCoords(Position_WGS84 origin) {
 
 void PIDParametersDialog::showElfCoords(Position_WGS84 elf,
 		Position_Cartesian elf_Cart, double elfHeading) {
+	this->elfPosition = elf;
+	this->elfHeading = elfHeading;
+	this->isElfSet = true;
 	labelLatElf->setText("Lat: " + QString::number(elf.lati, 'g'));
 	labelLonElf->setText("Lon: " + QString::number(elf.longi, 'g'));
 	labelHeadingElf->setText("heading: " + QString::number(elfHeading, 'g'));
@@ -942,8 +963,14 @@ void PIDParametersDialog::submitElfData(void) {
 	height = lineEditHeight->text().toDouble();
 	rotation = lineEditRotation->text().toDouble();
 
-	emit sigSetElfLocation(forward, right, height, rotation);
-
+	if(elfInputFieldsDirty || !isElfSet){
+		emit sigSetElfLocation(forward, right, height, rotation,
+				radioButtonLSL->isChecked()?pathTypeEnum::LSL:pathTypeEnum::RSR);
+	} else {
+		emit sigSetElfLocation(elfPosition, elfHeading,
+				radioButtonLSL->isChecked()?pathTypeEnum::LSL:pathTypeEnum::RSR);
+	}
+	elfInputFieldsDirty = false;
 }
 
 void PIDParametersDialog::setWind(void) {

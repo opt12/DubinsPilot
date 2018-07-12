@@ -37,7 +37,9 @@ signals:
 
 	void sigLoggingActiveStateChanged(bool active, QFile* fileLog);
 	void resetOrigin(void);
-	void sigSetElfLocation(double forward, double right, double height, double rotation);
+	void sigSetElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
+	void sigSetElfLocation(Position elfPosition, double heading, pathTypeEnum pathType);
+	void sigResetElf(void);
 
 public slots:
 	void setXPlaneConnection(bool);
@@ -103,6 +105,7 @@ private slots:
 	void fileNameEditingFinished(void);
 
 	void clearInputFields(void);
+	void elfInputFieldsetDirty(void) { elfInputFieldsDirty = true; }
 	void submitElfData(void);
 
 	void setWind(void);
@@ -141,6 +144,10 @@ private:
 	bool loggingActive = false;
 	QFile fileLog;
 	QTextStream *outLog;
+	bool elfInputFieldsDirty = true;
+	Position elfPosition;
+	double elfHeading = 0.0;
+	bool isElfSet = false;
 
 };
 

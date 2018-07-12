@@ -8,6 +8,9 @@
 #include <DubinsPath.h>
 #include "enumDeclarations.h"
 #include <math.h>
+#include <vector>
+#include <tuple>
+#include <algorithm>    // std::transform
 
 /*
  * The Matlab output uses a command to draw circular segments that goes like this
@@ -194,7 +197,7 @@ void DubinsPath::calculateDubinsPath(Position start, Position end,
 				- straightLength * straightLength)
 				/ (2 * (straightLength + deltaX));
 
-		//jetzt kann der endgültige Anflug estimmt werden
+		//jetzt kann der endgültige Anflug bestimmt werden
 		circleCenterExt_t[0] = circleCenter_t[0];	// nix ändert sich
 		circleCenterExt_t[1].y = circleCenter_t[1].y;
 		circleCenterExt_t[1].x = end_t.x + finalApproachLengthExt;
@@ -306,5 +309,54 @@ void DubinsPath::calculateDubinsPath(Position start, Position end,
 	circleGlideRatio = _circleGlideRatio;
 	straightGlideRatio = _straightGlideRatio;
 	cachesDirty = false;
+
+	//TODO Debug ausgabe entfernen!
+	std::cout << asJson().dump(4) << std::endl;
 }
+
+json DubinsPath::asJson(){
+	json j;
+	j["pathType"]=pathType._to_string();
+	j["startingPoint"]= {startPoint.getPosition_WGS84().lati, startPoint.getPosition_WGS84().longi};
+	j["endPoint"]= {endPoint.getPosition_WGS84().lati, endPoint.getPosition_WGS84().longi};
+	j["trochoidOne"] = trochoidAsJson(circleCenter[0], circleRadius,
+			circleEntryAngle[0], circleExitAngle[0]);
+	j["trochoidTwo"] = trochoidAsJson(circleCenter[1], circleRadius,
+			circleEntryAngle[1], circleExitAngle[1]);
+	j["startHeading"] =  circleEntryAngle[0] + ((pathType == +pathTypeEnum::LSL) ? -90 : +90);
+	j["endHeading"] =  circleExitAngle[1] + ((pathType == +pathTypeEnum::LSL) ? -90 : +90);
+	return j;
+}
+
+json DubinsPath::trochoidAsJson(Position circleCenter, double circleRadius,
+		double entryAngleDeg, double exitAngleDeg,
+		Position_Cartesian displacement){
+	json j;
+	j["trochoRadius"] = circleRadius;
+	j["trochoCenterStart"] = {circleCenter.getPosition_WGS84().lati, circleCenter.getPosition_WGS84().longi};
+	j["trochoCenterEnd"] = {
+			(circleCenter+displacement).getPosition_WGS84().lati,
+			(circleCenter+displacement).getPosition_WGS84().longi
+	};
+
+	int steps = abs((exitAngleDeg-entryAngleDeg)/5)+1;	//one point each ~5°
+	double stepSize = (exitAngleDeg-entryAngleDeg)/steps;	// hw many degrees exactly, including sign
+	std::vector<Position> points = std::vector<Position>(steps+1);
+	for(int i=0; i<= steps; i++){
+		Position_Cartesian circleRay = Position_Cartesian(0.0, circleRadius, 0.0).rotate(entryAngleDeg+i*stepSize);
+		points[i] = Position(circleCenter+(i*displacement/steps), circleRay);	//TODO muss hier durch (steps+1) geteilt werden?
+	}
+	std::vector<std::tuple<double, double>> latlongArray;
+	std::transform(points.begin(), points.end(),
+			std::back_inserter(latlongArray), [](Position pos) {
+				std::tuple<double, double> tup   {
+					pos.getPosition_WGS84().lati,
+					pos.getPosition_WGS84().longi
+				};
+				return tup;
+			});
+	j["trochoBorder"] = latlongArray;
+	return j;
+}
+
 

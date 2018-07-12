@@ -235,9 +235,7 @@ json AutoPilot::getCircleDataAsJson(void){
 		j["directionLeft"] = circleDirectionLeft;
 	}
 	else {
-		j["center"] = "none";
-		j["radius"] = "none";
-		j["directionLeft"] = "none";
+		j = json::object({});	//leave the object empty
 	}
 	return j;
 }

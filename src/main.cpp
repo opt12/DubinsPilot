@@ -15,6 +15,7 @@
 #include "RequestDispatcher.h"
 #include "auto_pilot.h"
 #include "DubinsPath.h"
+#include "enumDeclarations.h"
 
 #include "json.hpp"
 // for convenience
@@ -33,8 +34,8 @@ int main(int argc, char *argv[]) {
 	Position start, end;
 	start = Position(Position::getOrigin_WGS84(), startCart.x, startCart.y, startCart.z);
 	end = Position(Position::getOrigin_WGS84(), endCart.x, endCart.y, endCart.z);
-	double startHeading = 90;
-	double endHeading = 270;
+	double startHeading = 135;
+	double endHeading = 180;
 	double _circleRadius = 500;
 	double _circleGlideRatio = 10;
 	double _straightGlideRatio = 10;
@@ -103,8 +104,14 @@ int main(int argc, char *argv[]) {
 	QObject::connect(pidParams, SIGNAL(sigSendXPDataRef(const char*, double)),
 			dc, SLOT(SendXPDataRef(const char*, double)));
 	QObject::connect(pidParams,
-			SIGNAL(sigSetElfLocation(double, double, double, double)), dc,
-			SLOT(setElfLocation(double, double, double, double)));
+			SIGNAL(sigSetElfLocation(double, double, double, double, pathTypeEnum)), dc,
+			SLOT(setElfLocation(double, double, double, double, pathTypeEnum)));
+	QObject::connect(pidParams,
+			SIGNAL(sigSetElfLocation(Position, double, pathTypeEnum)), dc,
+			SLOT(setElfLocation(Position, double, pathTypeEnum)));
+	QObject::connect(pidParams,
+			SIGNAL(sigResetElf(void)), dc,
+			SLOT(resetElfLocation(void)));
 
 	//connections from AutoPilot --> DataCenter
 	QObject::connect(&ap, SIGNAL(sigSendXPDataRef(const char*, double)), dc,
@@ -117,8 +124,8 @@ int main(int argc, char *argv[]) {
 			SLOT(setXPlaneConnection(bool)));
 	QObject::connect(dc, SIGNAL(originSetTo(Position_WGS84)), pidParams,
 			SLOT(showOriginCoords(Position_WGS84)));
-	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position_WGS84, Position_Cartesian, double)), pidParams,
-			SLOT(showElfCoords(Position_WGS84, Position_Cartesian, double)));
+	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position, Position_Cartesian, double)), pidParams,
+			SLOT(showElfCoords(Position, Position_Cartesian, double)));
 	QObject::connect(dc, SIGNAL(sigWindChanged(double, double)), pidParams,
 			SLOT(displayCurrentWind(double, double)));
 

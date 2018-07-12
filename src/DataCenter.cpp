@@ -45,6 +45,8 @@ DataCenter::DataCenter(QObject* parent) :
 
 	basicTimer = new QTimer();
 	QObject::connect(basicTimer, SIGNAL(timeout()), this, SLOT(timerExpired()));
+	QObject::connect(this, SIGNAL(sigCalculateDubinsPath(pathTypeEnum)), this,
+			SLOT(calculateDubinsPath(pathTypeEnum)));
 
 	//TODO XXX comment out to Debug
 	connectToXPlane();//TODO Das funktioniert nicht immer zuverlässig. Was ist da los?
@@ -83,13 +85,13 @@ void DataCenter::timerExpired(void) {
 			* curDat.wind_speed_ms / (1000/timerMilliseconds);
 	curDat.windDisplacement.y -= cos(to_radians(curDat.wind_direction_degt))
 			* curDat.wind_speed_ms / (1000/timerMilliseconds);
-	{static int count = 0;
-	if(!(count%(1000/timerMilliseconds)))
-			std::cout << "timestamp: "<< QTime::currentTime().toString("hh:mm:ss.zzz").toStdString().c_str()<<";\twindDisplacement: "
-					<< curDat.windDisplacement.asJson().dump(4)
-					<< std::endl;
-	count++;
-	}
+//	{static int count = 0;
+//	if(!(count%(1000/timerMilliseconds)))
+//			std::cout << "timestamp: "<< QTime::currentTime().toString("hh:mm:ss.zzz").toStdString().c_str()<<";\twindDisplacement: "
+//					<< curDat.windDisplacement.asJson().dump(4)
+//					<< std::endl;
+//	count++;
+//	}
 
 
 	//send the entire Dataset out to the ipc-socket The node.js app can listen if it wants to
@@ -232,7 +234,7 @@ void DataCenter::on_rqd_requested_getPlaneState(int requestId) {
 }
 
 void DataCenter::setElfLocation(double forward, double right, double height,
-		double rotation) {
+		double rotation, pathTypeEnum pathType) {
 	//we don't necessarily need the origin set to define an ELF file
 	//we only need it when starting to calculate the path to do this in XY cartesian coords
 	curDat.setElfPos_relative(forward, right, height, rotation);//relative to current position
@@ -244,9 +246,39 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 	std::cout << ", heading is " << curDat.pos.getHeadingCart(curDat.elf)
 			<< std::endl;
 
-	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(),
+	emit sigElfCoordsSet(curDat.elf,
 			curDat.elf.getPosition_Cart(), curDat.elfHeading);
+	emit sigCalculateDubinsPath(pathType);
 }
+
+void DataCenter::setElfLocation(Position elfPosition, double elfHeading, pathTypeEnum pathType){
+	curDat.setElfPos(elfPosition, elfHeading);
+	emit sigElfCoordsSet(curDat.elf,
+			curDat.elf.getPosition_Cart(), curDat.elfHeading);
+	emit sigCalculateDubinsPath(pathType);
+}
+
+void DataCenter::resetElfLocation(void){
+	curDat.resetElfPos();
+	emit sigSocketSendData(std::string("DUBINS_PATH"), 0,
+			json::object({}));
+}
+
+void DataCenter::calculateDubinsPath(pathTypeEnum pathType){
+	if(!curDat.isElfSet){
+		std::cout <<"You need to specify the ELF first\n";
+		return;
+	}
+	std::cout<< "Calculating dubinsPath now! \n";
+	//now calculate the dubins Path from the current Position to the desired ELF
+	//TODO of course, we need to check the dubins Path Parameters like
+	// RSR, LSL, glideAngle, radius...
+	curDat.setDubinsPath(curDat.pos, curDat.elf,
+			curDat.true_psi, curDat.elfHeading, 450, 10.4, 10.4, pathType);
+	emit sigSocketSendData(std::string("DUBINS_PATH"), 0,
+			curDat.db.asJson());
+}
+
 
 void DataCenter::setOrigin(void) {
 	Position_WGS84 pos = curDat.getPosition_WGS84();
@@ -269,7 +301,7 @@ void DataCenter::setOrigin(void) {
 		*outLog << origin;
 	}
 	emit originSetTo(Position::getOrigin_WGS84());
-	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(),
+	emit sigElfCoordsSet(curDat.elf,
 			curDat.elf.getPosition_Cart(), curDat.elfHeading);
 }
 

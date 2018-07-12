@@ -16,6 +16,7 @@
 #include <iostream>
 #include "utils.h"
 #include "enumDeclarations.h"
+#include "DubinsPath.h"
 
 #include "json.hpp"
 // for convenience
@@ -59,6 +60,28 @@ public:
 		std::cout <<"elf set to: "<< elf.getPosition_WGS84().asJson().dump(4) << std::endl;
 		std::cout <<"elf set to: "<< elf.getPosition_Cart().asJson().dump(4) << std::endl;
 		elfHeading = true_psi + rotation;
+		isElfSet = true;
+	}
+
+	void setElfPos(Position elfPosition, double _elfHeading){
+		elf = elfPosition;
+		elfHeading = _elfHeading;
+		isElfSet = true;
+	}
+
+	void resetElfPos(void){
+		isElfSet = false;
+	}
+
+	void setDubinsPath(Position start, Position end,
+			double startHeading, double endHeading,
+			double circleRadius,
+			double circleGlideRatio, double straightGlideRatio,
+			pathTypeEnum _pathType){
+		std::cout<< "Calculating dubinsPath now! Dataset.h\n";
+		db = DubinsPath(start, end, startHeading, endHeading, circleRadius,
+				circleGlideRatio, straightGlideRatio, _pathType);
+		isDubinsPathset = true;
 	}
 
 	Position_WGS84 getPosition_WGS84() {
@@ -113,6 +136,9 @@ public:
 //	double heightOverGnd = 0.0;	//this value isn't in the datarefs
 	Position pos = Position(0.0, 0.0);
 	Position elf = Position(0.0, 0.0);
+	bool isElfSet = false;
+	DubinsPath db = DubinsPath();
+	bool isDubinsPathset = false;
 	double elfHeading = 0.0;
 
 	//controller data
