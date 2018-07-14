@@ -78,7 +78,6 @@ public:
 			double circleRadius,
 			double circleGlideRatio, double straightGlideRatio,
 			pathTypeEnum _pathType){
-		std::cout<< "Calculating dubinsPath now! Dataset.h\n";
 		db = DubinsPath(start, end, startHeading, endHeading, circleRadius,
 				circleGlideRatio, straightGlideRatio, _pathType);
 		isDubinsPathset = true;

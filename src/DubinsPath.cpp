@@ -315,7 +315,7 @@ void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 	cachesDirty = false;
 
 	//TODO Debug ausgabe entfernen!
-	std::cout << asJson().dump(4) << std::endl;
+//	std::cout << asJson().dump(4) << std::endl;
 }
 
 json DubinsPath::asJson(){

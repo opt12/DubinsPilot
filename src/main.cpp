@@ -16,6 +16,7 @@
 #include "auto_pilot.h"
 #include "DubinsPath.h"
 #include "enumDeclarations.h"
+#include "DubinsScheduler.h"
 
 #include "json.hpp"
 // for convenience
@@ -73,6 +74,8 @@ int main(int argc, char *argv[]) {
 	DataCenter *dc = DataCenter::getInstance();
 
 	AutoPilot ap;
+
+	DubinsScheduler dubSched;
 
 	SockServer *sock = SockServer::getInstance();
 	// TODO remove debug mode for socket
@@ -165,6 +168,21 @@ int main(int argc, char *argv[]) {
 	//connections from AutoPilot --> SockServer
 	QObject::connect(&ap, SIGNAL(sigSocketSendData(std::string, int, json)),
 			sock, SLOT(socketSendData(std::string, int, json)));
+
+	//connections from DubinsScheduler --> AutoPilot
+	QObject::connect(&dubSched,
+			SIGNAL(sigCtrlActiveStateChanged(ctrlType, bool)), &ap,
+			SLOT(invokeController(ctrlType, bool)));
+	QObject::connect(&dubSched,
+			SIGNAL(sigRequestedSetValueChanged(ctrlType, double)), &ap,
+			SLOT(requestCtrlTargetValue(ctrlType, double)));
+	QObject::connect(&dubSched,
+			SIGNAL(sigCircleDirectionChanged(bool, double)), &ap,
+			SLOT(requestCircleDirection(bool, double)));
+
+	//connections from PIDParametersDialog --> DubinsScheduler
+	QObject::connect(pidParams, SIGNAL(sigStartPathTracking(bool)),
+			&dubSched, SLOT(takeMeDown(bool)));
 
 
 	return app.exec();

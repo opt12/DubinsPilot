@@ -277,8 +277,11 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 
 	connect(checkBoxCont, SIGNAL(clicked(bool)), this,
 			SLOT(continuousDubinsCalc(bool)));
-	contCalcTimer = new QTimer();
-	connect(contCalcTimer, SIGNAL(timeout()), this, SLOT(contCalcTimerExpired()));
+	constCalcTimer = new QTimer();
+	connect(constCalcTimer, SIGNAL(timeout()), this, SLOT(constCalcTimerExpired()));
+
+	connect(pushButtonFlyPath, SIGNAL(clicked(bool)), this,
+			SLOT(takeMeDown()));
 
 
 	CompassWind->setNeedle(
@@ -382,6 +385,8 @@ void PIDParametersDialog::clearInputFields(void) {
 	lineEditRotation->clear();
 	elfInputFieldsDirty = false;
 	this->isElfSet = false;
+	pushButtonFlyPath->setEnabled(false);
+	pushButtonFlyPath->setText("Take me\ndown");
 	emit sigResetElf();
 }
 
@@ -398,6 +403,7 @@ void PIDParametersDialog::showElfCoords(Position_WGS84 elf, double elfHeading) {
 	labelLatElf->setText("Lat: " + QString::number(elf.lati, 'g'));
 	labelLonElf->setText("Lon: " + QString::number(elf.longi, 'g'));
 	labelHeadingElf->setText("heading: " + QString::number(elfHeading, 'g'));
+	pushButtonFlyPath->setEnabled(true);
 }
 
 void PIDParametersDialog::setDValue(void) {
@@ -809,13 +815,13 @@ void PIDParametersDialog::radioButtonCircleClicked(void) {
 
 void PIDParametersDialog::continuousDubinsCalc(bool active){
 	if(active){
-		contCalcTimer->start(timerMilliseconds);
+		constCalcTimer->start(timerMilliseconds);
 	} else {
-		contCalcTimer->stop();
+		constCalcTimer->stop();
 	}
 }
 
-void PIDParametersDialog::contCalcTimerExpired(void) {
+void PIDParametersDialog::constCalcTimerExpired(void) {
 	submitElfData();
 }
 
@@ -988,6 +994,22 @@ void PIDParametersDialog::submitElfData(void) {
 	elfInputFieldsDirty = false;
 }
 
+void PIDParametersDialog::takeMeDown(void){
+	static bool isTracking = false;
+	if(!isTracking){
+		checkBoxCont->setChecked(false);	// we need to stop the continuous calculation
+		submitElfData();	// we recalculate the path directly before tracking it
+		pushButtonFlyPath->setText("Cancel");
+		emit sigStartPathTracking(true);
+		isTracking = true;
+		//TODO Da müsste nman eigentlich noch die ganzenEingabefelder disablen bis angekommen oder Cancel
+	} else {
+		pushButtonFlyPath->setText("Take me\ndown");
+		emit sigStartPathTracking(false);
+		isTracking = false;
+	}
+}
+
 void PIDParametersDialog::setWind(void) {
 	// Eingabe sind Knoten, Rückgabe sind Meter pro Sekunde
 	double windDirFrom = CompassWind->value();
@@ -1133,7 +1155,7 @@ void PIDParametersDialog::setupPlot(void) {
 	qwtPlotCircle->setAxisScale(qwtPlotCircle->xBottom, 0.0, plotDataSize);
 
 	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yLeft, "Circle Radius [m] -->");
-	qwtPlotCircle->setAxisScale(qwtPlotCircle->yLeft, 250, 1050);
+	qwtPlotCircle->setAxisScale(qwtPlotCircle->yLeft, 380, 520);
 
 	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yRight,
 			"<-- Roll Correction [deg]");

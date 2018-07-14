@@ -98,9 +98,11 @@ private:
 	Position circleCenter = Position();
 	bool circleFlightActive = false;
 	double circleRadiusCorrection = 0.0;
-	Position_Cartesian initialDisplacement={0.0, 0.0, 0.0};;
+	Position_Cartesian initialDisplacement={0.0, 0.0, 0.0};
 
 	json getCircleDataAsJson(void);
+
+	bool dubinsSchedulerActive = false;
 
 private slots:
 	void timerExpired(void);

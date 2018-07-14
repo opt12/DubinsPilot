@@ -54,7 +54,6 @@ DataCenter::DataCenter(QObject* parent) :
 }
 
 DataCenter::~DataCenter() {
-	// TODO Auto-generated destructor stub
 	if (xp) {
 		xp->setDataRef("sim/operation/override/override_artstab", false);
 		xp->setDataRef("sim/operation/override/override_joystick_pitch", false);
@@ -267,7 +266,7 @@ void DataCenter::calculateDubinsPath(pathTypeEnum pathType){
 		std::cout <<"You need to specify the ELF first\n";
 		return;
 	}
-	std::cout<< "Calculating dubinsPath now! \n";
+//	std::cout<< "Calculating dubinsPath now! \n";
 	//now calculate the dubins Path from the current Position to the desired ELF
 	//TODO of course, we need to check the dubins Path Parameters like
 	// RSR, LSL, glideAngle, radius...

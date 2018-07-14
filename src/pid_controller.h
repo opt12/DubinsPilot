@@ -316,9 +316,10 @@ PIDControl
 
         inline void PIDResetInternals() {
         	iTerm = 0.0f;
-        	input = 0.0f;
-        	lastInput = 0.0f;
+        	input = setpoint;
+        	lastInput = setpoint;
         	output = 0.0f;
+        	error = 0.0f;
         }
 
         //

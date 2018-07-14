@@ -67,6 +67,49 @@ public:
 
 	json asJson();
 
+	pathTypeEnum getPathType() const {
+		return pathType;
+	}
+
+	const Position* getCircleCenter() const {
+		return circleCenter;
+	}
+
+	const Position* getCircleEntry() const {
+		return circleEntry;
+	}
+
+	const double* getCircleEntryAngle() const {
+		return circleEntryAngle;
+	}
+
+	const Position* getCircleExit() const {
+		return circleExit;
+	}
+
+	const double* getCircleExitAngle() const {
+		return circleExitAngle;
+	}
+
+	double getCircleGlideRatio() const {
+		return circleGlideRatio;
+	}
+
+	double getCircleRadius() const {
+		return circleRadius;
+	}
+
+	const Position& getEndPoint() const {
+		return endPoint;
+	}
+
+	const Position& getStartPoint() const {
+		return startPoint;
+	}
+
+	double getStraightGlideRatio() const {
+		return straightGlideRatio;
+	}
 
 private:
 

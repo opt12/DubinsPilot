@@ -22,7 +22,9 @@ HEADERS += Forms/pid_parameters.h \
            src/RequestDispatcher.h \
            src/utils.h \
            src/DubinsPath.h \
-           src/auto_pilot.h
+           src/auto_pilot.h \
+           src/FlightPhase.h \
+           src/DubinsScheduler.h
 FORMS +=   Forms/pid_parameters.ui
 SOURCES += Forms/pid_parameters.cpp \
            Forms/qledindicator.cpp \
@@ -36,7 +38,9 @@ SOURCES += Forms/pid_parameters.cpp \
            src/RequestDispatcher.cpp \
            src/utils.cpp \
            src/DubinsPath.cpp \
-           src/auto_pilot.cpp
+           src/auto_pilot.cpp \
+           src/FlightPhase.cpp \
+           src/DubinsScheduler.cpp
 
 #to debug try to compile XplaneLib myself
 HEADERS += libXPlane/XPlaneBeaconListener.h \

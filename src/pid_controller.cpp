@@ -90,7 +90,6 @@ bool PIDControl::PIDCompute() {
 	}
 
 	// Take the "derivative on measurement" instead of "derivative on error"
-	dInput = input - lastInput;
 	dInput = calculateError(input, lastInput);
 //    std::cout<< "dInput = "<<dInput<<std::endl;
 	// Run all the terms together to get the overall output
@@ -180,7 +179,11 @@ void PIDControl::PIDTuningKdSet(double kd) {
 
 void PIDControl::PIDControllerDirectionSet(PIDDirection controllerDirection) {
 	// If in automatic mode and the controller's sense of direction is reversed
-	if (mode == AUTOMATIC && controllerDirection == REVERSE) {
+	// but only if we really change the direction
+	// here was a bug in the original source
+	// XXX we interpret the controllerDirection as absolute, originally, this was interpreted as a REVERSal command
+//	if (mode == AUTOMATIC &&  controllerDirection == REVERSE) {
+	if (this->controllerDirection != controllerDirection && mode == AUTOMATIC) {
 		// Reverse sense of direction of PID gain constants
 		alteredKp = -(alteredKp);
 		alteredKi = -(alteredKi);

@@ -41,6 +41,8 @@ signals:
 	void sigSetElfLocation(Position_WGS84 elfPosition, double heading, pathTypeEnum pathType);
 	void sigResetElf(void);
 
+	void sigStartPathTracking(bool active);
+
 public slots:
 	void setXPlaneConnection(bool);
 	void attachControllerCurve(ctrlType c, QwtPlotCurve* ctrlCurve);
@@ -96,7 +98,7 @@ private slots:
 	void circleControlActiveStateChanged(bool active);
 	void radioButtonCircleClicked(void);
 	void continuousDubinsCalc(bool active);
-	void contCalcTimerExpired(void);
+	void constCalcTimerExpired(void);
 
 	void writeSettings();
 
@@ -109,6 +111,8 @@ private slots:
 	void clearInputFields(void);
 	void elfInputFieldsetDirty(void) { elfInputFieldsDirty = true; }
 	void submitElfData(void);
+
+	void takeMeDown(void);
 
 	void setWind(void);
 
@@ -150,7 +154,7 @@ private:
 	Position_WGS84 elfPosition;
 	double elfHeading = 0.0;
 	bool isElfSet = false;
-	QTimer *contCalcTimer = NULL;
+	QTimer *constCalcTimer = NULL;
 	const int timerMilliseconds = 500;
 
 };

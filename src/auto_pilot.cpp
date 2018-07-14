@@ -53,6 +53,7 @@ AutoPilot::AutoPilot(QObject* parent) :
 			0.1, -20.0, 20.0, MANUAL, REVERSE);
 	ctrl[ctrlType::HEADING_CONTROL].publishOutput = [this](double output)
 	{
+		ctrl[ctrlType::ROLL_CONTROL].controlActive = true;	//just to ensure this
 		ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue = output;	//set the roll target for the lower level controller
 			emit sigRequestRoll(output);//adapt the knob in the GUI
 		};
@@ -67,21 +68,18 @@ AutoPilot::AutoPilot(QObject* parent) :
 			};
 
 	ctrl[ctrlType::RADIUS_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0,
-			0.1, -10.0, 10.0, MANUAL, DIRECT);
+			0.1, -15.0, 15.0, MANUAL, REVERSE);
 	ctrl[ctrlType::RADIUS_CONTROL].getMeasurement = [this](void) {
 		// the target value is the radius of the circle
 			Position curPos = dc->getPosition();
 			Position displacedCircleCenter = circleCenter+(dc->getWindDisplacement()-initialDisplacement);
-			return curPos.getDistanceCart(displacedCircleCenter);
+			double distance  = curPos.getDistanceCart(displacedCircleCenter);
+			return distance;
 		};
 	ctrl[ctrlType::RADIUS_CONTROL].publishOutput = [this](double output)
 	{
-		// TODO erstmal nix machen, sondern nur staunen
-		//TODO XXX Hier können wir das roll limit noch nachkorrigieren mit Regler
 		circleRadiusCorrection = output;
-//			ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue += output;//add the radius correction
-//			emit sigRequestRoll(ctrl[ctrlType::ROLL_CONTROL].requestedTargetValue);//adapt the knob in the GUI
-		};
+	};
 
 	//hier kann ich noch keinen attach ausführen, weil die Verbindung in main noch nicht besteht.
 	// Aber ich kann den attach in die event queue einreihen und dann geht das.
@@ -208,11 +206,9 @@ void AutoPilot::setControllerParameters(ctrlType _ct, double _p, double _i,
 void AutoPilot::requestCircleDirection(bool isLeftCircle, double radius) {
 	circleDirectionLeft = isLeftCircle;
 	//set the controller direction
-	isLeftCircle ?
-			ctrl[ctrlType::RADIUS_CONTROL].controller->PIDControllerDirectionSet(
-					DIRECT) :
-			ctrl[ctrlType::RADIUS_CONTROL].controller->PIDControllerDirectionSet(
-					REVERSE);
+	ctrl[ctrlType::RADIUS_CONTROL].controller->PIDControllerDirectionSet(
+			REVERSE);
+
 	//set the centerpoint of the circle. This is either left or right of the current position;
 	double deltaX, deltaY;
 	rotatePoint(0, radius, dc->getTrue_psi() + (isLeftCircle ? -90.0 : +90),
@@ -242,6 +238,9 @@ json AutoPilot::getCircleDataAsJson(void){
 
 void AutoPilot::timerExpired(void) {
 
+	if(dubinsSchedulerActive){
+
+	}
 	if(circleFlightActive){
 		// when in circle flight, we need to permanently update the heading
 		Position displacedCircleCenter = circleCenter+(dc->getWindDisplacement()-initialDisplacement);
@@ -250,11 +249,12 @@ void AutoPilot::timerExpired(void) {
 		double newHeading = circleAngle + (circleDirectionLeft?-90.0-45:+90.0+45);
 		// this roll angle is calculated with respect to the requested radius
 		double bankingLimit = getRollAngle(dc->getTrue_airspeed(), ctrl[ctrlType::RADIUS_CONTROL].requestedTargetValue);
+		ctrl[ctrlType::HEADING_CONTROL].controlActive = true;	//just ensure that
 		ctrl[ctrlType::HEADING_CONTROL].controller->PIDOutputLimitsSet(
-				-bankingLimit + circleRadiusCorrection,
+				-bankingLimit - circleRadiusCorrection,
 				bankingLimit + circleRadiusCorrection);
-		std::cout << "Banking Limit set to " << bankingLimit << " [deg] + "
-				<< circleRadiusCorrection << " [deg]\n";
+//		std::cout << "Banking Limit set to " << bankingLimit << " [deg] + "
+//				<< circleRadiusCorrection << " [deg]\n";
 		ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = fmod(newHeading, 360.0);
 //		std::cout << "CircleFlight Direction = "<< ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue<<"\n";
 		emit sigRequestHeading(newHeading);//adapt the knob in the GUI
@@ -271,7 +271,7 @@ void AutoPilot::timerExpired(void) {
 			ctrl[c].output = ctrl[c].controller->PIDOutputGet();
 			ctrl[c].publishOutput(ctrl[c].output);
 			//TODO false wieder rausnehmen und dafür debug richtig setzen in dialogbox
-			if (false && debug && !(count % 10)) {
+			if (debug && !(count % 10)) {
 				std::cout << c._to_string() << ": currentValue = "
 						<< ctrl[c].currentValue << ";\trequestedTargetValue = "
 						<< ctrl[c].requestedTargetValue << ";\tDeviation= "

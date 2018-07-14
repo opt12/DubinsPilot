@@ -98,6 +98,10 @@ public:
 		return curDat.windDisplacement;
 	}
 
+	DubinsPath* getCurrentDubinsPath(){
+		return &curDat.db;
+	}
+
 public slots:
 //void setRequestedAltitude(double altitudeAboveGround);
 
