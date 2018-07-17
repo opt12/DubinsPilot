@@ -34,7 +34,7 @@ CirclePhase::~CirclePhase() {
 void CirclePhase::performCommand(void) {
 	// do I have to leave the circle a little early to compensate
 	// the heading overshoot when leaving the circle
-	const double ANGULAR_THRESHOLD = 5.0;
+	const double ANGULAR_THRESHOLD = 10.0;
 
 	double currentAngle = circleCenter.getHeadingCart(dc->getPosition());
 
@@ -43,21 +43,32 @@ void CirclePhase::performCommand(void) {
 		// let's start the circle now by calling the respective Autopilot function
 		double distanceToCenter = circleCenter.getDistanceCart(
 				dc->getPosition());
-		angleFlown = currentAngle - angleIn;
+		angleFlown = getAngularDifference(currentAngle, angleIn);
 		lastAngle = currentAngle;
+
+		std::cout <<"angleFlown: "<< angleFlown <<"; angleIn "<< angleIn<<"; angleOut: "<<angleOut<<"\n";
 
 		//we just emit signals to keep loose coupling
 		emit sigCircleDirectionChanged((segType == +segmentTypeEnum::L), distanceToCenter);
-		emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, radius);
+		emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, radius, true, (segType == +segmentTypeEnum::L));
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, true);
 		isCircleStarted = true;
+		double angleToGo = (segType == +segmentTypeEnum::L) ?
+				angleOut - (angleIn + angleFlown) :
+				angleOut + (angleIn + angleFlown);
+		emit sigDisplayFlightPhase("Circle Flight, "+QString(segType._to_string()),
+				"To go: "+QString::number(angleToGo, 'f', 2));
 		return;
 	}
 
 	// implicit else, we are already in circle flight
 	angleFlown += getAngularDifference(lastAngle, currentAngle);
 	lastAngle = currentAngle;
-	std::cout << "Flying in circle Flight\n";
+	double angleToGo = (segType == +segmentTypeEnum::L) ?
+			angleOut - (angleIn + angleFlown) :
+			angleOut - (angleIn + angleFlown);
+	emit sigDisplayFlightPhase("Circle Flight, "+QString(segType._to_string()),
+			"To go: "+QString::number(angleToGo, 'f', 0));
 
 	if ((segType == +segmentTypeEnum::L) ?
 			(angleIn + angleFlown) <= angleOut + ANGULAR_THRESHOLD :
@@ -76,7 +87,7 @@ StraightPhase::StraightPhase(Position _start, Position _end,
 	start = _start;
 	end = _end;
 	radiusForOvershoot = _radiusForOvershoot;
-	nextcircleCenter = _nextCircleCenter;
+	nextCircleCenter = _nextCircleCenter;
 	tangentialHeading = start.getHeadingCart(end);
 	segType = segmentTypeEnum::FINAL;
 }
@@ -86,57 +97,71 @@ StraightPhase::~StraightPhase() {
 
 void StraightPhase::performCommand(void) {
 	Position endBlown = end + (dc->getWindDisplacement() - initialDisplacement);
+	Position nextcircleCenterBlown = nextCircleCenter
+			+ (dc->getWindDisplacement() - initialDisplacement);
+
+//	std::cout<<"WindDisplacement: x: "<< (dc->getWindDisplacement() - initialDisplacement).x
+//			<< "; y: " << (dc->getWindDisplacement() - initialDisplacement).y << "\n";
 
 	if(!isStraightStarted){
 		double currentHeading = dc->getPosition().getHeadingCart(endBlown);
+		//TODO hier die Path Interception von Allerton einbauen!!!
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure
-		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, currentHeading);
+		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, currentHeading, true);
 		emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, true);
-		return;
 		isStraightStarted = true;
 		std::cout <<"Straight Flight started\n";
+		double currentDistance = dc->getPosition().getDistanceCart(endBlown);
+		emit sigDisplayFlightPhase("Straight Flight",
+				"Dist: "+QString::number(currentDistance, 'f', 0));
+		return;
 	}
-
-	Position nextcircleCenterBlown = nextcircleCenter
-			+ (dc->getWindDisplacement() - initialDisplacement);
 
 	// implicit else, we are already in straight flight
 	double currentDistance = dc->getPosition().getDistanceCart(endBlown);
-	if(currentDistance <= radiusForOvershoot){
-		std::cout <<"Straight Flight: we are close to the target\n";
-		//we are close to our target point, so let's get the correct heading for next circle
-		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, tangentialHeading);
-	} else {
-		std::cout <<"Straight Flight: there's still way to go\n";
-		double currentHeading = dc->getPosition().getHeadingCart(endBlown);
-		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, currentHeading);
-	}
-	// Let's check for the end-Condition of straight flight
-	// That is, when the next circle center is left or right of us, we leave straight flight
-	double directionToNextCircleCenter = dc->getPosition().getHeadingCart(nextcircleCenterBlown);
-	if(fabs(directionToNextCircleCenter) >= 90){
-		// we made it over the tangential straight line
-		std::cout <<"Straight Flight: finished\n";
+	emit sigDisplayFlightPhase("Straight Flight",
+			"Dist: "+QString::number(currentDistance, 'f', 0));
 
-		isStraightFinished = true;
+	if (currentDistance > radiusForOvershoot) {
+		//		std::cout <<"Straight Flight: there's still way to go\n";
+		double currentHeading = dc->getPosition().getHeadingCart(endBlown);
+		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL,
+				currentHeading, true);
+	} else {
+		//		std::cout <<"Straight Flight: we are close to the target\n";
+		//we are close to our target point, so let's get the correct heading for next circle
+		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL,
+				tangentialHeading, true);
+
+		// Let's check for the end-Condition of straight flight
+		// That is, when the next circle center is left or right of us, we leave straight flight
+		double headingToNextCircleCenter = dc->getPosition().getHeadingCart(nextcircleCenterBlown);
+		double currentHeading = dc->getTrue_psi();
+		double relativeHeading = getAngularDifference(currentHeading, headingToNextCircleCenter);
+		std::cout << "relative Heading to nextCircleCenter: " <<  relativeHeading <<"\n";
+		if(fabs(relativeHeading) >= 90){
+			// we made it over the tangential straight line
+			std::cout <<"Straight Flight: finished\n";
+			isStraightFinished = true;
+		}
 	}
 }
 
-FinalApproachPhase::FinalApproachPhase(Position _elf, double _elfHeading,
+RunOutPhase::RunOutPhase(Position _elf, double _elfHeading,
 		QObject* parent) : FlightPhase(parent) {
 	elf = _elf;
 	elfHeading = _elfHeading;
 	segType = segmentTypeEnum::FINAL;
 }
 
-FinalApproachPhase::~FinalApproachPhase() {
+RunOutPhase::~RunOutPhase() {
 }
 
-void FinalApproachPhase::performCommand(void) {
+void RunOutPhase::performCommand(void) {
 	//nothing to do any more
 	//continue straight flight and enable the controls again
 	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure
-	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, elfHeading);
+	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, elfHeading, true);
 	emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, true);
 
 	//TODO emit enable controls.....

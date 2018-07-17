@@ -12,6 +12,8 @@
 #include <QTimer>
 
 #include <vector>
+
+#include <iostream>
 #include "enumDeclarations.h"
 #include "FlightPhase.h"
 #include "DubinsPath.h"
@@ -26,16 +28,7 @@ public:
 	virtual ~DubinsScheduler();
 
 public slots:
-	void takeMeDown(bool active){
-		if(active){
-		// TODO das wäre deutlich besser, hier einfach die Zielpositiion anzugeben und den Pfadtyp
-		// TODO und dann halt selber rechnen. Dann kann der Dubins Pfad sogar lokal bleiben
-		initialize(DataCenter::getInstance()->getCurrentDubinsPath());	// XXX
-		flyPathTimer->start(timerMilliseconds);
-		} else {
-			flyPathTimer->stop();
-		}
-	}
+	void takeMeDown(bool active);
 
 private slots:
 	void flyThePath(void);
@@ -43,14 +36,18 @@ private slots:
 
 signals:
 	void sigCtrlActiveStateChanged(ctrlType ctrl, bool active);
-	void sigRequestedSetValueChanged(ctrlType ctrl, double setValue);
+	void sigRequestedSetValueChanged(ctrlType ctrl, double setValue, bool forwardToGui, bool isLeftcircle = false);
 	void sigCircleDirectionChanged(bool isLeftCircle, double radius);
+
+	void sigDisplayFlightPhase(QString flightPhase, QString toGo);
+	void sigPathTrackingStatus(bool isTracking);
 
 private:
 
 	void clearOutSchedule(void);
 
 	std::vector<FlightPhase*> flightPhases;
+	unsigned int currentPhase = 0;
 	const DubinsPath *db = NULL;
 	QTimer *flyPathTimer = NULL;
 	const int timerMilliseconds = 100;

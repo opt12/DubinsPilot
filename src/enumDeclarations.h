@@ -12,6 +12,7 @@
 
 // XXX Reihenfolge der Controller ist wichtig, weil sie auch in der reihenfolge aufgerufen werden
 BETTER_ENUM(ctrlType, int, HEADING_CONTROL, RADIUS_CONTROL, ROLL_CONTROL, CLIMB_CONTROL)
+BETTER_ENUM(GuiElems, int, CHK_SINK, CHK_ROLL, CHK_HEAD, CHK_CIRC, RAD_LEFT, CHK_CONT)
 BETTER_ENUM(pathTypeEnum, int, LSL, RSR, LSR, RSL)
 BETTER_ENUM(segmentTypeEnum, int, L, R, S, FINAL, INVALID)
 /*the types RLR and LRL are omitted as we cannot extend their lengths to our needs;*/

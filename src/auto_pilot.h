@@ -63,7 +63,7 @@ public:
 
 public slots:
 	void invokeController(ctrlType ctrl, bool active);
-	void requestCtrlTargetValue(ctrlType ctrl, double target);
+	void requestCtrlTargetValue(ctrlType ctrl, double target, bool forwardToGui = false, bool isLeftcircle = false);
 	void setControllerParameters(ctrlType ctrl, double P, double I, double D);
 	void requestCircleDirection(bool isLeftCircle, double radius);
 
@@ -78,9 +78,12 @@ signals:
 
 	void sigReplotControllerCurve(ctrlType ctrl);
 
-	void sigRequestRoll(double requestedRoll);
-	void sigRequestClimb(double requestedClimb);
-	void sigRequestHeading(double requestedHeading);
+	void sigRequestTargetValue(ctrlType ctrl, double targetValue, bool isLeftCircle = true);
+//	void sigRequestRoll(double requestedRoll);
+//	void sigRequestClimb(double requestedClimb);
+//	void sigRequestHeading(double requestedHeading);
+//	void sigRequestRadius(double requestedRadius, bool isLeftCircle);
+	void sigSetControllerCheckButtons(ctrlType ctrl, bool enable, bool checked);
 
 	void sigSocketSendData(std::string msgType, int requestId, json data);
 
@@ -88,6 +91,7 @@ private:
 	static DataCenter *dc;
 	QTimer *basicTimer;
 	const int timerMilliseconds = 100;
+	const double GLIDE_ANGLE_STRAIGTH = -5.0, GLIDE_ANGLE_CIRCLE = -5.5;
 	std::vector<Controller> ctrl;
 
 	int count=0;

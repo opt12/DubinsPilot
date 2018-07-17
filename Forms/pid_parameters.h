@@ -49,10 +49,11 @@ public slots:
 	void replotControllerCurve(ctrlType c);
 //	void showOriginCoords(Position_WGS84 origin);
 	void showElfCoords(Position_WGS84 elf, double elfHeading);
-	void setRollControlKnob(double roll);
-	void setClimbRateControlKnob(double glideAngle);
-	void setHeadingControlKnob(double requestedHeading);
+	void setTargetValueControlKnob(ctrlType ctrl, double targetValue, bool isLeftCircle=true);
+	void setControllerCheckButtons(ctrlType ctrl, bool enable, bool checked);
 	void displayCurrentWind(double windDirFrom, double windVelocity);
+	void displayFlightPhase(QString flightPhase, QString toGo);
+	void displayPathTrackingStatus(bool _isPathTracking);
 
 
 private slots:
@@ -92,6 +93,8 @@ private slots:
 	void setISpinnersCircle(QString text);
 	void setCircleLabel(double val);
 
+	void readSettings();	//needs to be a slot to use single shot timer
+
 	void tempomatActiveStateChanged(bool active);
 	void rollControlActiveStateChanged(bool active);
 	void headingControlActiveStateChanged(bool active);
@@ -123,7 +126,6 @@ private:
 	bool allowSave() {
 		return false;
 	} //maybe I don't want to always save the parameters at closing
-	void readSettings();
 	double valPClimb, valIClimb, valDClimb, valClimbRate;
 	double valPRoll, valIRoll, valDRoll, valRoll;
 	double valPHeading, valIHeading, valDHeading, valHeading;
@@ -154,8 +156,9 @@ private:
 	Position_WGS84 elfPosition;
 	double elfHeading = 0.0;
 	bool isElfSet = false;
-	QTimer *constCalcTimer = NULL;
+	QTimer *contCalcTimer = NULL;
 	const int timerMilliseconds = 500;
+	bool isPathTracking = false;
 
 };
 

@@ -206,25 +206,25 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 			SLOT(setCircleLabel(double)));
 
 	checkBoxClimbController->setChecked(false);
-	connect(checkBoxClimbController, SIGNAL(toggled(bool)), this,
+	connect(checkBoxClimbController, SIGNAL(clicked(bool)), this,
 			SLOT(tempomatActiveStateChanged(bool)));
 	ledIndicator->setChecked(false);
 
 	checkBoxRollController->setChecked(false);
 
-	connect(checkBoxHeadingController, SIGNAL(toggled(bool)), this,
+	connect(checkBoxHeadingController, SIGNAL(clicked(bool)), this,
 			SLOT(headingControlActiveStateChanged(bool)));
 	ledIndicatorHeading->setChecked(false);
 
 	checkBoxHeadingController->setChecked(false);
 
-	connect(checkBoxCircleController, SIGNAL(toggled(bool)), this,
+	connect(checkBoxCircleController, SIGNAL(clicked(bool)), this,
 			SLOT(circleControlActiveStateChanged(bool)));
 	ledIndicatorCircle->setChecked(false);
 
 	checkBoxCircleController->setChecked(false);
 
-	connect(checkBoxRollController, SIGNAL(toggled(bool)), this,
+	connect(checkBoxRollController, SIGNAL(clicked(bool)), this,
 			SLOT(rollControlActiveStateChanged(bool)));
 	ledIndicatorRoll->setChecked(false);
 
@@ -277,8 +277,8 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 
 	connect(checkBoxCont, SIGNAL(clicked(bool)), this,
 			SLOT(continuousDubinsCalc(bool)));
-	constCalcTimer = new QTimer();
-	connect(constCalcTimer, SIGNAL(timeout()), this, SLOT(constCalcTimerExpired()));
+	contCalcTimer = new QTimer();
+	connect(contCalcTimer, SIGNAL(timeout()), this, SLOT(constCalcTimerExpired()));
 
 	connect(pushButtonFlyPath, SIGNAL(clicked(bool)), this,
 			SLOT(takeMeDown()));
@@ -298,8 +298,8 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	//TODO weil das eigentlich erst nach dem Connect passieren soll. aber für's Debugging
 //	checkBoxClimbController->setEnabled(true);
 //	checkBoxRollController->setEnabled(true);
-	//do this last to have everything wired together already
-	readSettings();
+	//do this  in the next turn of the event loop to have everything wired together already
+	QTimer::singleShot(0, this, SLOT(readSettings()));
 }
 
 //Implementation of protected functions
@@ -499,13 +499,49 @@ void PIDParametersDialog::setClimbRateLabel(double climbRate) {
 	qwtPlotClimb->replot();
 }
 
-void PIDParametersDialog::setClimbRateControlKnob(double glideAngle) {
-	KnobClimb->setValue(glideAngle);
+void PIDParametersDialog::setTargetValueControlKnob(ctrlType ctrl, double targetValue, bool isLeftCircle){
+	switch (ctrl) {
+	case ctrlType::CLIMB_CONTROL:
+		KnobClimb->setValue(targetValue);
+		break;
+	case ctrlType::ROLL_CONTROL:
+		KnobRoll->setValue(targetValue);
+		break;
+	case ctrlType::RADIUS_CONTROL:
+		KnobCircle->setValue(targetValue);
+		isLeftCircle ?
+				radioButtonCircleLeft->setChecked(true) :
+				radioButtonCircleRight->setChecked(true);
+		//TODO muss ich jetzt auch noch den anderen ausschalten, oder geht das von alleine???
+		break;
+	case ctrlType::HEADING_CONTROL:
+		CompassHeading->setValue(targetValue);
+		break;
+	}
 }
 
-void PIDParametersDialog::setHeadingControlKnob(double requestedHeading) {
-	CompassHeading->setValue(requestedHeading);
+void PIDParametersDialog::setControllerCheckButtons(ctrlType ctrl, bool enable,
+		bool checked) {
+	switch (ctrl) {
+	case ctrlType::CLIMB_CONTROL:
+		checkBoxClimbController->setEnabled(enable);
+		checkBoxClimbController->setChecked(checked);
+		break;
+	case ctrlType::ROLL_CONTROL:
+		checkBoxRollController->setEnabled(enable);
+		checkBoxRollController->setChecked(checked);
+		break;
+	case ctrlType::RADIUS_CONTROL:
+		checkBoxCircleController->setEnabled(enable);
+		checkBoxCircleController->setChecked(checked);
+		break;
+	case ctrlType::HEADING_CONTROL:
+		checkBoxHeadingController->setEnabled(enable);
+		checkBoxHeadingController->setChecked(checked);
+		break;
+	}
 }
+
 
 void PIDParametersDialog::setDValueBank(void) {
 	double mantissa = doubleSpinBoxDValueBank->value();
@@ -590,10 +626,6 @@ void PIDParametersDialog::setBankingLabel(double roll) {
 	rollMarker->setYValue(valRoll);
 	rollMarker->setLabel("roll = " + QString::number(valRoll));
 	qwtPlotRoll->replot();
-}
-
-void PIDParametersDialog::setRollControlKnob(double roll) {
-	KnobRoll->setValue(roll);
 }
 
 void PIDParametersDialog::setDValueHeading(void) {
@@ -775,18 +807,19 @@ void PIDParametersDialog::tempomatActiveStateChanged(bool active) {
 }
 
 void PIDParametersDialog::rollControlActiveStateChanged(bool active) {
-	emit sigCtrlActiveStateChanged(ctrlType::ROLL_CONTROL, active);
 	emit sigRequestedSetValueChanged(ctrlType::ROLL_CONTROL, valRoll);
 	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPRoll, valIRoll,
 			valDRoll);
+	emit sigCtrlActiveStateChanged(ctrlType::ROLL_CONTROL, active);
 }
 
 void PIDParametersDialog::headingControlActiveStateChanged(bool active) {
-	//we need the roll controller for circle flight
-	rollControlActiveStateChanged(true);
-	checkBoxRollController->setChecked(true);//the heading control uses the roll controller on low level
-	// while the heading control is active, we don't want anybody else control the low level controllers
-	checkBoxRollController->setEnabled(!active);
+	// TODO This is done from the Auto-Pilot for us...
+	//	//we need the roll controller for circle flight
+//	checkBoxRollController->setChecked(true);//the heading control uses the roll controller on low level
+//	// while the heading control is active, we don't want anybody else control the low level controllers
+//	checkBoxRollController->setEnabled(!active);
+//	rollControlActiveStateChanged(true);	// do this manually, as we hav only conneckted the clicked()-Signal, not the toggled(slot)
 
 	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, valHeading);
 	emit sigPidParametersChanged(ctrlType::HEADING_CONTROL, valPHeading,
@@ -794,11 +827,12 @@ void PIDParametersDialog::headingControlActiveStateChanged(bool active) {
 	emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, active);
 }
 void PIDParametersDialog::circleControlActiveStateChanged(bool active) {
-	//we need the heading controller for circle flight
-	headingControlActiveStateChanged(true);
-	checkBoxHeadingController->setChecked(true);
-	// while the heading control is active, we don't want anybody else control the low level controllers
-	checkBoxHeadingController->setEnabled(!active);
+	// TODO This is done from the Auto-Pilot for us...
+//	//we need the heading controller for circle flight
+//	checkBoxHeadingController->setChecked(true);
+//	// while the heading control is active, we don't want anybody else control the low level controllers
+//	checkBoxHeadingController->setEnabled(!active);
+//	headingControlActiveStateChanged(true);
 
 	emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, valCircle);
 	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
@@ -815,9 +849,9 @@ void PIDParametersDialog::radioButtonCircleClicked(void) {
 
 void PIDParametersDialog::continuousDubinsCalc(bool active){
 	if(active){
-		constCalcTimer->start(timerMilliseconds);
+		contCalcTimer->start(timerMilliseconds);
 	} else {
-		constCalcTimer->stop();
+		contCalcTimer->stop();
 	}
 }
 
@@ -828,6 +862,7 @@ void PIDParametersDialog::constCalcTimerExpired(void) {
 
 void PIDParametersDialog::readSettings() {
 	QSettings settings("EEE", "PID_Parameters");
+	bool tempActive=false;
 
 	qDebug() << "reading settings from " << settings.fileName() << endl;
 
@@ -845,6 +880,9 @@ void PIDParametersDialog::readSettings() {
 	valClimbRate = settings.value("valClimbRate").toDouble();
 	KnobClimb->setValue(valClimbRate);
 	setClimbRateLabel(valClimbRate);//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
+	tempActive = settings.value("climbControlActive", false).toBool();
+	checkBoxClimbController->setChecked(tempActive);
+	tempomatActiveStateChanged(tempActive);
 	qDebug() << "\tvalClimbRate: " << valClimbRate << endl;
 //	checkBoxClimbController->setChecked(
 //			settings.value("climbControlActive").toBool());
@@ -861,6 +899,9 @@ void PIDParametersDialog::readSettings() {
 	valRoll = settings.value("valRoll").toDouble();
 	KnobRoll->setValue(valRoll);
 	setBankingLabel(valRoll);//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
+	tempActive = settings.value("rollControlActive", false).toBool();
+	checkBoxRollController->setChecked(tempActive);
+	rollControlActiveStateChanged(tempActive);
 	qDebug() << "\tvalBanking: " << valRoll << endl;
 //	checkBoxRollController->setChecked(
 //			settings.value("rollControlActive").toBool());
@@ -874,6 +915,9 @@ void PIDParametersDialog::readSettings() {
 	valHeading = settings.value("valHeading").toDouble();
 	CompassHeading->setValue(valHeading);
 	setHeadingLabel(valHeading);//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
+	tempActive = settings.value("headingControlActive", false).toBool();
+	checkBoxHeadingController->setChecked(tempActive);
+	headingControlActiveStateChanged(tempActive);
 
 	valPCircle = settings.value("valPCircle").toDouble();
 	lineEditPParameterCircle->setText(QString::number(valPCircle, 'g'));
@@ -884,6 +928,10 @@ void PIDParametersDialog::readSettings() {
 	valCircle = settings.value("valCircle").toDouble();
 	KnobCircle->setValue(valCircle);
 	setCircleLabel(valCircle);//call it manually, in case read in value is 0. then nothing changes and no marker update is performed.
+	tempActive = settings.value("circleControlActive", false).toBool();
+	checkBoxCircleController->setChecked(tempActive);
+	circleControlActiveStateChanged(tempActive);
+
 
 	initialLogFileDir = settings.value("initialLogFileDir").toString();
 }
@@ -995,18 +1043,31 @@ void PIDParametersDialog::submitElfData(void) {
 }
 
 void PIDParametersDialog::takeMeDown(void){
-	static bool isTracking = false;
-	if(!isTracking){
+	if(!isPathTracking){
 		checkBoxCont->setChecked(false);	// we need to stop the continuous calculation
+		checkBoxCont->setEnabled(false);	// we need to stop the continuous calculation
 		submitElfData();	// we recalculate the path directly before tracking it
-		pushButtonFlyPath->setText("Cancel");
 		emit sigStartPathTracking(true);
-		isTracking = true;
+		isPathTracking = true;
 		//TODO Da müsste nman eigentlich noch die ganzenEingabefelder disablen bis angekommen oder Cancel
 	} else {
-		pushButtonFlyPath->setText("Take me\ndown");
 		emit sigStartPathTracking(false);
-		isTracking = false;
+		isPathTracking = false;
+	}
+	displayPathTrackingStatus(isPathTracking);
+}
+
+void PIDParametersDialog::displayPathTrackingStatus(bool _isPathTracking){
+	isPathTracking = _isPathTracking;	//this should be in sync with above, but to be sure
+	isPathTracking ?
+			pushButtonFlyPath->setText("Cancel"):
+			pushButtonFlyPath->setText("Take me\ndown");
+	if(isPathTracking){
+		checkBoxCont->setChecked(false);	// we need to stop the continuous calculation
+		checkBoxCont->setEnabled(false);
+		contCalcTimer->stop();
+	} else {
+		checkBoxCont->setEnabled(true);
 	}
 }
 
@@ -1040,6 +1101,11 @@ void PIDParametersDialog::displayCurrentWind(double windDirFrom, double windVelo
 			QString::number(windVelocity, 'f', 2) + " [m/s]");
 }
 
+void PIDParametersDialog::displayFlightPhase(QString flightPhase, QString toGo){
+	labelFlightPhase->setText(flightPhase);
+	labelToGo->setText(toGo);
+}
+
 
 QString PIDParametersDialog::generateLogfilename() {
 	QString DateString =
@@ -1057,7 +1123,7 @@ void PIDParametersDialog::setupPlot(void) {
 
 	qwtPlotClimb->setAxisTitle(qwtPlotClimb->yLeft,
 			"Flight Path Angle [°] -->");
-	qwtPlotClimb->setAxisScale(qwtPlotClimb->yLeft, -10.5, -0.5);
+	qwtPlotClimb->setAxisScale(qwtPlotClimb->yLeft, -6.5, -4.5);
 
 	qwtPlotClimb->setAxisTitle(qwtPlotClimb->yRight, "<-- elevator");
 	qwtPlotClimb->setAxisScale(qwtPlotClimb->yRight, -0.75, 0.75);

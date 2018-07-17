@@ -1524,16 +1524,6 @@
       </item>
      </layout>
     </widget>
-    <widget class="QGraphicsView" name="graphicsView">
-     <property name="geometry">
-      <rect>
-       <x>540</x>
-       <y>110</y>
-       <width>451</width>
-       <height>431</height>
-      </rect>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_13">
      <property name="geometry">
       <rect>
@@ -2052,89 +2042,6 @@
       <bool>false</bool>
      </property>
     </widget>
-    <widget class="QLabel" name="label_7">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>376</y>
-       <width>121</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Relative to Origin:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="labelYElf">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>432</y>
-       <width>62</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Y = yyy m</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="labelZElf">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>465</y>
-       <width>73</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Z = hhhh m</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="labelXElf">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>399</y>
-       <width>63</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>X = xxx m</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_6">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>490</y>
-       <width>144</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Origin:</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="pushButtonFlyPath">
      <property name="enabled">
       <bool>false</bool>
@@ -2151,6 +2058,81 @@
       <string>Take me
 down</string>
      </property>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>200</y>
+       <width>281</width>
+       <height>90</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_14">
+      <item>
+       <widget class="QLabel" name="labelFlightPhase">
+        <property name="text">
+         <string>Flight Phase:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelToGo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>To Go:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelLastDeviation">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Last deviation:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_15">
+        <item>
+         <widget class="QLabel" name="labelDevHeight">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>height:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelDevDist">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Dist.:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>
@@ -2204,7 +2186,6 @@ down</string>
   <tabstop>pushButtonSubmitElf</tabstop>
   <tabstop>CompassWind</tabstop>
   <tabstop>SliderWindVelocity</tabstop>
-  <tabstop>graphicsView</tabstop>
   <tabstop>lineEditPParameterBank</tabstop>
   <tabstop>SliderIValueBank</tabstop>
   <tabstop>doubleSpinBoxIValueBank</tabstop>

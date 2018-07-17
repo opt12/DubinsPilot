@@ -25,8 +25,9 @@ public:
 
 signals:
 	void sigCtrlActiveStateChanged(ctrlType ctrl, bool active);
-	void sigRequestedSetValueChanged(ctrlType ctrl, double setValue);
+	void sigRequestedSetValueChanged(ctrlType ctrl, double setValue, bool forwardToGui, bool isLeftCircle = true);
 	void sigCircleDirectionChanged(bool isLeftCircle, double radius);
+	void sigDisplayFlightPhase(QString flightPhase, QString toGo);
 
 
 
@@ -78,15 +79,15 @@ public:
 private:
 	Position start, end;
 	double tangentialHeading;
-	Position nextcircleCenter;
+	Position nextCircleCenter;
 	double radiusForOvershoot;
 	bool isStraightStarted = false, isStraightFinished = false;
 };
 
-class FinalApproachPhase : public FlightPhase{
+class RunOutPhase : public FlightPhase{
 public:
-	FinalApproachPhase(Position _elf, double _elfHeading, QObject* parent = 0);
-	~FinalApproachPhase();
+	RunOutPhase(Position _elf, double _elfHeading, QObject* parent = 0);
+	~RunOutPhase();
 
 	void performCommand(void);
 	bool isFinished(void) {

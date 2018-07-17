@@ -65,6 +65,10 @@ int main(int argc, char *argv[]) {
 
 	qRegisterMetaType<json>("json");
 
+	AutoPilot ap;	//have this before the PIDParametersDialog as we read in the controller settings there
+
+	DubinsScheduler dubSched;
+
 	PIDParametersDialog *pidParams;
 	pidParams = new PIDParametersDialog;
 	pidParams->setWindowTitle(QObject::tr("PID Parameter Selector"));
@@ -72,10 +76,6 @@ int main(int argc, char *argv[]) {
 	pidParams->show();
 
 	DataCenter *dc = DataCenter::getInstance();
-
-	AutoPilot ap;
-
-	DubinsScheduler dubSched;
 
 	SockServer *sock = SockServer::getInstance();
 	// TODO remove debug mode for socket
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 	QObject::connect(pidParams,
 			SIGNAL(sigPidParametersChanged(ctrlType, double, double, double)),
 			&ap,
-			SLOT(setControllerParameters(ctrlType, double, double,double)));
+			SLOT(setControllerParameters(ctrlType, double, double, double)));
 	QObject::connect(pidParams,
 			SIGNAL(sigCtrlActiveStateChanged(ctrlType, bool)), &ap,
 			SLOT(invokeController(ctrlType, bool)));
@@ -139,12 +139,14 @@ int main(int argc, char *argv[]) {
 			pidParams, SLOT(attachControllerCurve(ctrlType, QwtPlotCurve*)));
 	QObject::connect(&ap, SIGNAL(sigReplotControllerCurve(ctrlType)), pidParams,
 			SLOT(replotControllerCurve(ctrlType)));
-	QObject::connect(&ap, SIGNAL(sigRequestRoll(double)), pidParams,
-			SLOT(setRollControlKnob(double)));
-	QObject::connect(&ap, SIGNAL(sigRequestClimb(double)), pidParams,
-			SLOT(setClimbRateControlKnob(double)));
-	QObject::connect(&ap, SIGNAL(sigRequestHeading(double)), pidParams,
-			SLOT(setHeadingControlKnob(double)));
+
+	QObject::connect(&ap, SIGNAL(sigRequestTargetValue(ctrlType, double, bool)), pidParams,
+			SLOT(setTargetValueControlKnob(ctrlType, double, bool)));
+
+	QObject::connect(&ap,
+			SIGNAL(sigSetControllerCheckButtons(ctrlType, bool, bool)),
+			pidParams, SLOT(setControllerCheckButtons(ctrlType, bool, bool)));
+
 	std::cout<< "Connected AutoPilot --> PIDParametersDialog\n";
 
 
@@ -174,8 +176,8 @@ int main(int argc, char *argv[]) {
 			SIGNAL(sigCtrlActiveStateChanged(ctrlType, bool)), &ap,
 			SLOT(invokeController(ctrlType, bool)));
 	QObject::connect(&dubSched,
-			SIGNAL(sigRequestedSetValueChanged(ctrlType, double)), &ap,
-			SLOT(requestCtrlTargetValue(ctrlType, double)));
+			SIGNAL(sigRequestedSetValueChanged(ctrlType, double, bool, bool)), &ap,
+			SLOT(requestCtrlTargetValue(ctrlType, double, bool, bool)));
 	QObject::connect(&dubSched,
 			SIGNAL(sigCircleDirectionChanged(bool, double)), &ap,
 			SLOT(requestCircleDirection(bool, double)));
@@ -183,6 +185,19 @@ int main(int argc, char *argv[]) {
 	//connections from PIDParametersDialog --> DubinsScheduler
 	QObject::connect(pidParams, SIGNAL(sigStartPathTracking(bool)),
 			&dubSched, SLOT(takeMeDown(bool)));
+
+	//connections from DubinsScheduler --> PIDParametersDialog
+	QObject::connect(&dubSched, SIGNAL(sigDisplayFlightPhase(QString, QString)),
+				pidParams, SLOT(displayFlightPhase(QString, QString)));
+	QObject::connect(&dubSched, SIGNAL(sigPathTrackingStatus(bool)),
+				pidParams, SLOT(displayPathTrackingStatus(bool)));
+
+	// TODO: ist es sinnvoll, dass irgendwie vom Autopilot auslösen zu lassen?
+//	setRollControlKnob
+//	setClimbRateControlKnob
+//	setHeadingControlKnob
+//	setRadiusControlKnob
+
 
 
 	return app.exec();
