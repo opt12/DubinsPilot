@@ -34,7 +34,7 @@ CirclePhase::~CirclePhase() {
 void CirclePhase::performCommand(void) {
 	// do I have to leave the circle a little early to compensate
 	// the heading overshoot when leaving the circle
-	const double ANGULAR_THRESHOLD = 10.0;
+	const double ANGULAR_THRESHOLD = 0.0;
 
 	double currentAngle = circleCenter.getHeadingCart(dc->getPosition());
 
@@ -103,30 +103,35 @@ void StraightPhase::performCommand(void) {
 //	std::cout<<"WindDisplacement: x: "<< (dc->getWindDisplacement() - initialDisplacement).x
 //			<< "; y: " << (dc->getWindDisplacement() - initialDisplacement).y << "\n";
 
+	double targetHeading = dc->getPosition().getHeadingCart(endBlown);
+	double currentDistance = dc->getPosition().getDistanceCart(endBlown);
+	double currentHeading = dc->getTrue_psi();
+
+	//Localizer Tracking according to Allerton §4.11, p. 189
+	double requestedHeading = tangentialHeading- 6*(tangentialHeading -
+			targetHeading);
+
 	if(!isStraightStarted){
-		double currentHeading = dc->getPosition().getHeadingCart(endBlown);
 		//TODO hier die Path Interception von Allerton einbauen!!!
+
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure
-		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, currentHeading, true);
+		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, requestedHeading, true);
 		emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, true);
 		isStraightStarted = true;
 		std::cout <<"Straight Flight started\n";
-		double currentDistance = dc->getPosition().getDistanceCart(endBlown);
 		emit sigDisplayFlightPhase("Straight Flight",
 				"Dist: "+QString::number(currentDistance, 'f', 0));
 		return;
 	}
 
 	// implicit else, we are already in straight flight
-	double currentDistance = dc->getPosition().getDistanceCart(endBlown);
 	emit sigDisplayFlightPhase("Straight Flight",
 			"Dist: "+QString::number(currentDistance, 'f', 0));
 
 	if (currentDistance > radiusForOvershoot) {
 		//		std::cout <<"Straight Flight: there's still way to go\n";
-		double currentHeading = dc->getPosition().getHeadingCart(endBlown);
 		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL,
-				currentHeading, true);
+				requestedHeading, true);
 	} else {
 		//		std::cout <<"Straight Flight: we are close to the target\n";
 		//we are close to our target point, so let's get the correct heading for next circle
@@ -136,7 +141,6 @@ void StraightPhase::performCommand(void) {
 		// Let's check for the end-Condition of straight flight
 		// That is, when the next circle center is left or right of us, we leave straight flight
 		double headingToNextCircleCenter = dc->getPosition().getHeadingCart(nextcircleCenterBlown);
-		double currentHeading = dc->getTrue_psi();
 		double relativeHeading = getAngularDifference(currentHeading, headingToNextCircleCenter);
 		std::cout << "relative Heading to nextCircleCenter: " <<  relativeHeading <<"\n";
 		if(fabs(relativeHeading) >= 90){

@@ -184,7 +184,7 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 			emit sigSetControllerCheckButtons(ctrlType::HEADING_CONTROL,
 			DISABLED, CHECKED);
 			emit sigSetControllerCheckButtons(ctrlType::RADIUS_CONTROL,
-			DISABLED, CHECKED);
+			ENABLED, CHECKED);
 			circleFlightActive = active;
 		}
 	} else {	//deactivation
@@ -206,6 +206,9 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 			// hide the circle in the visualization
 			emit sigSocketSendData(std::string("CIRCLE_DATA"), 0,
 					getCircleDataAsJson());
+			ctrl[ctrlType::CLIMB_CONTROL].requestedTargetValue = GLIDE_ANGLE_STRAIGTH;
+			emit sigRequestTargetValue(ctrlType::CLIMB_CONTROL, GLIDE_ANGLE_STRAIGTH);
+
 			// set the heading to the current value to leave the circle in a tangential way
 			Position displacedCircleCenter = circleCenter
 					+ (dc->getWindDisplacement() - initialDisplacement);
@@ -215,10 +218,15 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 					+ (circleDirectionLeft ? -90.0 : +90.0);
 			ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = newHeading;
 			emit sigRequestTargetValue(ctrlType::HEADING_CONTROL, newHeading);
+			//TODO I Anteil im Regler auf jeden Fall zurücksetzen.
+			ctrl[ctrlType::HEADING_CONTROL].controller->PIDResetInternals();
 			emit sigSetControllerCheckButtons(ctrlType::RADIUS_CONTROL,
 			ENABLED, UNCHECKED);
 			emit sigSetControllerCheckButtons(ctrlType::HEADING_CONTROL,
 			ENABLED, CHECKED);
+//
+//			invokeController(ctrlType::HEADING_CONTROL, false);		//we want to go straight out of the circle
+
 		}
 		if (_ct == +ctrlType::HEADING_CONTROL) {
 			//we want to go straight afterwards

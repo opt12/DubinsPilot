@@ -22,6 +22,8 @@
 #include "Dataset.h"
 #include "utils.h"
 
+#include "DataCenter.h"
+
 PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 		QDialog(parent) {
 
@@ -294,6 +296,8 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	SliderWindVelocity->setRange(0.0, ms_to_knots(45.0), ms_to_knots(0.25));
 	connect(SliderWindVelocity, SIGNAL(valueChanged(double)), this,
 			SLOT(setWind()));
+
+	connect(checkBoxPause, SIGNAL(toggled(bool)), this, SLOT(pauseSimulation(bool)));
 
 	//TODO weil das eigentlich erst nach dem Connect passieren soll. aber für's Debugging
 //	checkBoxClimbController->setEnabled(true);
@@ -1113,6 +1117,11 @@ QString PIDParametersDialog::generateLogfilename() {
 					':', '_');
 	return "Log_" + DateString + ".csv";
 }
+
+void PIDParametersDialog::pauseSimulation(bool pause){
+	DataCenter::getInstance()->SendXPDataRef("sim/time/sim_speed", pause?0.0:1.0);
+}
+
 
 void PIDParametersDialog::setupPlot(void) {
 	qwtPlotClimb->setTitle("Flight Path / Sink Rate");

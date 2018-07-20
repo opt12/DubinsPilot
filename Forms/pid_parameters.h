@@ -119,6 +119,8 @@ private slots:
 
 	void setWind(void);
 
+	void pauseSimulation(bool pause);
+
 protected:
 	void closeEvent(QCloseEvent *event);
 

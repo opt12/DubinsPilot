@@ -2059,7 +2059,7 @@
 down</string>
      </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>450</x>
@@ -2133,6 +2133,19 @@ down</string>
        </layout>
       </item>
      </layout>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxPause">
+     <property name="geometry">
+      <rect>
+       <x>790</x>
+       <y>10</y>
+       <width>201</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pause Simulation</string>
+     </property>
     </widget>
    </widget>
   </widget>

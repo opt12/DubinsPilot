@@ -31,9 +31,6 @@ void DubinsScheduler::takeMeDown(bool active){
 	} else {
 		std::cout << "Stop Path tracking...\n";
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);
-		//TODO entscheide, ob nach Abbruch die richtung beibehalten wird,
-		// oder einfach wieder auf 0° Roll
-//			emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, false);
 		emit sigPathTrackingStatus(false);
 		flyPathTimer->stop();
 	}
@@ -49,10 +46,9 @@ void DubinsScheduler::flyThePath(void) {
 		}
 	} else {
 		std::cout <<"I'm already there. No safe spot to get off the rotten plane?\n";
-		// TODO emit some signal to stop the pathFollowing
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);
 		//TODO entscheide, ob nach Abbruch die richtung beibehalten wird,
-		//		emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, false);
+//		emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, true);
 		emit sigPathTrackingStatus(false);
 		flyPathTimer->stop();
 	}
