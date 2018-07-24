@@ -178,7 +178,7 @@ public:
 
 	Position_Cartesian getOrigin_Cart();
 
-	Position_WGS84 getPosition_WGS84() {
+	Position_WGS84 getPosition_WGS84() const {
 		return pos;
 	}
 
@@ -192,6 +192,10 @@ public:
 
 	double getDistanceCart(const Position pointB) const;
 	double getHeadingCart(const Position pointB) const;
+
+	void setHeight(double _height){
+		pos.height = _height;
+	}
 
 private:
 	// TODO Das ist noch ein bisschen unschön, dass ich das eine ebene geschachtelt habe

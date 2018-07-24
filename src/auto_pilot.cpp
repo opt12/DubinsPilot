@@ -333,6 +333,12 @@ void AutoPilot::timerExpired(void) {
 		ctrl[c].controller->PIDSetpointSet(ctrl[c].requestedTargetValue);
 		ctrl[c].controller->PIDInputSet(ctrl[c].currentValue);
 		ctrl[c].controller->PIDCompute();
+		dc->setControllerOutputs(c,
+				ctrl[c].controlActive ? ctrl[c].output : -666);
+		dc->setRequestedTargetValue(c,
+				ctrl[c].controlActive ? ctrl[c].requestedTargetValue : -666);
+		dc->setCurrentValues(c,
+				ctrl[c].controlActive ? ctrl[c].currentValue : -666);
 		if (ctrl[c].controlActive) {
 			ctrl[c].output = ctrl[c].controller->PIDOutputGet();
 			ctrl[c].publishOutput(ctrl[c].output);
@@ -344,7 +350,6 @@ void AutoPilot::timerExpired(void) {
 						<< ctrl[c].controller->lastErrorGet() << "; \n";
 				std::cout << "\tNew output value is " << ctrl[c].output << "\n";
 			}
-			dc->setControllerOutputs(c, ctrl[c].output);
 		}
 	}
 	QTimer::singleShot(0, this, SLOT(updateAllPlots()));

@@ -80,8 +80,17 @@ public:
 			pathTypeEnum _pathType){
 		db = DubinsPath(start, end, startHeading, endHeading, circleRadius,
 				circleGlideRatio, straightGlideRatio, _pathType);
-		isDubinsPathset = true;
+		isDubinsPathSet = db.getIsValidDubinsPath();
 	}
+
+	DubinsPath getDubinsPath(void) const{
+		return db;
+	}
+
+	bool isValidDubinsPath(void) const {
+		return db.getIsValidDubinsPath();
+	}
+
 
 	Position_WGS84 getPosition_WGS84() {
 		Position_WGS84 posi = pos.getPosition_WGS84();
@@ -105,6 +114,16 @@ public:
 	json asJson();
 	void resetWindDisplacement(void) {
 		windDisplacement={0.0, 0.0, 0.0};
+	}
+
+	double getElfHeightDiff() const
+	{
+		return elfHeightDiff;
+	}
+
+	void setElfHeightDiff(double elfHeightDiff = 0.0)
+	{
+		this->elfHeightDiff = elfHeightDiff;
 	}
 
 	//statistics
@@ -133,12 +152,13 @@ public:
 
 	double roll_electric_deg_pilot = 0.0;
 //	double heightOverGnd = 0.0;	//this value isn't in the datarefs
-	Position pos = Position(0.0, 0.0);
+	Position pos = Position(0.0, 0.0, 1000.0);
 	Position elf = Position(0.0, 0.0);
 	bool isElfSet = false;
 	DubinsPath db = DubinsPath();
-	bool isDubinsPathset = false;
+	bool isDubinsPathSet = false;
 	double elfHeading = 0.0;
+	double elfHeightDiff = 0.0;
 
 	//controller data
 	bool climbControlActive = false;
@@ -147,6 +167,7 @@ public:
 	double PSpeed = 0.0, ISpeed = 0.0, DSpeed = 0.0;
 	double PRoll = 0.0, IRoll = 0.0, DRoll = 0.0;
 	std::vector<double> controllerOutputs = std::vector<double>(ctrlType::_size());;
+	std::vector<double> currentValue = std::vector<double>(ctrlType::_size());;
 
 	class PidParams{
 	public:

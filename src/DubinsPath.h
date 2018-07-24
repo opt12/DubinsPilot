@@ -34,22 +34,25 @@ public:
 
 	// constructor that directly computes a path with available parameters
 	DubinsPath(Position start, Position end,
-			double startHeading, double endHeading,
-			pathTypeEnum _pathType){
+			double startHeading, double endHeading, pathTypeEnum _pathType){
 		calculateDubinsPath(start, end,
-			startHeading, endHeading,
-			circleRadius,
+			startHeading, endHeading, circleRadius,
 			circleGlideRatio, straightGlideRatio,
 			_pathType);
 	}
+
+	static double calculateMinimumHeightLoss(const Position start,
+			const Position end, const double startHeading, const double endHeading,
+			const double _circleRadius, const double _circleGlideRatio,
+			const double _straightGlideRatio, const pathTypeEnum _pathType);
 
 
 	// function to compute a path with given parameters
 	void calculateDubinsPath(Position start, Position end,
 			double startHeading, double endHeading,
-			double circleRadius,
-			double circleGlideRatio, double straightGlideRatio,
-			pathTypeEnum pathType, double windVelocity = 0.0, double windHeading = 0.0);
+			double _circleRadius,
+			double _circleGlideRatio, double _straightGlideRatio,
+			pathTypeEnum _pathType, double windVelocity = 0.0, double windHeading = 0.0);
 
 	std::string getPathAsMatlabCommand(void);
 	std::string getExtendedPathAsMatlabCommand(void);
@@ -111,6 +114,10 @@ public:
 		return straightGlideRatio;
 	}
 
+	bool getIsValidDubinsPath() const {
+		return isValidDubinsPath;
+	}
+
 private:
 
 	/* an approach in the body frame of the aircraft is given in coordinates as
@@ -131,13 +138,14 @@ private:
 	 * as geodetic coordinates to be prepared for changes of the origin.
 	 */
 
+	bool isValidDubinsPath = false;
 	Position startPoint, endPoint;
 	Position circleCenter[2];
 	Position circleCenterExt[2];
 	double circleEntryAngleExt[2], circleExitAngleExt[2];
 	double circleEntryAngle[2], circleExitAngle[2];
-	double circleRadius = 400, circleGlideRatio = 10.4;
-	double straightGlideRatio = 10.4;
+	double circleRadius=0.0;
+	double straightGlideRatio = 0.0, circleGlideRatio = 0.0;
 	bool cachesDirty = true;
 	Position circleEntry[2], circleExit[2];	//this is only for caching
 	Position circleEntryExt[2], circleExitExt[2];	//this is only for caching

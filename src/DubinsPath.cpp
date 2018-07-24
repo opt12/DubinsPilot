@@ -11,6 +11,7 @@
 #include <vector>
 #include <tuple>
 #include <algorithm>    // std::transform
+#include "constants.h"
 
 /*
  * The Matlab output uses a command to draw circular segments that goes like this
@@ -110,22 +111,101 @@ void DubinsPath::updateCaches(void) {
 	cachesDirty = false;
 }
 
+double DubinsPath::calculateMinimumHeightLoss(const Position start,
+		const Position end, const double startHeading, const double endHeading,
+		const double _circleRadius, const double _circleGlideRatio,
+		const double _straightGlideRatio, const pathTypeEnum _pathType) {
+	// TODO hier wird Code wiederholt, der auch in der echten Pfadberechnung
+	// gebraucht wird. Das stinkt ein bisschen.
+
+	// get the cartesian coordinates of the start, and endpoints
+	// firstly, the endpoint is used as the origin
+	Position_Cartesian startCart = end.getCartesianDifference(start), endCart =
+			Position_Cartesian(0, 0, end.getPosition_WGS84().height);
+
+	// rotate the system to have the endHeading in 270° direction (-X-axis)
+	double rotation = fmod(270.0 - endHeading, 360);
+
+	// all variables with suffix _t are transformed with this rotation
+	double startHead_t = fmod(startHeading + rotation, 360), endHead_t = fmod(
+			endHeading + rotation, 360);
+	Position_Cartesian start_t, end_t;
+	rotatePoint(startCart.x, startCart.y, rotation, start_t.x, start_t.y);
+	start_t.z = startCart.z;
+	rotatePoint(endCart.x, endCart.y, rotation, end_t.x, end_t.y);
+	end_t.z = endCart.z;
+
+	//start with the calculation of the shortest dubins path:
+	Position_Cartesian circleCenter_t[2];
+	double deltaX, deltaY;	// cartesian distance between the two circle centers
+	double headingStraight_t;	// heading of the interconnection tangential
+	double rotCircle[2];	// turning angle within each circle
+	double circleLength[2]; //the length of each circle segment
+	double heightLossCircle[2], heightLossStraight;
+	double straightLength;
+
+	int dirSign = (_pathType == +pathTypeEnum::LSL) ? -1 : 1;// this is used to use the correct direction of turns for LSL and RSR
+
+	// der erste Kreismittelpunkt kann direkt berechnet werden
+	circleCenter_t[0].x = start_t.x
+			- _circleRadius * sin(to_radians(-dirSign * 90 - startHead_t));
+	circleCenter_t[0].y = start_t.y
+			+ _circleRadius * cos(to_radians(-dirSign * 90 - startHead_t));
+	// der Mittelpunkt des zweiten Kreises kann auch direkt berechnet werden
+	// der zweite Kreis hat seinen Mittelpunkt einen Radius unterhalb und rechts des Zielpunkts
+	circleCenter_t[1].y = end_t.y + _circleRadius * (dirSign);// cos(to_radians(90 - endHead_t)) == 1, da endHead_t == 270;
+	circleCenter_t[1].x = end_t.x - _circleRadius * (0.0); //sin(to_radians(90 - endHead_t)) == 0, da endHead_t == 270;
+
+	// der Abstand in y-Richtung
+	deltaY = circleCenter_t[1].y - circleCenter_t[0].y;
+	deltaX = circleCenter_t[1].x - circleCenter_t[0].x;
+	// the direction between the center points of the circles
+	// fmod(..., -360) to get the left turning circle
+	headingStraight_t = fmod(to_degrees(atan2(deltaX, deltaY)),
+			dirSign * 360.0);
+	// die Rotationen in den einzelnen Kreisen
+	rotCircle[0] = fmod(headingStraight_t - startHead_t + dirSign * 2 * 360,
+			dirSign * 360.0);
+	rotCircle[1] = fmod(endHead_t - headingStraight_t + dirSign * 2 * 360,
+			dirSign * 360.0);
+
+	//damit kann der Höhenverlust des kürzesten Weges ausgerechnet werden
+	circleLength[0] = fabs(_circleRadius * to_radians(rotCircle[0]));
+	heightLossCircle[0] = -circleLength[0] / _circleGlideRatio;
+	circleLength[1] = fabs(_circleRadius * to_radians(rotCircle[1]));
+	heightLossCircle[1] = -circleLength[1] / _circleGlideRatio;
+	straightLength = sqrt(deltaX * deltaX + deltaY * deltaY);
+	heightLossStraight = -straightLength / _straightGlideRatio;
+
+	// minimumHeightLoss is given as positive value,
+	// so it must be subtracted from the startpoint height
+	return (heightLossCircle[0] + heightLossCircle[1] + heightLossStraight);
+}
+
 void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 		const double startHeading, const double endHeading, const double _circleRadius,
 		const double _circleGlideRatio, const double _straightGlideRatio,
 		const pathTypeEnum _pathType, const double windVelocity, const double windHeading) {
 
 	pathType = _pathType;
-	// get the cartesian coordinates of the start, and endpoints
-//	Position_Cartesian startCart = start.getPosition_Cart(),
-//			endCart = end.getPosition_Cart();
+	circleRadius = _circleRadius;
+	circleGlideRatio = _circleGlideRatio;
+	straightGlideRatio = _straightGlideRatio;
+	isValidDubinsPath = true;	//we are optimistic and reset this assumption in case it's untrue;
+
+
 	// get the cartesian coordinates of the start, and endpoints
 	// firstly, the endpoint is used as the origin
-	Position_Cartesian startCart = end.getCartesianDifference(start),
-			endCart = Position_Cartesian(0, 0, 0);
+	Position_Cartesian startCart = end.getCartesianDifference(start);
+	startCart.z += end.getPosition_WGS84().height;	//now we have the real elevation in here
+	Position_Cartesian endCart = Position_Cartesian(0, 0, end.getPosition_WGS84().height);
+
+	double requiredHeightDiff = startCart.z- endCart.z;
 
 	// rotate the system to have the endHeading in 270° direction (-X-axis)
 	double rotation = 270.0 - endHeading;
+
+	// all variables with suffix _t are transformed with this rotation
 	double startHead_t = fmod(startHeading + rotation, 360),
 			endHead_t = fmod(endHeading + rotation, 360);
 	Position_Cartesian start_t, end_t;
@@ -134,32 +214,32 @@ void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 	rotatePoint(endCart.x, endCart.y, rotation, end_t.x, end_t.y);
 	end_t.z = endCart.z;
 
-	double deltaHeight = startCart.z - endCart.z;
-
 	//start with the calculation of the shortest dubins path:
 	Position_Cartesian circleCenter_t[2], circleEntry_t[2], circleExit_t[2];
 	Position_Cartesian circleCenterExt_t[2], circleEntryExt_t[2], circleExitExt_t[2];
-	double deltaX, deltaY;
-	double headingStraight_t;
-	double rotCircle[2];
-	double rotCircleExt[2];
-	double heightLossCircle, heightLossStraight;
+	double deltaX, deltaY;	// cartesian distance between the two circle centers
+	double headingStraight_t;	// heading of the interconnection tangential
+	double rotCircle[2];	// turning angle within each circle
+	double rotCircleExt[2];		// turning angle within each circle of the extended dubins Path
+	double heightLossCircle[2], heightLossStraight;
 	double straightLength;
+	double minHeightLoss;
+
 
 	switch (_pathType) {
 	case pathTypeEnum::LSL:
 		// berechne zunächst den kürzesten LSL Anflug
 		// der erste Kreismittelpunkt kann direkt berechnet werden
 		circleCenter_t[0].x = start_t.x
-				- _circleRadius * sin(to_radians(90 - startHead_t));
+				- circleRadius * sin(to_radians(90 - startHead_t));
 		circleCenter_t[0].y = start_t.y
-				+ _circleRadius * cos(to_radians(90 - startHead_t));
+				+ circleRadius * cos(to_radians(90 - startHead_t));
 		// der Mittelpunkt des zweiten Kreises kann auch direkt berechnet werden
 		// der zweite Kreis hat seinen Mittelpunkt einen Radius unterhalb und rechts des Zielpunkts
 		circleCenter_t[1].y = end_t.y
-				+ _circleRadius * (-1.0);// cos(to_radians(90 - endHead_t)) == 1, da endHead_t == 270;
+				+ circleRadius * (-1.0);// cos(to_radians(90 - endHead_t)) == 1, da endHead_t == 270;
 		circleCenter_t[1].x = end_t.x
-				- _circleRadius * (0.0); //sin(to_radians(90 - endHead_t)) == 0, da endHead_t == 270;
+				- circleRadius * (0.0); //sin(to_radians(90 - endHead_t)) == 0, da endHead_t == 270;
 
 		// der Abstand in y-Richtung
 		deltaY = circleCenter_t[1].y - circleCenter_t[0].y;
@@ -167,15 +247,15 @@ void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 		// the direction between the center points of the circles
 		// fmod(..., -360) to get the left turning circle
 		headingStraight_t = fmod(to_degrees(atan2(deltaX, deltaY)), -360.0);
-		// die rotationen in den einzelnen Kreisen
+		// die Rotationen in den einzelnen Kreisen
 		rotCircle[0] = fmod(headingStraight_t - startHead_t - 2 * 360, -360.0);
 		rotCircle[1] = fmod(endHead_t - headingStraight_t - 2 * 360, -360.0);
 
 		circleEntry_t[0] = start_t;
-		circleExit_t[0].x = circleCenter_t[0].x + _circleRadius*cos(to_radians(-headingStraight_t));
-		circleExit_t[0].y = circleCenter_t[0].y + _circleRadius*sin(to_radians(-headingStraight_t));
-		circleEntry_t[1].x = circleCenter_t[1].x + _circleRadius*cos(to_radians(-headingStraight_t));
-		circleEntry_t[1].y = circleCenter_t[1].y + _circleRadius*sin(to_radians(-headingStraight_t));
+		circleExit_t[0].x = circleCenter_t[0].x + circleRadius*cos(to_radians(-headingStraight_t));
+		circleExit_t[0].y = circleCenter_t[0].y + circleRadius*sin(to_radians(-headingStraight_t));
+		circleEntry_t[1].x = circleCenter_t[1].x + circleRadius*cos(to_radians(-headingStraight_t));
+		circleEntry_t[1].y = circleCenter_t[1].y + circleRadius*sin(to_radians(-headingStraight_t));
 		circleExit_t[1] = end_t;
 		circleEntryAngle[0] = startHeading + 90;
 		circleExitAngle[0] = startHeading + rotCircle[0] + 90;
@@ -184,19 +264,55 @@ void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 
 		//damit kann der Höhenverlust des kürzesten Weges ausgerechnet werden
 		circleLength[0] = circleRadius*to_radians(-rotCircle[0]);
+		heightLossCircle[0] = -circleLength[0]/_circleGlideRatio;
 		circleLength[1] = circleRadius*to_radians(-rotCircle[1]);
-		heightLossCircle = (circleLength[0]+ circleLength[1])/_circleGlideRatio;
+		heightLossCircle[1] = -circleLength[1]/_circleGlideRatio;
 		inBetweenLength = sqrt(deltaX*deltaX + deltaY*deltaY);
-		heightLossStraight = inBetweenLength/_straightGlideRatio;
+		heightLossStraight = -inBetweenLength/straightGlideRatio;
 
+		minHeightLoss = heightLossStraight + heightLossCircle[0] +heightLossCircle[1];
+
+		if(minHeightLoss >= requiredHeightDiff + EPS){
+			isValidDubinsPath = false;	// we won't make it there;
+		}
+
+		// setze die Höhendaten für die einzelnen Kreispunkte
 		circleEntry_t[0].z = startCart.z;
-		circleExit_t[0].z = startCart.z - circleLength[0]/_circleGlideRatio;
+		circleExit_t[0].z = startCart.z - heightLossCircle[0];
 		circleEntry_t[1].z = circleExit_t[0].z - heightLossStraight;
-		circleExit_t[1].z = circleEntry_t[1].z - circleLength[1]/_circleGlideRatio;
+		circleExit_t[1].z = circleEntry_t[1].z - heightLossCircle[1];
 
+
+//		// wie viel Höhenverlust ist verlangt
+//		if(heightDiff == 0.0){	// Vergleich in dieser Form erlaubt, da nicht Ergebnis von Berechnung
+//			deltaHeight = circleEntry_t[0].z - circleExit_t[1].z;
+//		} else if (heightDiff < 0){
+//			deltaHeight = - heightDiff;	// Angabe relativ zum Startpunkt
+//			if(circleEntry_t[0].z - circleExit_t[1].z - deltaHeight < EPS){
+//				// TODO Error Handling für inkonsistente Höhenangaben
+//				std::cout << "ATTENTION!!! The endpoint is not reachable due to height constraints.\n";
+//			}
+//		} else if (heightDiff > 0){
+//			deltaHeight = heightDiff;	// dieser Wert muss übereinstimmen mit start.z - end.z
+//			if(startCart.z-endCart.z - deltaHeight < -EPS){
+//				isValidDubinsPath = false;
+//				// TODO Error Handling für inkonsistente Höhenangaben
+//				std::cout << "ATTENTION!!! The endpoint is not reachable due to height constraints.\n";
+//			}
+//		}
+//
 		//wenn das zu wenig ist, dann muss der final approach verlängert werden
-		heightLossStraight = deltaHeight - heightLossCircle;	// Sollwert
-		straightLength = _straightGlideRatio * heightLossStraight;	//sollwert
+		heightLossStraight = requiredHeightDiff - heightLossCircle[0] - heightLossCircle[1];	// Sollwert
+		if(heightLossStraight < -EPS){
+			isValidDubinsPath = false;
+			// TODO Error Handling für inkonsistente Höhenangaben
+			std::cout << "ATTENTION!!! The endpoint is not reachable due to height constraints.\n";
+		}
+
+		straightLength = -(straightGlideRatio * heightLossStraight);	//Sollwert
+		if(straightLength < inBetweenLength - EPS){}
+		// TODO Diese Formel ist nur gültig, wenn das Ziel auch erreichbar ist. Aufpassen wegen
+		// zwei quadratischen Lösungen
 		finalApproachLengthExt = -(deltaY * deltaY + deltaX * deltaX
 				- straightLength * straightLength)
 				/ (2 * (straightLength + deltaX));
@@ -213,16 +329,17 @@ void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 		// die rotationen in den einzelnen Kreisen
 		rotCircleExt[0] = fmod(headingStraight_t - startHead_t - 2 * 360, -360.0);
 		rotCircleExt[1] = fmod(endHead_t - headingStraight_t - 2 * 360, -360.0);
-		if(rotCircleExt[0]+rotCircleExt[1] >= rotCircle[0]+rotCircle[1] + 350){
+		if(rotCircleExt[0]+rotCircleExt[1] >= rotCircle[0]+rotCircle[1] + 350){	//the 350 are intentional to avoid numerical problems
+			// is it is more, than it is a complete circle which is definitely >350
 			//wenn der verlängerte Anflug einen Kreis weniger enthält, dann füge den dem letzten Kreis hinzu
 			rotCircleExt[1] -= 360;
 		}
 
 		circleEntryExt_t[0] = start_t;
-		circleExitExt_t[0].x = circleCenterExt_t[0].x + _circleRadius*cos(to_radians(-headingStraight_t));
-		circleExitExt_t[0].y = circleCenterExt_t[0].y + _circleRadius*sin(to_radians(-headingStraight_t));
-		circleEntryExt_t[1].x = circleCenterExt_t[1].x + _circleRadius*cos(to_radians(-headingStraight_t));
-		circleEntryExt_t[1].y = circleCenter_t[1].y + _circleRadius*sin(to_radians(-headingStraight_t));
+		circleExitExt_t[0].x = circleCenterExt_t[0].x + circleRadius*cos(to_radians(-headingStraight_t));
+		circleExitExt_t[0].y = circleCenterExt_t[0].y + circleRadius*sin(to_radians(-headingStraight_t));
+		circleEntryExt_t[1].x = circleCenterExt_t[1].x + circleRadius*cos(to_radians(-headingStraight_t));
+		circleEntryExt_t[1].y = circleCenter_t[1].y + circleRadius*sin(to_radians(-headingStraight_t));
 		circleExitExt_t[1].x = end_t.x + finalApproachLengthExt;
 		circleExitExt_t[1].y = end_t.y;
 		circleEntryAngleExt[0] = startHeading + 90;
@@ -233,44 +350,137 @@ void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 		circleLengthExt[0] = circleRadius*to_radians(-rotCircleExt[0]);
 		circleLengthExt[1] = circleRadius*to_radians(-rotCircleExt[1]);
 		inBetweenLengthExt = sqrt(deltaX*deltaX + deltaY*deltaY);
-		heightLossStraight = inBetweenLengthExt/_straightGlideRatio;
+		heightLossStraight = inBetweenLengthExt/straightGlideRatio;
 		circleEntryExt_t[0].z = startCart.z;
-		circleExitExt_t[0].z = startCart.z - circleLengthExt[0]/_circleGlideRatio;
+		circleExitExt_t[0].z = startCart.z - circleLengthExt[0]/circleGlideRatio;
 		circleEntryExt_t[1].z = circleExitExt_t[0].z - heightLossStraight;
-		circleExitExt_t[1].z = circleEntryExt_t[1].z - circleLengthExt[1]/_circleGlideRatio;
+		circleExitExt_t[1].z = circleEntryExt_t[1].z - circleLengthExt[1]/circleGlideRatio;
 		break;
 	case pathTypeEnum::RSR:
-		circleCenter_t[0].x = start_t.x
-				- _circleRadius * sin(to_radians(-90 - startHead_t));
-		circleCenter_t[0].y = start_t.y
-				+ _circleRadius * cos(to_radians(-90 - startHead_t));
-		circleCenter_t[1].x = end_t.x
-				- _circleRadius * sin(to_radians(-90 - endHead_t));
-		circleCenter_t[1].y = end_t.y
-				+ _circleRadius * cos(to_radians(-90 - endHead_t));
-		deltaX = circleCenter_t[1].x - circleCenter_t[0].x;
-		deltaY = circleCenter_t[1].y - circleCenter_t[0].y;
-		// the direction between the center points of the circles
-		// fmod(..., -360) to get the left turning circle
-		headingStraight_t = fmod(to_degrees(atan2(deltaX, deltaY)), 360.0);
-		rotCircle[0] = fmod(headingStraight_t - startHead_t + 2 * 360, 360.0);
-		rotCircle[1] = fmod(endHead_t - headingStraight_t + 2 * 360, 360.0);
-		circleEntry_t[0] = start_t;
-		circleExit_t[0].x = circleCenter_t[0].x - _circleRadius*cos(to_radians(-headingStraight_t));
-		circleExit_t[0].y = circleCenter_t[0].y - _circleRadius*sin(to_radians(-headingStraight_t));
-		circleEntry_t[1].x = circleCenter_t[1].x - _circleRadius*cos(to_radians(-headingStraight_t));
-		circleEntry_t[1].y = circleCenter_t[1].y - _circleRadius*sin(to_radians(-headingStraight_t));
-		circleExit_t[1] = end_t;
-		heightLossCircle = to_radians(rotCircle[0]+rotCircle[1])*_circleRadius/_circleGlideRatio;
-		heightLossStraight = sqrt(deltaX*deltaX + deltaY*deltaY)/_straightGlideRatio;
-		circleEntryAngle[0] = startHeading - 90;
-		circleExitAngle[0] = startHeading + rotCircle[0] - 90;
-		circleEntryAngle[1] = endHeading - rotCircle[1] - 90;
-		circleExitAngle[1] = endHeading - 90;
-		break;
+//		// berechne zunächst den kürzesten RSR Anflug
+//		// der erste Kreismittelpunkt kann direkt berechnet werden
+//		circleCenter_t[0].x = start_t.x
+//				- circleRadius * sin(to_radians(-90 - startHead_t));
+//		circleCenter_t[0].y = start_t.y
+//				+ circleRadius * cos(to_radians(-90 - startHead_t));
+//		// der Mittelpunkt des zweiten Kreises kann auch direkt berechnet werden
+//		// der zweite Kreis hat seinen Mittelpunkt einen Radius oberhalb und rechts des Zielpunkts
+//		circleCenter_t[1].y = end_t.y
+//				+ circleRadius * (+1.0);// cos(to_radians(90 - endHead_t)) == 1, da endHead_t == 270;
+//		circleCenter_t[1].x = end_t.x
+//				- circleRadius * (0.0); //sin(to_radians(90 - endHead_t)) == 0, da endHead_t == 270;
+//
+//		// der Abstand in y-Richtung
+//		deltaY = circleCenter_t[1].y - circleCenter_t[0].y;
+//		deltaX = circleCenter_t[1].x - circleCenter_t[0].x;
+//		// the direction between the center points of the circles
+//		// fmod(..., +360) to get the right turning circle
+//		headingStraight_t = fmod(to_degrees(atan2(deltaX, deltaY)), 360.0);
+//		// die Rotationen in den einzelnen Kreisen
+//		rotCircle[0] = fmod(headingStraight_t - startHead_t + 2 * 360, 360.0);
+//		rotCircle[1] = fmod(endHead_t - headingStraight_t + 2 * 360, 360.0);
+//
+//		circleEntry_t[0] = start_t;
+//		circleExit_t[0].x = circleCenter_t[0].x - circleRadius*cos(to_radians(-headingStraight_t));
+//		circleExit_t[0].y = circleCenter_t[0].y - circleRadius*sin(to_radians(-headingStraight_t));
+//		circleEntry_t[1].x = circleCenter_t[1].x - circleRadius*cos(to_radians(-headingStraight_t));
+//		circleEntry_t[1].y = circleCenter_t[1].y - circleRadius*sin(to_radians(-headingStraight_t));
+//		circleExit_t[1] = end_t;
+//		circleEntryAngle[0] = startHeading - 90;
+//		circleExitAngle[0] = startHeading + rotCircle[0] - 90;
+//		circleEntryAngle[1] = endHeading - rotCircle[1] - 90;
+//		circleExitAngle[1] = endHeading - 90;
+//
+//		//damit kann der Höhenverlust des kürzesten Weges ausgerechnet werden
+//		circleLength[0] = circleRadius*to_radians(+rotCircle[0]);
+//		heightLossCircle[0] = circleLength[0]/circleGlideRatio;
+//		circleLength[1] = circleRadius*to_radians(+rotCircle[1]);
+//		heightLossCircle[1] = circleLength[1]/circleGlideRatio;
+//		inBetweenLength = sqrt(deltaX*deltaX + deltaY*deltaY);
+//		heightLossStraight = inBetweenLength/straightGlideRatio;
+//
+//		// setze die Höhendaten für die einzelnen Kreispunkte
+//		circleEntry_t[0].z = startCart.z;
+//		circleExit_t[0].z = startCart.z - heightLossCircle[0];
+//		circleEntry_t[1].z = circleExit_t[0].z - heightLossStraight;
+//		circleExit_t[1].z = circleEntry_t[1].z - heightLossCircle[1];
+//
+//		// wie viel Höhenverlust ist verlangt
+//		if(heightDiff == 0.0){	// Vergleich in dieser Form erlaubt, da nicht Ergebnis von Berechnung
+//			minHeightLoss = circleEntry_t[0].z - circleExit_t[1].z;
+//		} else if (heightDiff < 0){
+//			minHeightLoss = - heightDiff;	// Angabe relativ zum Startpunkt
+//			if(circleEntry_t[0].z - circleExit_t[1].z - minHeightLoss < EPS){
+//				isValidDubinsPath = false;
+//				// TODO Error Handling für inkonsistente Höhenangaben
+//				std::cout << "ATTENTION!!! The endpoint is not reachable due to height constraints.\n";
+//			}
+//		} else if (heightDiff > 0){
+//			minHeightLoss = heightDiff;	// dieser Wert muss übereinstimmen mit start.z - end.z
+//			if(startCart.z-endCart.z - minHeightLoss < EPS){
+//				isValidDubinsPath = false;
+//				// TODO Error Handling für inkonsistente Höhenangaben
+//				std::cout << "ATTENTION!!! The endpoint is not reachable due to height constraints.\n";
+//			}
+//		}
+//
+//		//wenn das zu wenig ist, dann muss der final approach verlängert werden
+//		heightLossStraight = minHeightLoss - heightLossCircle[0] - heightLossCircle[1];	// Sollwert
+//		if(heightLossStraight < 0.0){
+//			isValidDubinsPath = false;
+//			// TODO Error Handling für inkonsistente Höhenangaben
+//			std::cout << "ATTENTION!!! The endpoint is not reachable due to height constraints.\n";
+//		}
+//		straightLength = straightGlideRatio * heightLossStraight;	//Sollwert
+//		finalApproachLengthExt = -(deltaY * deltaY + deltaX * deltaX
+//				- straightLength * straightLength)
+//				/ (2 * (straightLength + deltaX));
+//
+//		//jetzt kann der endgültige Anflug bestimmt werden
+//		circleCenterExt_t[0] = circleCenter_t[0];	// nix ändert sich
+//		circleCenterExt_t[1].y = circleCenter_t[1].y;
+//		circleCenterExt_t[1].x = end_t.x + finalApproachLengthExt;
+//
+//		deltaX = circleCenterExt_t[1].x - circleCenterExt_t[0].x;	//deltaY bleibt konstant
+//		// the direction between the center points of the circles
+//		// fmod(..., +360) to get the right turning circle
+//		headingStraight_t = fmod(to_degrees(atan2(deltaX, deltaY)), 360.0);
+//		// die rotationen in den einzelnen Kreisen
+//		rotCircleExt[0] = fmod(headingStraight_t - startHead_t + 2 * 360, +360.0);
+//		rotCircleExt[1] = fmod(endHead_t - headingStraight_t + 2 * 360, +360.0);
+//		if(rotCircleExt[0]+rotCircleExt[1] <= rotCircle[0]+rotCircle[1] - 350){	//the 350 are intentional to avoid numerical problems
+//			// is it is more, than it is a complete circle which is definitely >350
+//			//wenn der verlängerte Anflug einen Kreis weniger enthält, dann füge den dem letzten Kreis hinzu
+//			rotCircleExt[1] += 360;
+//		}
+//
+//		circleEntryExt_t[0] = start_t;
+//		circleExitExt_t[0].x = circleCenterExt_t[0].x - circleRadius*cos(to_radians(-headingStraight_t));
+//		circleExitExt_t[0].y = circleCenterExt_t[0].y - circleRadius*sin(to_radians(-headingStraight_t));
+//		circleEntryExt_t[1].x = circleCenterExt_t[1].x - circleRadius*cos(to_radians(-headingStraight_t));
+//		circleEntryExt_t[1].y = circleCenter_t[1].y - circleRadius*sin(to_radians(-headingStraight_t));
+//		circleExitExt_t[1].x = end_t.x + finalApproachLengthExt;
+//		circleExitExt_t[1].y = end_t.y;
+//		circleEntryAngleExt[0] = startHeading - 90;
+//		circleExitAngleExt[0] = startHeading + rotCircleExt[0] - 90;
+//		circleEntryAngleExt[1] = endHeading - rotCircleExt[1] - 90;
+//		circleExitAngleExt[1] = endHeading - 90;
+//
+//		circleLengthExt[0] = circleRadius*to_radians(+rotCircleExt[0]);
+//		circleLengthExt[1] = circleRadius*to_radians(+rotCircleExt[1]);
+//		inBetweenLengthExt = sqrt(deltaX*deltaX + deltaY*deltaY);
+//		heightLossStraight = inBetweenLengthExt/straightGlideRatio;
+//		circleEntryExt_t[0].z = startCart.z;
+//		circleExitExt_t[0].z = startCart.z - circleLengthExt[0]/circleGlideRatio;
+//		circleEntryExt_t[1].z = circleExitExt_t[0].z - heightLossStraight;
+//		circleExitExt_t[1].z = circleEntryExt_t[1].z - circleLengthExt[1]/circleGlideRatio;
+//		break;
 	default:
 		break;
 	}
+
+
+
 
 	//now unrotate the coordinate system
 	Position_Cartesian temp;
@@ -309,9 +519,6 @@ void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 	startPoint = start;
 	endPoint = end;
 
-	circleRadius = _circleRadius;
-	circleGlideRatio = _circleGlideRatio;
-	straightGlideRatio = _straightGlideRatio;
 	cachesDirty = false;
 
 	//TODO Debug ausgabe entfernen!
@@ -320,6 +527,10 @@ void DubinsPath::calculateDubinsPath(const Position start, const Position end,
 
 json DubinsPath::asJson(){
 	json j;
+	if(!isValidDubinsPath){
+		return j;
+	}
+
 	j["pathType"]=pathType._to_string();
 	j["startingPoint"]= {startPoint.getPosition_WGS84().lati, startPoint.getPosition_WGS84().longi};
 	j["endPoint"]= {endPoint.getPosition_WGS84().lati, endPoint.getPosition_WGS84().longi};
@@ -329,6 +540,7 @@ json DubinsPath::asJson(){
 			circleEntryAngle[1], circleExitAngle[1]);
 	j["startHeading"] =  circleEntryAngle[0] + ((pathType == +pathTypeEnum::LSL) ? -90 : +90);
 	j["endHeading"] =  circleExitAngle[1] + ((pathType == +pathTypeEnum::LSL) ? -90 : +90);
+	j["isValidDubinsPath"] = isValidDubinsPath;
 	return j;
 }
 

@@ -7,9 +7,6 @@
 
 #include <utils.h>
 
-double deg2rad(const double deg){
-	return deg/180*(M_PI);
-}
 
 double to_degrees(const double radians) {
     return radians * (180.0 / M_PI);

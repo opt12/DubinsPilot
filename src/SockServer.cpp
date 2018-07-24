@@ -9,6 +9,8 @@
 #include <thread>
 #include <string>
 //this is to use the IPC sockets
+// TODO check protability for Windows,
+// see https://stackoverflow.com/questions/2952733/using-sys-socket-h-functions-on-windows
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>

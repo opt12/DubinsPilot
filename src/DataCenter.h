@@ -58,6 +58,9 @@ public:
 	void setRequestedTargetValue(ctrlType _c, double _requestedValue) {
 		curDat.requestedTargetVals[_c] = _requestedValue;
 	}
+	void setCurrentValues(ctrlType _c, double _requestedValue) {
+		curDat.currentValue[_c] = _requestedValue;
+	}
 	void setClimbControlActive(bool active) {
 		curDat.climbControlActive = active;
 	}
@@ -131,7 +134,7 @@ signals:
 
 	void sigSocketSendData(std::string msgType, int requestId, json data);
 	void originSetTo(Position_WGS84 origin);
-	void sigElfCoordsSet(Position_WGS84 elf, double elfHeading);
+	void sigElfCoordsSet(Position_WGS84 elf, double elfHeading, bool pathFeasible);
 	void sigWindChanged(double windDirFrom, double windVelocity);
 	void sigCalculateDubinsPath(pathTypeEnum pathType);
 

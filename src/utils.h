@@ -12,7 +12,9 @@
 
 
 double to_degrees(const double radians);
-double deg2rad(const double deg);
+constexpr double deg2rad(const double deg){
+	return deg/180*(M_PI);
+};
 double to_radians(const double degrees);
 double knots_to_ms(const double valKnots);
 double ms_to_knots(const double valKnots);

@@ -127,8 +127,8 @@ int main(int argc, char *argv[]) {
 			SLOT(setXPlaneConnection(bool)));
 //	QObject::connect(dc, SIGNAL(originSetTo(Position_WGS84)), pidParams,
 //			SLOT(showOriginCoords(Position_WGS84)));
-	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position_WGS84, double)), pidParams,
-			SLOT(showElfCoords(Position_WGS84, double)));
+	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position_WGS84, double, bool)), pidParams,
+			SLOT(showElfCoords(Position_WGS84, double, bool)));
 	QObject::connect(dc, SIGNAL(sigWindChanged(double, double)), pidParams,
 			SLOT(displayCurrentWind(double, double)));
 

@@ -7,6 +7,8 @@ TARGET =
 DEPENDPATH += . src Forms libXPlane
 INCLUDEPATH += . src libXPlane Forms /usr/include/qwt
 LIBS += -L/usr/lib/ -lqwt -lGeographic -lpthread
+# TODO Check for Cygwin or whatever...
+# see https://stackoverflow.com/questions/2952733/using-sys-socket-h-functions-on-windows
 
 #use precompiled library in production build
 #LIBS += -lXPlaneUDPClient
@@ -24,7 +26,8 @@ HEADERS += Forms/pid_parameters.h \
            src/DubinsPath.h \
            src/auto_pilot.h \
            src/FlightPhase.h \
-           src/DubinsScheduler.h
+           src/DubinsScheduler.h \
+           src/constants.h
 FORMS +=   Forms/pid_parameters.ui
 SOURCES += Forms/pid_parameters.cpp \
            Forms/qledindicator.cpp \

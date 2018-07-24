@@ -48,7 +48,7 @@ public slots:
 	void attachControllerCurve(ctrlType c, QwtPlotCurve* ctrlCurve);
 	void replotControllerCurve(ctrlType c);
 //	void showOriginCoords(Position_WGS84 origin);
-	void showElfCoords(Position_WGS84 elf, double elfHeading);
+	void showElfCoords(Position_WGS84 elf, double elfHeading, bool pathFeasible);
 	void setTargetValueControlKnob(ctrlType ctrl, double targetValue, bool isLeftCircle=true);
 	void setControllerCheckButtons(ctrlType ctrl, bool enable, bool checked);
 	void displayCurrentWind(double windDirFrom, double windVelocity);

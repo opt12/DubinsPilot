@@ -400,14 +400,19 @@ void PIDParametersDialog::clearInputFields(void) {
 //	labelLonOrigin->setText("Lon: " + QString::number(origin.longi, 'g'));
 //}
 
-void PIDParametersDialog::showElfCoords(Position_WGS84 elf, double elfHeading) {
+void PIDParametersDialog::showElfCoords(Position_WGS84 elf, double elfHeading, bool pathFeasible) {
 	this->elfPosition = elf;
 	this->elfHeading = elfHeading;
-	this->isElfSet = true;
-	labelLatElf->setText("Lat: " + QString::number(elf.lati, 'g'));
-	labelLonElf->setText("Lon: " + QString::number(elf.longi, 'g'));
-	labelHeadingElf->setText("heading: " + QString::number(elfHeading, 'g'));
-	pushButtonFlyPath->setEnabled(true);
+	labelLatElf->setText("Lat: " +
+			QString::number(elf.lati, 'g'));
+	labelLonElf->setText("Lon: " +
+			QString::number(elf.longi, 'g'));
+	labelElevationElf->setText("Elevation: " +
+			QString::number(elf.height, 'g'));
+	labelHeadingElf->setText("heading: " +
+			QString::number(elfHeading, 'g'));
+	pushButtonFlyPath->setEnabled(pathFeasible);
+	ledIndicatorPathFeasible->setChecked(pathFeasible);
 }
 
 void PIDParametersDialog::setDValue(void) {
@@ -951,11 +956,16 @@ void PIDParametersDialog::writeSettings() {
 	settings.setValue("valIClimb", QVariant::fromValue(valIClimb));
 	settings.setValue("valDClimb", QVariant::fromValue(valDClimb));
 	settings.setValue("valClimbRate", QVariant::fromValue(valClimbRate));
+	settings.setValue("climbControlActive",
+			QVariant::fromValue((checkBoxClimbController->isChecked())));
 
 	settings.setValue("valPRoll", QVariant::fromValue(valPRoll));
 	settings.setValue("valIRoll", QVariant::fromValue(valIRoll));
 	settings.setValue("valDRoll", QVariant::fromValue(valDRoll));
 	settings.setValue("valRoll", QVariant::fromValue(valRoll));
+	settings.setValue("rollControlActive",
+			QVariant::fromValue((checkBoxRollController->isChecked())));
+
 
 	settings.setValue("valPHeading", QVariant::fromValue(valPHeading));
 	settings.setValue("valIHeading", QVariant::fromValue(valIHeading));
@@ -1036,14 +1046,15 @@ void PIDParametersDialog::submitElfData(void) {
 	height = lineEditHeight->text().toDouble();
 	rotation = lineEditRotation->text().toDouble();
 
-	if(elfInputFieldsDirty || !isElfSet){
+	if(elfInputFieldsDirty || !isElfSet || checkBoxAlwaysRelative->isChecked()){
 		emit sigSetElfLocation(forward, right, height, rotation,
 				radioButtonLSL->isChecked()?pathTypeEnum::LSL:pathTypeEnum::RSR);
+		isElfSet = true;
+		elfInputFieldsDirty = false;
 	} else {
 		emit sigSetElfLocation(elfPosition, elfHeading,
 				radioButtonLSL->isChecked()?pathTypeEnum::LSL:pathTypeEnum::RSR);
 	}
-	elfInputFieldsDirty = false;
 }
 
 void PIDParametersDialog::takeMeDown(void){

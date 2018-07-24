@@ -15,6 +15,7 @@
 #include <pid_controller.h>
 #include "enumDeclarations.h"
 #include "Position.h"
+#include "constants.h"
 
 #include <string>
 #include <vector>
@@ -87,7 +88,6 @@ private:
 	static DataCenter *dc;
 	QTimer *basicTimer;
 	const int timerMilliseconds = 100;
-	const double GLIDE_ANGLE_STRAIGTH = -5.0, GLIDE_ANGLE_CIRCLE = -6.0;
 	std::vector<Controller> ctrl;
 
 	int count=0;
