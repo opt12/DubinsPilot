@@ -29,17 +29,17 @@ public:
 			startHeading, endHeading,
 			circleRadius,
 			circleGlideRatio, straightGlideRatio,
-			_pathType);
+			_pathType, false);	//TODO Parameter bool calculateShortest auf false!!!
 	}
 
-	// constructor that directly computes a path with available parameters
-	DubinsPath(Position start, Position end,
-			double startHeading, double endHeading, pathTypeEnum _pathType){
-		calculateDubinsPath(start, end,
-			startHeading, endHeading, circleRadius,
-			circleGlideRatio, straightGlideRatio,
-			_pathType);
-	}
+//	// constructor that directly computes a path with available parameters
+//	DubinsPath(Position start, Position end,
+//			double startHeading, double endHeading, pathTypeEnum _pathType){
+//		calculateDubinsPath(start, end,
+//			startHeading, endHeading, circleRadius,
+//			circleGlideRatio, straightGlideRatio,
+//			_pathType, double);
+//	}
 
 	static double calculateMinimumHeightLoss(const Position start,
 			const Position end, const double startHeading, const double endHeading,
@@ -52,10 +52,19 @@ public:
 			double startHeading, double endHeading,
 			double _circleRadius,
 			double _circleGlideRatio, double _straightGlideRatio,
-			pathTypeEnum _pathType, double windVelocity = 0.0, double windHeading = 0.0);
+			pathTypeEnum _pathType, bool calculateShortest,
+			double windVelocity = 0.0, double windHeading = 0.0);
+
+//	//obsdolete without calculateShortest Parameter
+//	void calculateDubinsPath(const Position start, const Position end,
+//			const double startHeading, const double endHeading,
+//			const double _circleRadius, const double _circleGlideRatio,
+//			const double _straightGlideRatio, const pathTypeEnum _pathType,
+//			const double windVelocity, const double windHeading);
+
 
 	std::string getPathAsMatlabCommand(void);
-	std::string getExtendedPathAsMatlabCommand(void);
+//	std::string getExtendedPathAsMatlabCommand(void);
 
 	double getPathLength(void) {
 		return circleLength[0] + circleLength[1] + inBetweenLength
@@ -139,21 +148,17 @@ private:
 	 */
 
 	bool isValidDubinsPath = false;
+	double heightLoss = 0.0;
 	Position startPoint, endPoint;
 	Position circleCenter[2];
-	Position circleCenterExt[2];
-	double circleEntryAngleExt[2], circleExitAngleExt[2];
 	double circleEntryAngle[2], circleExitAngle[2];
+	double circleRotation[2];
 	double circleRadius=0.0;
 	double straightGlideRatio = 0.0, circleGlideRatio = 0.0;
-	bool cachesDirty = true;
-	Position circleEntry[2], circleExit[2];	//this is only for caching
-	Position circleEntryExt[2], circleExitExt[2];	//this is only for caching
+	Position circleEntry[2], circleExit[2];
 	double circleLength[2]={0, 0}, inBetweenLength=0; //this is only for caching
-	double circleLengthExt[2]={0, 0}, inBetweenLengthExt=0, finalApproachLengthExt=0; //this is only for caching
+	double finalApproachLengthExt=0.0, finalApproachHeightLoss = 0.0;
 	pathTypeEnum pathType = pathTypeEnum::LSL;	//One of LSL, RSR (LSR, RSL in the future)
-
-	void updateCaches();
 
 	json trochoidAsJson(Position circleCenter, double circleRadius,
 			double entryAngleDeg, double exitAngleDeg,

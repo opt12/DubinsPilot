@@ -197,6 +197,11 @@ public:
 		pos.height = _height;
 	}
 
+	double getHeight(void) const {
+		return pos.height;
+	}
+
+
 private:
 	// TODO Das ist noch ein bisschen unschön, dass ich das eine ebene geschachtelt habe
 	// Gibt es sowas wie einen standard-Typecast zu  Position_WGS84, der dann pos zurückliefert
