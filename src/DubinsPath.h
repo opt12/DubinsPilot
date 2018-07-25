@@ -152,7 +152,7 @@ private:
 	Position startPoint, endPoint;
 	Position circleCenter[2];
 	double circleEntryAngle[2], circleExitAngle[2];
-	double circleRotation[2];
+	double circleRotation[2], circleTotalRot=0.0;
 	double circleRadius=0.0;
 	double straightGlideRatio = 0.0, circleGlideRatio = 0.0;
 	Position circleEntry[2], circleExit[2];

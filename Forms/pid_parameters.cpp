@@ -249,7 +249,6 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(pushButtonResetElf, SIGNAL(clicked()), this,
 			SLOT(clearInputFields(void)));
 
-	// TODO Das will ich eigentlich nicht unbedingt direkt submitten, wenn ich draufkicke
 	connect(radioButtonLSL, SIGNAL(clicked()), this,
 			SLOT(submitElfData()));
 	connect(radioButtonRSR, SIGNAL(clicked()), this,
@@ -299,9 +298,6 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 
 	connect(checkBoxPause, SIGNAL(toggled(bool)), this, SLOT(pauseSimulation(bool)));
 
-	//TODO weil das eigentlich erst nach dem Connect passieren soll. aber für's Debugging
-//	checkBoxClimbController->setEnabled(true);
-//	checkBoxRollController->setEnabled(true);
 	//do this  in the next turn of the event loop to have everything wired together already
 	QTimer::singleShot(0, this, SLOT(readSettings()));
 }
@@ -521,7 +517,6 @@ void PIDParametersDialog::setTargetValueControlKnob(ctrlType ctrl, double target
 		isLeftCircle ?
 				radioButtonCircleLeft->setChecked(true) :
 				radioButtonCircleRight->setChecked(true);
-		//TODO muss ich jetzt auch noch den anderen ausschalten, oder geht das von alleine???
 		break;
 	case ctrlType::HEADING_CONTROL:
 		CompassHeading->setValue(targetValue);
@@ -823,26 +818,12 @@ void PIDParametersDialog::rollControlActiveStateChanged(bool active) {
 }
 
 void PIDParametersDialog::headingControlActiveStateChanged(bool active) {
-	// TODO This is done from the Auto-Pilot for us...
-	//	//we need the roll controller for circle flight
-//	checkBoxRollController->setChecked(true);//the heading control uses the roll controller on low level
-//	// while the heading control is active, we don't want anybody else control the low level controllers
-//	checkBoxRollController->setEnabled(!active);
-//	rollControlActiveStateChanged(true);	// do this manually, as we hav only conneckted the clicked()-Signal, not the toggled(slot)
-
 	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, valHeading);
 	emit sigPidParametersChanged(ctrlType::HEADING_CONTROL, valPHeading,
 			valIHeading, valDHeading);
 	emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, active);
 }
 void PIDParametersDialog::circleControlActiveStateChanged(bool active) {
-	// TODO This is done from the Auto-Pilot for us...
-//	//we need the heading controller for circle flight
-//	checkBoxHeadingController->setChecked(true);
-//	// while the heading control is active, we don't want anybody else control the low level controllers
-//	checkBoxHeadingController->setEnabled(!active);
-//	headingControlActiveStateChanged(true);
-
 	emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, valCircle);
 	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
 			valICircle, valDCircle);
@@ -1064,7 +1045,7 @@ void PIDParametersDialog::takeMeDown(void){
 		submitElfData();	// we recalculate the path directly before tracking it
 		emit sigStartPathTracking(true);
 		isPathTracking = true;
-		//TODO Da müsste nman eigentlich noch die ganzenEingabefelder disablen bis angekommen oder Cancel
+		//TODO Da müsste man eigentlich noch die ganzenEingabefelder disablen bis angekommen oder Cancel
 	} else {
 		emit sigStartPathTracking(false);
 		isPathTracking = false;
@@ -1089,6 +1070,12 @@ void PIDParametersDialog::displayPathTrackingStatus(bool _isPathTracking){
 void PIDParametersDialog::setWind(void) {
 	// Eingabe sind Knoten, Rückgabe sind Meter pro Sekunde
 	double windDirFrom = CompassWind->value();
+
+	// TODO wieder rausnehmen
+	if(checkBoxPlaneHeading->isChecked()){
+		DataCenter::getInstance()->setTrue_psi(windDirFrom);
+	}
+
 	labelSelectedWindFrom->setText(
 			"from "+QString::number(windDirFrom, 'g') + " [deg]");
 	double windVelocity = SliderWindVelocity->value();

@@ -152,7 +152,7 @@ public:
 
 	double roll_electric_deg_pilot = 0.0;
 //	double heightOverGnd = 0.0;	//this value isn't in the datarefs
-	Position pos = Position(0.0, 0.0, 2000.0);
+	Position pos = Position(52.0, 9.0, 2000.0);
 	Position elf = Position(0.0, 0.0);
 	bool isElfSet = false;
 	DubinsPath db = DubinsPath();

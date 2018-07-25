@@ -85,6 +85,13 @@ public:
 		return curDat.true_psi;
 	}
 
+	// TODO wieder rausnehmen, ist nur zum Testen
+	void setTrue_psi(double _true_psi) {
+		curDat.true_psi = _true_psi;
+		emit sigSocketSendData(std::string("PLANE_STATE"), 0,
+				curDat.asJson());
+	}
+
 	double getTrue_airspeed() {
 		return curDat.true_airspeed;
 	}

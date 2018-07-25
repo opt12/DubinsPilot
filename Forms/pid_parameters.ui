@@ -2234,6 +2234,19 @@ down</string>
       </color>
      </property>
     </widget>
+    <widget class="QCheckBox" name="checkBoxPlaneHeading">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>370</y>
+       <width>161</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>control AC Heading</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
