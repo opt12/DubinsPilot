@@ -202,13 +202,13 @@ void DubinsPath::calculateDubinsPath(const Position start,
 
 	circleEntry_t[0] = start_t;
 	circleExit_t[0].x = circleCenter_t[0].x
-			+ circleRadius * cos(to_radians(-headingStraight_t));
+			- dirSign * circleRadius * cos(to_radians(-headingStraight_t));
 	circleExit_t[0].y = circleCenter_t[0].y
-			+ circleRadius * sin(to_radians(-headingStraight_t));
+			- dirSign *  circleRadius * sin(to_radians(-headingStraight_t));
 	circleEntry_t[1].x = circleCenter_t[1].x
-			+ circleRadius * cos(to_radians(-headingStraight_t));
+			- dirSign * circleRadius * cos(to_radians(-headingStraight_t));
 	circleEntry_t[1].y = circleCenter_t[1].y
-			+ circleRadius * sin(to_radians(-headingStraight_t));
+			- dirSign *  circleRadius * sin(to_radians(-headingStraight_t));
 	circleExit_t[1] = end_t;
 	circleEntryAngle[0] = startHeading + (-dirSign *90);
 	circleExitAngle[0] = startHeading + circleRotation[0] + (-dirSign *90);

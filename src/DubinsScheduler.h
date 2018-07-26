@@ -14,6 +14,10 @@
 #include <vector>
 
 #include <iostream>
+#include "json.hpp"
+// for convenience
+using json = nlohmann::json;
+
 #include "enumDeclarations.h"
 #include "FlightPhase.h"
 #include "DubinsPath.h"
@@ -45,6 +49,7 @@ signals:
 private:
 
 	void clearOutSchedule(void);
+	json dubinsPathCartesiansAsJson(void);
 
 	std::vector<FlightPhase*> flightPhases;
 	unsigned int currentPhase = 0;

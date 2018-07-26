@@ -34,7 +34,7 @@ CirclePhase::~CirclePhase() {
 void CirclePhase::performCommand(void) {
 	// do I have to leave the circle a little early to compensate
 	// the heading overshoot when leaving the circle
-	const double ANGULAR_THRESHOLD = 0.0;
+	const double ANGULAR_THRESHOLD = 5.0;
 
 	double currentAngle = circleCenter.getHeadingCart(dc->getPosition());
 

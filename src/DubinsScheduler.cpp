@@ -7,6 +7,7 @@
 
 #include <DubinsScheduler.h>
 #include <iostream>
+
 class QTimer;
 
 DubinsScheduler::DubinsScheduler(QObject* parent) :
@@ -72,12 +73,49 @@ void DubinsScheduler::clearOutSchedule(void){
 	flightPhases.clear();
 }
 
+json DubinsScheduler::dubinsPathCartesiansAsJson(void){
+	// This puts out the relevant Points of the Dubins path as JSON object
+	json j;
+
+	// Reference is the entry point of the first circle, as the plane position is here
+	Position reference = db->getStartPoint();
+	Position_Cartesian diff= reference.getCartesianDifference(db->getStartPoint());
+	j["Start_Point"] = diff.asJson();
+
+	diff = reference.getCartesianDifference(db->getCircleEntry()[0]);
+	j["Circle_0_Entry"] = diff.asJson();
+	diff = reference.getCartesianDifference(db->getCircleCenter()[0]);
+	j["Circle_0_Center"] = diff.asJson();
+	diff = reference.getCartesianDifference(db->getCircleExit()[0]);
+	j["Circle_0_Exit"] = diff.asJson();
+
+	diff = reference.getCartesianDifference(db->getCircleEntry()[1]);
+	j["Circle_1_Entry"] = diff.asJson();
+	diff = reference.getCartesianDifference(db->getCircleCenter()[1]);
+	j["Circle_1_Center"] = diff.asJson();
+	diff = reference.getCartesianDifference(db->getCircleExit()[1]);
+	j["Circle_1_Exit"] = diff.asJson();
+
+	diff = reference.getCartesianDifference(db->getEndPoint());
+	j["End_Point"] = diff.asJson();
+
+	Position_Cartesian disp = Position_Cartesian(0, db->getCircleRadius(), 0);
+	disp = disp.rotate(db->getCircleExitAngle()[1]);
+	diff = reference.getCartesianDifference(
+			db->getEndPoint() + disp);
+	j["Virtual_EndCircle"] = diff.asJson();
+
+
+	return j;
+}
 
 void DubinsScheduler::initialize(const DubinsPath* _db) {
 	db = _db;
 	pathTypeEnum pathType = db->getPathType();
 
 	clearOutSchedule();
+
+	std::cout << dubinsPathCartesiansAsJson().dump(4) << std::endl;
 
 	currentPhase = 0;
 
@@ -87,23 +125,23 @@ void DubinsScheduler::initialize(const DubinsPath* _db) {
 			// first circle segment
 			new CirclePhase(db->getCircleCenter()[0], db->getCircleRadius(),
 					db->getCircleEntryAngle()[0],
-					db->getCircleExitAngle()[0]));
+					db->getCircleExitAngle()[0]));	// path type R or L is set later on
 	flightPhases.push_back(
 			// tangent between circles
 			new StraightPhase(db->getCircleExit()[0], db->getCircleEntry()[1],
-					db->getCircleRadius(), db->getCircleCenter()[1]));
+					db->getCircleRadius()/2, db->getCircleCenter()[1]));
 	flightPhases.push_back(
 			// second circle segment
 			new CirclePhase(db->getCircleCenter()[1], db->getCircleRadius(),
 					db->getCircleEntryAngle()[1],
-					db->getCircleExitAngle()[1]));
+					db->getCircleExitAngle()[1]));	// path type R or L is set later on
 	flightPhases.push_back(
 			// final approach straight
 			new StraightPhase(db->getCircleExit()[1], db->getEndPoint(),
-					db->getCircleRadius(),
+					db->getCircleRadius()/2,
 					db->getEndPoint() +
 							Position_Cartesian(0, db->getCircleRadius(),0)
-									.rotate(-90)));
+									.rotate(db->getCircleExitAngle()[1])));
 	flightPhases.push_back(
 			// we are already there, but no touchdown.
 			new RunOutPhase(db->getEndPoint(),
