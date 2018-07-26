@@ -82,9 +82,9 @@ void DataCenter::timerExpired(void) {
 	//integrate over the windDisplacement
 	// when the direction is updated, I also update the integration over the wind displacement
 	curDat.windDisplacement.x -= sin(to_radians(curDat.wind_direction_degt))
-			* curDat.wind_speed_ms / (1000/timerMilliseconds);
+			* curDat.wind_speed_ms / (1000 / timerMilliseconds);
 	curDat.windDisplacement.y -= cos(to_radians(curDat.wind_direction_degt))
-			* curDat.wind_speed_ms / (1000/timerMilliseconds);
+			* curDat.wind_speed_ms / (1000 / timerMilliseconds);
 //	{static int count = 0;
 //	if(!(count%(1000/timerMilliseconds)))
 //			std::cout << "timestamp: "<< QTime::currentTime().toString("hh:mm:ss.zzz").toStdString().c_str()<<";\twindDisplacement: "
@@ -92,7 +92,6 @@ void DataCenter::timerExpired(void) {
 //					<< std::endl;
 //	count++;
 //	}
-
 
 	//send the entire Dataset out to the ipc-socket The node.js app can listen if it wants to
 	//no need to implement a question answer protocol
@@ -181,8 +180,9 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 		break;
 	case hash("sim/weather/wind_speed_kt"):
 		if (fabs(curDat.wind_speed_ms - value) >= 0.1) {
-		// XXX In contrast to the docs, wind speed is given directly in m/s instead of knots;
-			emit sigWindChanged(curDat.wind_direction_degt, (value<=0.1)?0.0:value);
+			// XXX In contrast to the docs, wind speed is given directly in m/s instead of knots;
+			emit sigWindChanged(curDat.wind_direction_degt,
+					(value <= 0.1) ? 0.0 : value);
 		}
 		// XXX In contrast to the docs, wind speed is given directly in m/s instead of knots;
 		curDat.wind_speed_ms = value;
@@ -237,28 +237,31 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 		double rotation, pathTypeEnum pathType) {
 	//we don't necessarily need the origin set to define an ELF location
 	//we only need it when starting to calculate the path to do this in XY cartesian coords
-	curDat.setElfPos_relative(curDat.pos, forward, right, height, 	// the height cannot be set directly here
-			rotation);//relative to current position
+	curDat.setElfPos_relative(curDat.pos, forward, right, height, // the height cannot be set directly here
+			rotation); 	//relative to current position
 
 	double minHeightLoss = DubinsPath::calculateMinimumHeightLoss(curDat.pos,
 			curDat.elf, curDat.true_psi, curDat.elfHeading, CIRCLE_RADIUS,
 			GLIDE_RATIO_STRAIGHT, GLIDE_RATIO_CIRCLE, pathType);
 
-	if(height == 0.0){
+	if (height == 0.0) {
 		curDat.setElfHeightDiff(minHeightLoss);
-		curDat.elf.setHeight(curDat.pos.getPosition_WGS84().height - minHeightLoss);
-	} else if(height < 0.0){
+		curDat.elf.setHeight(
+				curDat.pos.getPosition_WGS84().height - minHeightLoss);
+	} else if (height < 0.0) {
 		curDat.elf.setHeight(curDat.pos.getPosition_WGS84().height - (-height));
-	} else if(height > 0.0 ){
+	} else if (height > 0.0) {
 		curDat.elf.setHeight(height);
 	}
 
-	if(curDat.elf.getPosition_WGS84().height < 0.0 ||
-		((curDat.pos.getPosition_WGS84().height - curDat.elf.getPosition_WGS84().height)
-				< (minHeightLoss- EPS))) {
+	if (curDat.elf.getPosition_WGS84().height < 0.0
+			|| ((curDat.pos.getPosition_WGS84().height
+					- curDat.elf.getPosition_WGS84().height)
+					< (minHeightLoss - EPS))) {
 		// we won't make it there. the height loss is inconsistent
 		// TODO negative elevations are neglected :-(
-		std::cout << "ATTENTION!!! The given height of the ELf is not feasible; We're not gonna make it there!\n";
+		std::cout
+				<< "ATTENTION!!! The given height of the ELf is not feasible; We're not gonna make it there!\n";
 		// The real failure handling is done in calculating the path
 	}
 
@@ -267,8 +270,10 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 			<< curDat.elf.getPosition_WGS84().asJson().dump(4) << std::endl;
 	std::cout << "ELF heading set to " << curDat.elfHeading << std::endl;
 	std::cout << "ELF distance from here is "
-			<< curDat.pos.getDistanceCart(curDat.elf) <<", Height difference is: " <<
-			curDat.pos.getPosition_WGS84().height - curDat.elf.getPosition_WGS84().height << std::endl;
+			<< curDat.pos.getDistanceCart(curDat.elf)
+			<< ", Height difference is: "
+			<< curDat.pos.getPosition_WGS84().height
+					- curDat.elf.getPosition_WGS84().height << std::endl;
 	std::cout << "minimum height loss is " << minHeightLoss;
 	std::cout << ", heading is " << curDat.pos.getHeadingCart(curDat.elf)
 			<< std::endl;
@@ -276,22 +281,39 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 
 //	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(), curDat.elfHeading, true);
 	emit sigCalculateDubinsPath(pathType);
-}
+	json j;
+	if(curDat.isElfSet){
+		j["position"] = curDat.elf.getPosition_WGS84().asJson();
+		j["heading"] = curDat.elfHeading;
+		j["isElfSet"] = curDat.isElfSet;
+	}
+	emit sigSocketSendData(std::string("ELF_POSITION"), 0, j);
 
-void DataCenter::setElfLocation(Position_WGS84 elfPosition, double elfHeading, pathTypeEnum pathType){
-	curDat.setElfPos(elfPosition, elfHeading);
 	emit sigCalculateDubinsPath(pathType);
 }
 
-void DataCenter::resetElfLocation(void){
-	curDat.resetElfPos();
-	emit sigSocketSendData(std::string("DUBINS_PATH"), 0,
-			json::object({}));
+void DataCenter::setElfLocation(Position_WGS84 elfPosition, double elfHeading,
+		pathTypeEnum pathType) {
+	curDat.setElfPos(elfPosition, elfHeading);
+	emit sigCalculateDubinsPath(pathType);
+	json j;
+	if(curDat.isElfSet){
+		j["position"] = curDat.elf.getPosition_WGS84().asJson();
+		j["heading"] = curDat.elfHeading;
+		j["isElfSet"] = curDat.isElfSet;
+	}
+	emit sigSocketSendData(std::string("ELF_POSITION"), 0, j);
 }
 
-void DataCenter::calculateDubinsPath(pathTypeEnum pathType){
-	if(!curDat.isElfSet){
-		std::cout <<"You need to specify the ELF first\n";
+void DataCenter::resetElfLocation(void) {
+	curDat.resetElfPos();
+	emit sigSocketSendData(std::string("DUBINS_PATH"), 0, json::object( { }));
+	emit sigSocketSendData(std::string("ELF_POSITION"), 0, json::object( { }));
+}
+
+void DataCenter::calculateDubinsPath(pathTypeEnum pathType) {
+	if (!curDat.isElfSet) {
+		std::cout << "You need to specify the ELF first\n";
 		return;
 	}
 //	std::cout<< "Calculating dubinsPath now! \n";
@@ -299,17 +321,16 @@ void DataCenter::calculateDubinsPath(pathTypeEnum pathType){
 	//TODO of course, we need to check the dubins Path Parameters like
 	// RSR, LSL, glideAngle, radius...
 	curDat.setDubinsPath(curDat.pos, curDat.elf, curDat.true_psi,
-			curDat.elfHeading, CIRCLE_RADIUS,
-			GLIDE_RATIO_STRAIGHT, GLIDE_RATIO_CIRCLE, pathType);
+			curDat.elfHeading, CIRCLE_RADIUS, GLIDE_RATIO_STRAIGHT,
+			GLIDE_RATIO_CIRCLE, pathType);
 
 	//TODO ist das sinnvoll? ist ja eigentlich egal
 //	curDat.isElfSet = curDat.isValidDubinsPath();	// in case it's invalid, we got to reset
 
-	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(), curDat.elfHeading, curDat.isValidDubinsPath());
-	emit sigSocketSendData(std::string("DUBINS_PATH"), 0,
-			curDat.db.asJson());
+	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(), curDat.elfHeading,
+			curDat.isValidDubinsPath());
+	emit sigSocketSendData(std::string("DUBINS_PATH"), 0, curDat.db.asJson());
 }
-
 
 void DataCenter::setOrigin(void) {
 	Position_WGS84 pos = curDat.getPosition_WGS84();

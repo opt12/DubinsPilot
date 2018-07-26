@@ -103,7 +103,7 @@ void DubinsScheduler::initialize(const DubinsPath* _db) {
 					db->getCircleRadius(),
 					db->getEndPoint() +
 							Position_Cartesian(0, db->getCircleRadius(),0)
-									.rotate(90)));
+									.rotate(-90)));
 	flightPhases.push_back(
 			// we are already there, but no touchdown.
 			new RunOutPhase(db->getEndPoint(),
