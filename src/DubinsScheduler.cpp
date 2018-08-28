@@ -37,7 +37,9 @@ void DubinsScheduler::takeMeDown(bool active){
 	}
 }
 
-
+//TODO Hier muss ich noch die Korrektur der Koordinaten des Dubins-Pfades für Translation gegenüber Earth-Frame implementieren.
+// es sollte ausreichen den gesamten Wind-Frame zu verschieben, so wie ich das beim Circle-Fly mache
+// Dann auch ein Update über Socket schicken
 void DubinsScheduler::flyThePath(void) {
 	if(currentPhase < flightPhases.size()){
 		flightPhases[currentPhase]->performCommand();
@@ -48,8 +50,6 @@ void DubinsScheduler::flyThePath(void) {
 	} else {
 		std::cout <<"I'm already there. No safe spot to get off the rotten plane?\n";
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);
-		//TODO entscheide, ob nach Abbruch die richtung beibehalten wird,
-//		emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, true);
 		emit sigPathTrackingStatus(false);
 		flyPathTimer->stop();
 	}

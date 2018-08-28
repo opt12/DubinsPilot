@@ -311,7 +311,7 @@ void AutoPilot::timerExpired(void) {
 				dc->getPosition());
 		// during the circle flight we permanently oversteer to hold the plane in max. roll angle
 		double newHeading = circleAngle
-				+ (circleDirectionLeft ? -90.0 - 45 : +90.0 + 45);
+				+ (circleDirectionLeft ? -135 : +135);
 		// this roll angle is calculated with respect to the requested radius
 		double bankingLimit = getRollAngle(dc->getTrue_airspeed(),
 				ctrl[ctrlType::RADIUS_CONTROL].requestedTargetValue);

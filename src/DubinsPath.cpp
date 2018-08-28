@@ -64,7 +64,7 @@ double DubinsPath::calculateMinimumHeightLoss(const Position start,
 	// get the cartesian coordinates of the start, and endpoints
 	// firstly, the endpoint is used as the origin
 	Position_Cartesian startCart = end.getCartesianDifference(start), endCart =
-			Position_Cartesian(0, 0, end.getPosition_WGS84().height);
+			Position_Cartesian(0, 0, end.getPosition_WGS84().altitude);
 
 	// rotate the system to have the endHeading in 270° direction (-X-axis)
 	double rotation = fmod(270.0 - endHeading, 360);
@@ -121,7 +121,7 @@ double DubinsPath::calculateMinimumHeightLoss(const Position start,
 	heightLossStraight = -straightLength / _straightGlideRatio;
 
 	// minimumHeightLoss is given as positive value,
-	// so it must be subtracted from the startpoint height
+	// so it must be subtracted from the startpoint altitude
 	return (heightLossCircle[0] + heightLossCircle[1] + heightLossStraight);
 }
 
@@ -143,8 +143,8 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	// get the cartesian coordinates of the start, and endpoints
 	// firstly, the endpoint is used as the origin
 	Position_Cartesian startCart = end.getCartesianDifference(start);
-	startCart.z = start.getPosition_WGS84().height;	//now we have the real elevation in here
-	Position_Cartesian endCart = Position_Cartesian(0, 0, end.getPosition_WGS84().height);
+	startCart.z = start.getPosition_WGS84().altitude;	//now we have the real elevation in here
+	Position_Cartesian endCart = Position_Cartesian(0, 0, end.getPosition_WGS84().altitude);
 
 	requiredHeightDiff = startCart.z- endCart.z;
 
@@ -232,28 +232,28 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	Position_Cartesian temp;
 	rotatePoint(circleEntry_t[0].x, circleEntry_t[0].y, -rotation, temp.x,
 			temp.y);
-	temp.z = circleEntry_t[0].z - end.getHeight();
+	temp.z = circleEntry_t[0].z - end.getAltitude();
 	circleEntry[0] = Position(end, temp);
 	rotatePoint(circleExit_t[0].x, circleExit_t[0].y, -rotation, temp.x,
 			temp.y);
-	temp.z = circleExit_t[0].z - end.getHeight();
+	temp.z = circleExit_t[0].z - end.getAltitude();
 	circleExit[0] = Position(end, temp);
 	rotatePoint(circleEntry_t[1].x, circleEntry_t[1].y, -rotation, temp.x,
 			temp.y);
-	temp.z = circleEntry_t[1].z - end.getHeight();
+	temp.z = circleEntry_t[1].z - end.getAltitude();
 	circleEntry[1] = Position(end, temp);
 	rotatePoint(circleExit_t[1].x, circleExit_t[1].y, -rotation, temp.x,
 			temp.y);
-	temp.z = circleExit_t[1].z - end.getHeight();
+	temp.z = circleExit_t[1].z - end.getAltitude();
 	circleExit[1] = Position(end, temp);
 
 	rotatePoint(circleCenter_t[0].x, circleCenter_t[0].y, -rotation, temp.x,
 			temp.y);
-	temp.z = (circleEntry_t[0].z + circleExit_t[0].z)/2.0 - end.getHeight();
+	temp.z = (circleEntry_t[0].z + circleExit_t[0].z)/2.0 - end.getAltitude();
 	circleCenter[0] = Position(end, temp);
 	rotatePoint(circleCenter_t[1].x, circleCenter_t[1].y, -rotation, temp.x,
 			temp.y);
-	temp.z = (circleEntry_t[1].z + circleExit_t[1].z)/2.0 - end.getHeight();
+	temp.z = (circleEntry_t[1].z + circleExit_t[1].z)/2.0 - end.getAltitude();
 	circleCenter[1] = Position(end, temp);
 
 	//set everything else in the DubinsPath object
@@ -308,7 +308,7 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	Position_Cartesian endPointCorrection;
 	rotatePoint(0.0, finalApproachLengthExt, -(180-endHeading), endPointCorrection.x, endPointCorrection.y);
 	Position correctedEndPoint = Position(end, endPointCorrection);
-	correctedEndPoint.setHeight(end.getHeight() + finalApproachHeightLoss);
+	correctedEndPoint.setAltitude(end.getAltitude() + finalApproachHeightLoss);
 
 	// starte eine neue kürzeste Dubins Berechnung zum neuen Zielpunkt
 	// rekursiver Aufruf dieses Mal mit calculateShortest = true
@@ -357,7 +357,7 @@ void DubinsPath::calculateDubinsPath(const Position start,
 		Position_Cartesian endPointCorrection;
 		rotatePoint(0.0, finalApproachLengthExt, -(180-endHeading), endPointCorrection.x, endPointCorrection.y);
 		Position correctedEndPoint = Position(end, endPointCorrection);
-		correctedEndPoint.setHeight(end.getHeight() + finalApproachHeightLoss);
+		correctedEndPoint.setAltitude(end.getAltitude() + finalApproachHeightLoss);
 
 		// starte eine neue kürzeste Dubins Berechnung zum neuen Zielpunkt
 		// rekursiver Aufruf dieses Mal mit calculateShortest = true
@@ -396,12 +396,12 @@ void DubinsPath::calculateDubinsPath(const Position start,
 		std::cout <<"INSERTING another entry circle round to achieve the required height loss.\n";
 		circleExitAngle[0] = circleExitAngle[0] + dirSign*360;
 		circleRotation[0] = circleRotation[0] + dirSign*360;
-		circleExit[0].setHeight(circleExit[0].getHeight()- fullCircleHeight);
-		circleCenter[0].setHeight(circleCenter[0].getHeight()- fullCircleHeight/2);
-		circleEntry[1].setHeight(circleEntry[1].getHeight()- fullCircleHeight);
-		circleExit[1].setHeight(circleExit[1].getHeight()- fullCircleHeight);
-		circleCenter[1].setHeight(circleCenter[1].getHeight()- fullCircleHeight);
-		endPoint.setHeight(endPoint.getHeight()- fullCircleHeight);
+		circleExit[0].setAltitude(circleExit[0].getAltitude()- fullCircleHeight);
+		circleCenter[0].setAltitude(circleCenter[0].getAltitude()- fullCircleHeight/2);
+		circleEntry[1].setAltitude(circleEntry[1].getAltitude()- fullCircleHeight);
+		circleExit[1].setAltitude(circleExit[1].getAltitude()- fullCircleHeight);
+		circleCenter[1].setAltitude(circleCenter[1].getAltitude()- fullCircleHeight);
+		endPoint.setAltitude(endPoint.getAltitude()- fullCircleHeight);
 		heightLoss+= finalApproachHeightLoss + fullCircleHeight;
 		endPoint = end;
 

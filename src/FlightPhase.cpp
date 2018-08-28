@@ -36,13 +36,19 @@ void CirclePhase::performCommand(void) {
 	// the heading overshoot when leaving the circle
 	const double ANGULAR_THRESHOLD = 5.0;
 
-	double currentAngle = circleCenter.getHeadingCart(dc->getPosition());
+	//of course, we need to use the blown circleCenter
+	Position circleCenterBlown = circleCenter
+			+ (dc->getWindDisplacement() - initialDisplacement);
+
+
+	double currentAngle = circleCenterBlown.getHeadingCart(dc->getPosition());
 
 	if (!isCircleStarted) {
 		std::cout <<"Starting circle Flight\n";
 		// let's start the circle now by calling the respective Autopilot function
-		double distanceToCenter = circleCenter.getDistanceCart(
+		double distanceToCenter = circleCenterBlown.getDistanceCart(
 				dc->getPosition());
+
 		angleFlown = getAngularDifference(currentAngle, angleIn);
 		lastAngle = currentAngle;
 

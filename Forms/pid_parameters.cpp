@@ -404,7 +404,7 @@ void PIDParametersDialog::showElfCoords(Position_WGS84 elf, double elfHeading, b
 	labelLonElf->setText("Lon: " +
 			QString::number(elf.longi, 'g'));
 	labelElevationElf->setText("Elevation: " +
-			QString::number(elf.height, 'g'));
+			QString::number(elf.altitude, 'g'));
 	labelHeadingElf->setText("heading: " +
 			QString::number(elfHeading, 'g'));
 	pushButtonFlyPath->setEnabled(pathFeasible);

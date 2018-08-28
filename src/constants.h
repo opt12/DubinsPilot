@@ -11,7 +11,7 @@
 #include <math.h>       /* M_PI */
 
 static const double CIRCLE_RADIUS = 450.0;
-constexpr static double GLIDE_ANGLE_STRAIGTH = -5.5;
+constexpr static double GLIDE_ANGLE_STRAIGTH = -5.0;
 constexpr static double GLIDE_ANGLE_CIRCLE = -5.5;
 
 static constexpr double GLIDE_RATIO_STRAIGHT = 1/tan(deg2rad(GLIDE_ANGLE_STRAIGTH));

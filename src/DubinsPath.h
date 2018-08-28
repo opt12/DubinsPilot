@@ -131,7 +131,7 @@ private:
 
 	/* an approach in the body frame of the aircraft is given in coordinates as
 	 * - the type of dubins path
-	 * - the start- and the endpoint including its height data
+	 * - the start- and the endpoint including its altitude data
 	 * - the first circle to be flown with its center coordinate
 	 * - the entry and exit angle of the first circle
 	 * - the second circle to be flown with its center coordinate

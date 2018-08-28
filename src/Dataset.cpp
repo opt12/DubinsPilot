@@ -68,7 +68,7 @@ QString Dataset::csvDataRecord() {
 			+ QString::number(y_agl, 'g', 6) + ";"
 			+ QString::number(pos.getPosition_WGS84().lati, 'g', 12) + ";"
 			+ QString::number(pos.getPosition_WGS84().longi, 'g', 12) + ";"
-			+ QString::number(pos.getPosition_WGS84().height, 'g', 6) + ";"
+			+ QString::number(pos.getPosition_WGS84().altitude, 'g', 6) + ";"
 			+ QString::number(roll_electric_deg_pilot, 'g', 6) + ";"
 			+ QString::number(requestedTargetVals[ctrlType::CLIMB_CONTROL], 'g', 6) + ";"
 			+ QString::number(currentValue[ctrlType::CLIMB_CONTROL], 'g', 6) + ";"

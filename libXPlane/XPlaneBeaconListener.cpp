@@ -128,6 +128,7 @@ void XPlaneBeaconListener::runListener() {
 	}
 
 	/* subscribe multicast */
+	// TODO we must handle the case, that no network is available, but only local host is there
 	mreq.imr_multiaddr.s_addr = inet_addr("239.255.1.1");
 	mreq.imr_interface.s_addr = htonl(INADDR_ANY);
 	if (setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq))

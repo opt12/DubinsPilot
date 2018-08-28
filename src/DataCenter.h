@@ -113,7 +113,6 @@ public:
 	}
 
 public slots:
-//void setRequestedAltitude(double altitudeAboveGround);
 
 	void on_rqd_requested_getPosition(int requestId);
 	void on_rpd_requested_getPositionXY(int requestId);

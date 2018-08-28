@@ -25,30 +25,30 @@ class Position_WGS84 {
 public:
 	Position_WGS84() {
 		lati = 0.0;
-		longi = 0.0, height = 0.0;
+		longi = 0.0, altitude = 0.0;
 	}
-	Position_WGS84(double lati, double longi, double height = 0.0) {
+	Position_WGS84(double lati, double longi, double altitude = 0.0) {
 		this->lati = lati;
 		this->longi = longi;
-		this->height = height;
+		this->altitude = altitude;
 	}
 
-	void set(double lati, double longi, double height = 0.0) {
+	void set(double lati, double longi, double altitude = 0.0) {
 		this->lati = lati;
 		this->longi = longi;
-		this->height = height;
+		this->altitude = altitude;
 	}
 
 	json asJson() {
 		json j;
 		j["latitude"] = lati;
 		j["longitude"] = longi;
-		j["height"] = height;
+		j["altitude"] = altitude;
 		return j;
 	}
 
 	double lati, longi;
-	double height;
+	double altitude;
 };
 
 class Position_Cartesian {
@@ -117,12 +117,12 @@ public:
 		pos.set(0.0, 0.0, 0.0);
 	}
 
-	Position(double lati, double longi, double height = 0.0) {
-		pos.set(lati, longi, height);
+	Position(double lati, double longi, double altitude = 0.0) {
+		pos.set(lati, longi, altitude);
 	}
 
 	Position(Position_WGS84 pos_WGS84) :
-			Position(pos_WGS84.lati, pos_WGS84.longi, pos_WGS84.height) {
+			Position(pos_WGS84.lati, pos_WGS84.longi, pos_WGS84.altitude) {
 		;	// delegating constructor
 	}
 
@@ -141,17 +141,17 @@ public:
 	}
 
 	/** calculates a position relative to the given reference in WGS84
-	 * distances are given in cartesian coordinates, height pointing upwards
+	 * distances are given in cartesian coordinates, altitude pointing upwards
 	 *
 	 */
 	Position(const Position_WGS84 &reference, const double x, const double y, const double h) {
 		GeographicLib::LocalCartesian tempProj = GeographicLib::LocalCartesian(
-				reference.lati, reference.longi, reference.height, earth);
+				reference.lati, reference.longi, reference.altitude, earth);
 
 		tempProj.Reverse(x, y, h, this->pos.lati, this->pos.longi,
-				this->pos.height);
-//		std::cout << "Position Constructor: yielded   height: "
-//				<< this->pos.height << std::endl;
+				this->pos.altitude);
+//		std::cout << "Position Constructor: yielded   altitude: "
+//				<< this->pos.altitude << std::endl;
 	}
 
 	friend Position operator+(const Position &pos, const Position_Cartesian &translation){
@@ -167,9 +167,9 @@ public:
 	static void setOrigin(Position_WGS84 originPos) {
 		origin.pos.lati = originPos.lati;
 		origin.pos.longi = originPos.longi;
-		origin.pos.height = originPos.height;
+		origin.pos.altitude = originPos.altitude;
 		proj = GeographicLib::LocalCartesian(origin.pos.lati, origin.pos.longi,
-				origin.pos.height, earth);
+				origin.pos.altitude, earth);
 	}
 
 	static Position_WGS84 getOrigin_WGS84() {
@@ -182,8 +182,8 @@ public:
 		return pos;
 	}
 
-	void setPosition_WGS84(double lati, double longi, double height = 0.0) {
-		pos.set(lati, longi, height);
+	void setPosition_WGS84(double lati, double longi, double altitude = 0.0) {
+		pos.set(lati, longi, altitude);
 	}
 
 	Position_Cartesian getPosition_Cart();
@@ -193,12 +193,12 @@ public:
 	double getDistanceCart(const Position pointB) const;
 	double getHeadingCart(const Position pointB) const;
 
-	void setHeight(double _height){
-		pos.height = _height;
+	void setAltitude(double _altitude){
+		pos.altitude = _altitude;
 	}
 
-	double getHeight(void) const {
-		return pos.height;
+	double getAltitude(void) const {
+		return pos.altitude;
 	}
 
 

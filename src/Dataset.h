@@ -36,12 +36,12 @@ public:
 
 	QTime timestamp = QTime::currentTime();
 
-	void setPos_WGS84(double lati, double longi, double height) {
-		pos.setPosition_WGS84(lati, longi, height);
+	void setPos_WGS84(double lati, double longi, double altitude) {
+		pos.setPosition_WGS84(lati, longi, altitude);
 	}
 
-	void setElfPos_WGS84(double lati, double longi, double height) {
-		elf.setPosition_WGS84(lati, longi, height);
+	void setElfPos_WGS84(double lati, double longi, double altitude) {
+		elf.setPosition_WGS84(lati, longi, altitude);
 	}
 
 	void setElfPos_relative(Position _pos, double forward, double right, double height, double rotation){
@@ -152,7 +152,8 @@ public:
 
 	double roll_electric_deg_pilot = 0.0;
 //	double heightOverGnd = 0.0;	//this value isn't in the datarefs
-	Position pos = Position(52.0, 9.0, 2000.0);
+//	Position pos = Position(52.0, 9.0, 2000.0);
+	Position pos = Position(0, 0, 2000.0);
 	Position elf = Position(0.0, 0.0);
 	bool isElfSet = false;
 	DubinsPath db = DubinsPath();

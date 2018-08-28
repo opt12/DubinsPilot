@@ -80,7 +80,6 @@ void DataCenter::timerExpired(void) {
 	dataSeries.push_back(curDat);//copies the curDat and is hence save to use here
 
 	//integrate over the windDisplacement
-	// when the direction is updated, I also update the integration over the wind displacement
 	curDat.windDisplacement.x -= sin(to_radians(curDat.wind_direction_degt))
 			* curDat.wind_speed_ms / (1000 / timerMilliseconds);
 	curDat.windDisplacement.y -= cos(to_radians(curDat.wind_direction_degt))
@@ -110,7 +109,6 @@ void DataCenter::receiverBeaconCallback(
 	host = server.host;
 	port = server.receivePort;
 
-	//TODO ist das besser, wenn ich das in die queue einreihe? Das klappt irgendwie nicht ganz immer
 	setConnected(exists);
 }
 
@@ -157,11 +155,11 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 		break;
 	case hash("sim/flightmodel/position/latitude"):
 		curDat.setPos_WGS84(value, curDat.getPosition_WGS84().longi,
-				curDat.getPosition_WGS84().height);
+				curDat.getPosition_WGS84().altitude);
 		break;
 	case hash("sim/flightmodel/position/longitude"):
 		curDat.setPos_WGS84(curDat.getPosition_WGS84().lati, value,
-				curDat.getPosition_WGS84().height);
+				curDat.getPosition_WGS84().altitude);
 		break;
 	case hash("sim/cockpit2/gauges/indicators/altitude_ft_pilot"):
 		curDat.altitude_ft_pilot = value;
@@ -246,17 +244,17 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 
 	if (height == 0.0) {
 		curDat.setElfHeightDiff(minHeightLoss);
-		curDat.elf.setHeight(
-				curDat.pos.getPosition_WGS84().height - minHeightLoss);
+		curDat.elf.setAltitude(
+				curDat.pos.getPosition_WGS84().altitude - minHeightLoss);
 	} else if (height < 0.0) {
-		curDat.elf.setHeight(curDat.pos.getPosition_WGS84().height - (-height));
+		curDat.elf.setAltitude(curDat.pos.getPosition_WGS84().altitude - (-height));
 	} else if (height > 0.0) {
-		curDat.elf.setHeight(height);
+		curDat.elf.setAltitude(height);
 	}
 
-	if (curDat.elf.getPosition_WGS84().height < 0.0
-			|| ((curDat.pos.getPosition_WGS84().height
-					- curDat.elf.getPosition_WGS84().height)
+	if (curDat.elf.getPosition_WGS84().altitude < 0.0
+			|| ((curDat.pos.getPosition_WGS84().altitude
+					- curDat.elf.getPosition_WGS84().altitude)
 					< (minHeightLoss - EPS))) {
 		// we won't make it there. the height loss is inconsistent
 		// TODO negative elevations are neglected :-(
@@ -272,8 +270,8 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 	std::cout << "ELF distance from here is "
 			<< curDat.pos.getDistanceCart(curDat.elf)
 			<< ", Height difference is: "
-			<< curDat.pos.getPosition_WGS84().height
-					- curDat.elf.getPosition_WGS84().height << std::endl;
+			<< curDat.pos.getPosition_WGS84().altitude
+					- curDat.elf.getPosition_WGS84().altitude << std::endl;
 	std::cout << "minimum height loss is " << minHeightLoss;
 	std::cout << ", heading is " << curDat.pos.getHeadingCart(curDat.elf)
 			<< std::endl;
@@ -348,7 +346,7 @@ void DataCenter::setOrigin(void) {
 				+ QString::number(curDat.getPosition_WGS84().longi, 'g', 12)
 				+ ";"
 						"height;"
-				+ QString::number(curDat.getPosition_WGS84().height, 'g', 6)
+				+ QString::number(curDat.getPosition_WGS84().altitude, 'g', 6)
 				+ ";\n";
 		*outLog << origin;
 	}
