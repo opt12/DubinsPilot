@@ -94,10 +94,8 @@ void DataCenter::timerExpired(void) {
 
 	//send the entire Dataset out to the ipc-socket The node.js app can listen if it wants to
 	//no need to implement a question answer protocol
-	//TODO das sollte wirklich alle 100msec raus und nicht nur jede Sekunde
-	if (!(count % 1)) {
-		on_rqd_requested_getPlaneState(0);
-	}
+	emit sigSocketSendData(std::string("PLANE_STATE"), 0,
+				curDat.asJson());
 
 	++count;
 }
@@ -147,7 +145,7 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 		curDat.counter++;	//this is one of the controlled parameters
 		break;
 	case hash("sim/flightmodel/position/true_psi"):
-		curDat.true_psi = value;
+		curDat.true_psi = value;	//this is one of the controlled parameters
 		break;
 	case hash("sim/flightmodel/position/elevation"):
 		curDat.setPos_WGS84(curDat.getPosition_WGS84().lati,
@@ -213,23 +211,24 @@ void DataCenter::connectToXPlane() {
 //}
 //
 
-void DataCenter::on_rqd_requested_getPosition(int requestId) {
-	emit sigSocketSendData(std::string("POSITION"), requestId,
-			curDat.getPosition_WGS84().asJson());
-}
-
-void DataCenter::on_rpd_requested_getPositionXY(int requestId) {
-	emit sigSocketSendData(std::string("POSITION_XY"), requestId,
-			curDat.getPosition_Cart().asJson());
-}
-
-void DataCenter::on_rqd_requested_getOrigin(int requestId) {
-}
-
-void DataCenter::on_rqd_requested_getPlaneState(int requestId) {
-	emit sigSocketSendData(std::string("PLANE_STATE"), requestId,
-			curDat.asJson());
-}
+//TODO Prüfe, ob das alles nicht einfach rauskann, weil ich es aktuell nicht benutze
+//void DataCenter::on_rqd_requested_getPosition(int requestId) {
+//	emit sigSocketSendData(std::string("POSITION"), requestId,
+//			curDat.getPosition_WGS84().asJson());
+//}
+//
+//void DataCenter::on_rpd_requested_getPositionXY(int requestId) {
+//	emit sigSocketSendData(std::string("POSITION_XY"), requestId,
+//			curDat.getPosition_Cart().asJson());
+//}
+//
+//void DataCenter::on_rqd_requested_getOrigin(int requestId) {
+//}
+//
+//void DataCenter::on_rqd_requested_getPlaneState(int requestId) {
+//	emit sigSocketSendData(std::string("PLANE_STATE"), requestId,
+//			curDat.asJson());
+//}
 
 void DataCenter::setElfLocation(double forward, double right, double height,
 		double rotation, pathTypeEnum pathType) {

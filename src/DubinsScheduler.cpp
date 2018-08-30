@@ -42,7 +42,7 @@ void DubinsScheduler::takeMeDown(bool active){
 // Dann auch ein Update über Socket schicken
 void DubinsScheduler::flyThePath(void) {
 	if(currentPhase < flightPhases.size()){
-		flightPhases[currentPhase]->performCommand();
+		flightPhases[currentPhase]->performFlight();
 		if(flightPhases[currentPhase]->isFinished()){
 			currentPhase++;
 			std::cout <<"\tEntering Flight Phase "<< currentPhase<< " now.\n\n";

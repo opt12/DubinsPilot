@@ -191,7 +191,6 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 		std::cout << _ct._to_string() << " deactivated\n";
 		ctrl[_ct].controller->PIDModeSet(MANUAL);
 		ctrl[_ct].publishOutput(ctrl[_ct].output);
-//		emit sigSendXPDataRef(ctrl[_ct].dataRef, ctrl[_ct].output);
 		if (!ctrl[ctrlType::CLIMB_CONTROL].controlActive) {
 			emit sigSendXPDataRef(
 					"sim/operation/override/override_joystick_pitch", false);

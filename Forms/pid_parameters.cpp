@@ -1078,22 +1078,22 @@ void PIDParametersDialog::setWind(void) {
 
 	labelSelectedWindFrom->setText(
 			"from "+QString::number(windDirFrom, 'g') + " [deg]");
-	double windVelocity = SliderWindVelocity->value();
-	windVelocity = windVelocity+0.0;
+	double windVelocityKnots = SliderWindVelocity->value();
+	windVelocityKnots = windVelocityKnots+0.0;
 	labelSelectedWindV->setText(
-			QString::number(knots_to_ms(windVelocity), 'g') + " [m/s]");
+			QString::number(knots_to_ms(windVelocityKnots), 'g') + " [m/s]");
 	emit sigSendXPDataRef("sim/weather/wind_altitude_msl_m[0]", 1000.0);
 	emit sigSendXPDataRef("sim/weather/wind_direction_degt[0]", windDirFrom);
 	emit sigSendXPDataRef("sim/weather/wind_speed_kt[0]",
-			(windVelocity));
+			(windVelocityKnots));
 	emit sigSendXPDataRef("sim/weather/wind_altitude_msl_m[1]", 2000.0);
 	emit sigSendXPDataRef("sim/weather/wind_direction_degt[1]", windDirFrom);
 	emit sigSendXPDataRef("sim/weather/wind_speed_kt[1]",
-			(windVelocity));
-	emit sigSendXPDataRef("sim/weather/wind_altitude_msl_m[1]", 3000.0);
-	emit sigSendXPDataRef("sim/weather/wind_direction_degt[1]", windDirFrom);
-	emit sigSendXPDataRef("sim/weather/wind_speed_kt[1]",
-			(windVelocity));
+			(windVelocityKnots));
+	emit sigSendXPDataRef("sim/weather/wind_altitude_msl_m[2]", 3000.0);
+	emit sigSendXPDataRef("sim/weather/wind_direction_degt[2]", windDirFrom);
+	emit sigSendXPDataRef("sim/weather/wind_speed_kt[2]",
+			(windVelocityKnots));
 }
 
 void PIDParametersDialog::displayCurrentWind(double windDirFrom, double windVelocity){
@@ -1125,8 +1125,8 @@ void PIDParametersDialog::setupPlot(void) {
 	qwtPlotClimb->setTitle("Flight Path / Sink Rate");
 
 // axes
-	qwtPlotClimb->setAxisTitle(qwtPlotClimb->xBottom, "t -->");
-	qwtPlotClimb->setAxisScale(qwtPlotClimb->xBottom, 0.0, plotDataSize);
+	qwtPlotClimb->setAxisTitle(qwtPlotClimb->xBottom, "t [ms] -->");
+	qwtPlotClimb->setAxisScale(qwtPlotClimb->xBottom, -plotDataSize, 0.0);
 
 	qwtPlotClimb->setAxisTitle(qwtPlotClimb->yLeft,
 			"Flight Path Angle [°] -->");
@@ -1175,8 +1175,8 @@ void PIDParametersDialog::setupPlot(void) {
 	qwtPlotRoll->setTitle("Roll Angle");
 
 // axes
-	qwtPlotRoll->setAxisTitle(qwtPlotRoll->xBottom, "t -->");
-	qwtPlotRoll->setAxisScale(qwtPlotRoll->xBottom, 0.0, plotDataSize);
+	qwtPlotRoll->setAxisTitle(qwtPlotRoll->xBottom, "t [ms] -->");
+	qwtPlotRoll->setAxisScale(qwtPlotRoll->xBottom, -plotDataSize, 0.0);
 
 	qwtPlotRoll->setAxisTitle(qwtPlotRoll->yLeft, "Roll angle [deg] -->");
 	qwtPlotRoll->setAxisScale(qwtPlotRoll->yLeft, -30, 30);
@@ -1224,8 +1224,8 @@ void PIDParametersDialog::setupPlot(void) {
 	qwtPlotCircle->setTitle("Circle Radius");
 
 // axes
-	qwtPlotCircle->setAxisTitle(qwtPlotCircle->xBottom, "t -->");
-	qwtPlotCircle->setAxisScale(qwtPlotCircle->xBottom, 0.0, plotDataSize);
+	qwtPlotCircle->setAxisTitle(qwtPlotCircle->xBottom, "t [ms] -->");
+	qwtPlotCircle->setAxisScale(qwtPlotCircle->xBottom, -plotDataSize, 0.0);
 
 	qwtPlotCircle->setAxisTitle(qwtPlotCircle->yLeft, "Circle Radius [m] -->");
 	qwtPlotCircle->setAxisScale(qwtPlotCircle->yLeft, 380, 520);
@@ -1274,8 +1274,8 @@ void PIDParametersDialog::setupPlot(void) {
 	qwtPlotHeading->setTitle("Heading");
 
 // axes
-	qwtPlotHeading->setAxisTitle(qwtPlotHeading->xBottom, "t -->");
-	qwtPlotHeading->setAxisScale(qwtPlotHeading->xBottom, 0.0, plotDataSize);
+	qwtPlotHeading->setAxisTitle(qwtPlotHeading->xBottom, "t [ms] -->");
+	qwtPlotHeading->setAxisScale(qwtPlotHeading->xBottom, -plotDataSize, 0.0);
 
 	qwtPlotHeading->setAxisTitle(qwtPlotHeading->yLeft,
 			"Heading Angle [deg] -->");

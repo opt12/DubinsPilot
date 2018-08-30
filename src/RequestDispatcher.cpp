@@ -41,18 +41,19 @@ void RequestDispatcher::dispatchSockMessage(json receivedJson) {
 	}
 
 	switch (hash(msgType.c_str())) {
-	case hash("GET_POSITION"):
-		emit requested_getPosition(requestId);
-		break;
-	case hash("GET_POSITION_XY"):
-		emit requested_getPositionXY(requestId);
-		break;
-	case hash("GET_ORIGIN"):
-		emit requested_getOrigin(requestId);
-		break;
-	case hash("GET_PLANE_STATE"):
-		emit requested_getPlaneState(requestId);
-		break;
+//TODO Prüfe, ob das alles nicht einfach rauskann, weil ich es aktuell nicht benutze
+//	case hash("GET_POSITION"):
+//		emit requested_getPosition(requestId);
+//		break;
+//	case hash("GET_POSITION_XY"):
+//		emit requested_getPositionXY(requestId);
+//		break;
+//	case hash("GET_ORIGIN"):
+//		emit requested_getOrigin(requestId);
+//		break;
+//	case hash("GET_PLANE_STATE"):
+//		emit requested_getPlaneState(requestId);
+//		break;
 
 	case hash("malformedRequest"):
 	default:

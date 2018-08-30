@@ -32,7 +32,7 @@ signals:
 
 
 public:
-	virtual void performCommand(void) = 0;
+	virtual void performFlight(void) = 0;
 	virtual bool isFinished(void) = 0;
 
 	void setSegmentType(segmentTypeEnum _segType){
@@ -51,7 +51,7 @@ public:
 			double _angleIn, double _angleOut, QObject* parent = 0);
 	~CirclePhase();
 
-	void performCommand(void);
+	void performFlight(void);
 	bool isFinished(void) {
 		return isCircleFinished;
 	}
@@ -71,7 +71,7 @@ public:
 			QObject* parent = 0);
 	~StraightPhase();
 
-	void performCommand(void);
+	void performFlight(void);
 	bool isFinished(void) {
 		return isStraightFinished;
 	}
@@ -89,7 +89,7 @@ public:
 	RunOutPhase(Position _elf, double _elfHeading, QObject* parent = 0);
 	~RunOutPhase();
 
-	void performCommand(void);
+	void performFlight(void);
 	bool isFinished(void) {
 		return true;
 	}

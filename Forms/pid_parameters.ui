@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tabClimb">
     <attribute name="title">
@@ -354,12 +354,6 @@
           <horstretch>1</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>1001</width>
-          <height>311</height>
-         </size>
         </property>
        </widget>
       </item>
@@ -680,12 +674,6 @@
           <horstretch>1</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>1001</width>
-          <height>311</height>
-         </size>
         </property>
        </widget>
       </item>
@@ -1359,12 +1347,6 @@
           <horstretch>1</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>1001</width>
-          <height>311</height>
-         </size>
         </property>
        </widget>
       </item>

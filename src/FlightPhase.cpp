@@ -31,7 +31,7 @@ CirclePhase::CirclePhase(Position _circleCenter, double _radius,
 CirclePhase::~CirclePhase() {
 }
 
-void CirclePhase::performCommand(void) {
+void CirclePhase::performFlight(void) {
 	// do I have to leave the circle a little early to compensate
 	// the heading overshoot when leaving the circle
 	const double ANGULAR_THRESHOLD = 5.0;
@@ -101,7 +101,7 @@ StraightPhase::StraightPhase(Position _start, Position _end,
 StraightPhase::~StraightPhase() {
 }
 
-void StraightPhase::performCommand(void) {
+void StraightPhase::performFlight(void) {
 	Position endBlown = end + (dc->getWindDisplacement() - initialDisplacement);
 	Position nextcircleCenterBlown = nextCircleCenter
 			+ (dc->getWindDisplacement() - initialDisplacement);
@@ -167,7 +167,7 @@ RunOutPhase::RunOutPhase(Position _elf, double _elfHeading,
 RunOutPhase::~RunOutPhase() {
 }
 
-void RunOutPhase::performCommand(void) {
+void RunOutPhase::performFlight(void) {
 	//nothing to do any more
 	//continue straight flight and enable the controls again
 	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure

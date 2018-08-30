@@ -114,10 +114,11 @@ public:
 
 public slots:
 
-	void on_rqd_requested_getPosition(int requestId);
-	void on_rpd_requested_getPositionXY(int requestId);
-	void on_rqd_requested_getOrigin(int requestId);
-	void on_rqd_requested_getPlaneState(int requestId);
+//TODO Prüfe, ob das alles nicht einfach rauskann, weil ich es aktuell nicht benutze
+//	void on_rqd_requested_getPosition(int requestId);
+//	void on_rpd_requested_getPositionXY(int requestId);
+//	void on_rqd_requested_getOrigin(int requestId);
+//	void on_rqd_requested_getPlaneState(int requestId);
 
 	void setOrigin(void);
 	void resetWindDisplacement(void);
