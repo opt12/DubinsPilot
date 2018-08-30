@@ -41,6 +41,10 @@ void DubinsScheduler::takeMeDown(bool active){
 // es sollte ausreichen den gesamten Wind-Frame zu verschieben, so wie ich das beim Circle-Fly mache
 // Dann auch ein Update über Socket schicken
 void DubinsScheduler::flyThePath(void) {
+	if(DataCenter::getInstance()->isSimulationPaused()){
+		return;	//we just skip everything, when the simulation is Paused
+	}
+
 	if(currentPhase < flightPhases.size()){
 		flightPhases[currentPhase]->performFlight();
 		if(flightPhases[currentPhase]->isFinished()){

@@ -121,7 +121,7 @@ AutoPilot::Controller::Controller() {
 	for (int i = 0; i < plotDataSize; ++i) {
 		currentValueHistory[i] = 0.0;
 		outputValueHistory[i] = 0.0;
-		timeData[i] = i;
+		timeData[i] = i-(plotDataSize-1);
 	}
 
 	currentValueCurve = new QwtPlotCurve;
@@ -298,6 +298,9 @@ json AutoPilot::getCircleDataAsJson(void) {
 }
 
 void AutoPilot::timerExpired(void) {
+	if(dc->isSimulationPaused()){
+		return;	//we just skip everything, when the simulation is Paused
+	}
 
 	if (dubinsSchedulerActive) {
 
@@ -373,8 +376,11 @@ void AutoPilot::Controller::updatePlot(void) {
 	currentValueHistory[plotDataSize - 1] = currentValue;
 	outputValueHistory[plotDataSize - 1] = output;
 
-	currentValueCurve->setSamples(timeData, currentValueHistory, plotDataSize);
-	outputValueCurve->setSamples(timeData, outputValueHistory, plotDataSize);
+//	currentValueCurve->setSamples(timeData, currentValueHistory, plotDataSize);
+//	outputValueCurve->setSamples(timeData, outputValueHistory, plotDataSize);
+	//TODO: check if setRawSamples() is appropriate here; I think so.
+	currentValueCurve->setRawSamples(timeData, currentValueHistory, plotDataSize);
+	outputValueCurve->setRawSamples(timeData, outputValueHistory, plotDataSize);
 }
 
 void AutoPilot::attachPlots(void) {

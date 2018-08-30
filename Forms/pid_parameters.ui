@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tabClimb">
     <attribute name="title">
@@ -2280,6 +2280,19 @@ down</string>
        </layout>
       </item>
      </layout>
+    </widget>
+    <widget class="QPushButton" name="igniterOffButton">
+     <property name="geometry">
+      <rect>
+       <x>610</x>
+       <y>10</y>
+       <width>141</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Engine Failure Now</string>
+     </property>
     </widget>
    </widget>
   </widget>

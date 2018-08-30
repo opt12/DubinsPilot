@@ -70,6 +70,11 @@ void DataCenter::timerExpired(void) {
 	//TODO Die connection zu XPlane läuft noch nicht so, wie es sein soll. Er erkennt aktuell keinen Abriss
 	emit XPlaneConnectionChanged(connected);
 
+	if(DataCenter::getInstance()->isSimulationPaused()){
+		return;	//we just skip everything, when the simulation is Paused
+	}
+
+
 	if (loggingActive) {
 		*outLog << curDat.csvDataRecord();
 //		std::cout << curDat.csvDataRecord().toStdString();

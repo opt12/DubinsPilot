@@ -184,6 +184,9 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(saveButton, SIGNAL(clicked(void)), this, SLOT(writeSettings(void)));
 	connect(setHeightButton, SIGNAL(clicked(void)), this,
 			SLOT(setAltitude(void)));
+	connect(igniterOffButton, SIGNAL(clicked(void)), this,
+			SLOT(setIgniterOff(void)));
+
 
 	setupPlot();
 
@@ -279,7 +282,7 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(checkBoxCont, SIGNAL(clicked(bool)), this,
 			SLOT(continuousDubinsCalc(bool)));
 	contCalcTimer = new QTimer();
-	connect(contCalcTimer, SIGNAL(timeout()), this, SLOT(constCalcTimerExpired()));
+	connect(contCalcTimer, SIGNAL(timeout()), this, SLOT(contCalcTimerExpired()));
 
 	connect(pushButtonFlyPath, SIGNAL(clicked(bool)), this,
 			SLOT(takeMeDown()));
@@ -845,7 +848,7 @@ void PIDParametersDialog::continuousDubinsCalc(bool active){
 	}
 }
 
-void PIDParametersDialog::constCalcTimerExpired(void) {
+void PIDParametersDialog::contCalcTimerExpired(void) {
 	submitElfData();
 }
 
@@ -966,6 +969,12 @@ void PIDParametersDialog::setAltitude(void) {
 	double altitudeAboveGround = lineEditAltitude->text().toDouble();
 	emit sigSendXPDataRef("sim/flightmodel/position/local_y",
 			altitudeAboveGround);
+}
+void PIDParametersDialog::setIgniterOff(void) {
+	//see X-Plane failure enum here: http://www.xsquawkbox.net/xpsdk/mediawiki/Failure_Modeling
+	const int INOPERATIVE_NOW = 6;
+	emit sigSendXPDataRef("sim/operation/failures/rel_engfai0",
+			INOPERATIVE_NOW);
 }
 
 void PIDParametersDialog::logButtonClicked() {
@@ -1116,8 +1125,11 @@ QString PIDParametersDialog::generateLogfilename() {
 	return "Log_" + DateString + ".csv";
 }
 
-void PIDParametersDialog::pauseSimulation(bool pause){
-	DataCenter::getInstance()->SendXPDataRef("sim/time/sim_speed", pause?0.0:1.0);
+void PIDParametersDialog::pauseSimulation(bool isPaused){
+//	DataCenter* dc =DataCenter::getInstance();
+	emit sigSendXPDataRef("sim/time/sim_speed", isPaused?0.0:1.0);
+//			dc->SendXPDataRef("sim/time/sim_speed", pause?0.0:1.0);
+	emit sigSetSimulationPaused(isPaused);
 }
 
 

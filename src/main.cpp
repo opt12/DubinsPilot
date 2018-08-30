@@ -115,6 +115,9 @@ int main(int argc, char *argv[]) {
 	QObject::connect(pidParams,
 			SIGNAL(sigResetElf(void)), dc,
 			SLOT(resetElfLocation(void)));
+	QObject::connect(pidParams,
+			SIGNAL(sigSetSimulationPaused(bool)), dc,
+			SLOT(setIsSimulationPaused(bool)));
 
 	//connections from AutoPilot --> DataCenter
 	QObject::connect(&ap, SIGNAL(sigSendXPDataRef(const char*, double)), dc,

@@ -40,6 +40,7 @@ signals:
 	void sigSetElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
 	void sigSetElfLocation(Position_WGS84 elfPosition, double heading, pathTypeEnum pathType);
 	void sigResetElf(void);
+	void sigSetSimulationPaused(bool isPaused);
 
 	void sigStartPathTracking(bool active);
 
@@ -101,11 +102,12 @@ private slots:
 	void circleControlActiveStateChanged(bool active);
 	void radioButtonCircleClicked(void);
 	void continuousDubinsCalc(bool active);
-	void constCalcTimerExpired(void);
+	void contCalcTimerExpired(void);
 
 	void writeSettings();
 
 	void setAltitude(void);
+	void setIgniterOff(void);
 
 	void logButtonClicked(void);
 	void fileNameSelectorClicked(void);

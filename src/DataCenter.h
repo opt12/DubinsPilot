@@ -112,6 +112,10 @@ public:
 		return &curDat.db;
 	}
 
+	bool isSimulationPaused() const{
+		return isPaused;
+	}
+
 public slots:
 
 //TODO Prüfe, ob das alles nicht einfach rauskann, weil ich es aktuell nicht benutze
@@ -121,6 +125,9 @@ public slots:
 //	void on_rqd_requested_getPlaneState(int requestId);
 
 	void setOrigin(void);
+	void setIsSimulationPaused(bool _isPaused) {
+		isPaused = _isPaused;
+	}
 	void resetWindDisplacement(void);
 	void invokeLogging(bool active, QFile* fileLog);
 	void setElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
@@ -176,6 +183,7 @@ private:
 	void connectToXPlane();
 
 	bool connected = false;
+	bool isPaused = false;
 
 	bool loggingActive = false;
 	QTextStream *outLog = NULL;
