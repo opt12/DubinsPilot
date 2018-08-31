@@ -48,14 +48,33 @@ signals:
 
 private:
 
+	static DataCenter *dc;
 	void clearOutSchedule(void);
+	void clearOutStats(void);
+	json dubinsPathCharacteristicsAsJson(void);
 	json dubinsPathCartesiansAsJson(void);
+	json statsSummaryAsJson(void);
 
 	std::vector<FlightPhase*> flightPhases;
 	unsigned int currentPhase = 0;
 	const DubinsPath *db = NULL;
+	Position_Cartesian initialDisplacement = Position_Cartesian();
 	QTimer *flyPathTimer = NULL;
 	const int timerMilliseconds = 100;
+
+	//statistics
+	class PathFollowStats {
+	public:
+		double cartesianPathLengthEarthFrame = 0.0, cartesianPathLengthWindFrame =0.0;
+		double flightTime = 0.0;
+		double heightLoss = 0.0;
+		Position_Cartesian totalWindDisplacement = Position_Cartesian();
+		double totalAngleFlown = 0.0;
+		double glideAngleEarthFrame = 0.0;
+		segmentTypeEnum segType = segmentTypeEnum::INVALID;
+	};
+	std::vector<PathFollowStats*> pathFollowStats;
+
 };
 
 #endif /* DUBINSSCHEDULER_H_ */

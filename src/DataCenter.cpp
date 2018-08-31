@@ -243,8 +243,8 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 			rotation); 	//relative to current position
 
 	double minHeightLoss = DubinsPath::calculateMinimumHeightLoss(curDat.pos,
-			curDat.elf, curDat.true_psi, curDat.elfHeading, CIRCLE_RADIUS,
-			GLIDE_RATIO_STRAIGHT, GLIDE_RATIO_CIRCLE, pathType);
+			curDat.elf, curDat.true_psi, curDat.elfHeading, autoCircleRadius,
+			autoGlideRatioCircle, autoGlideRatioStraight, pathType);
 
 	if (height == 0.0) {
 		curDat.setElfHeightDiff(minHeightLoss);
@@ -313,6 +313,37 @@ void DataCenter::resetElfLocation(void) {
 	emit sigSocketSendData(std::string("ELF_POSITION"), 0, json::object( { }));
 }
 
+void DataCenter::changeSegmentStatisticsState(bool isActive){
+	if(!isActive){
+		segmentStats.stopSegmentStatsUpdate();
+		std::cout << "Stats of last segment are: " << segmentStats.asJson().dump(4) << "\n";
+		std::cout<<"changeSegmentStatisticsState(false)\n";
+	} else {
+		if(!segmentStats.isSegmentStatsActive()){
+			std::cout<<"changeSegmentStatisticsState(true)\n";
+			segmentStats.initialize();
+		} else {
+			//nothing to do, it's already running;
+		}
+	}
+}
+
+void DataCenter::updateSegmentStatistics(void){
+	segmentStats.updateSegmentData();
+}
+
+void DataCenter::setFlightPathCharacteristics(double valClimbRateStraight,
+		double valClimbRateCircle, double valAutoCircleRadius){
+	autoGlideAngleStraight = valClimbRateStraight;
+	autoGlideRatioStraight = 1/tan(deg2rad(autoGlideAngleStraight));
+	autoGlideAngleCircle = valClimbRateCircle;
+	autoGlideRatioCircle = 1/tan(deg2rad(autoGlideAngleCircle));
+	autoCircleRadius = valAutoCircleRadius;
+}
+
+
+
+
 void DataCenter::calculateDubinsPath(pathTypeEnum pathType) {
 	if (!curDat.isElfSet) {
 		std::cout << "You need to specify the ELF first\n";
@@ -323,8 +354,8 @@ void DataCenter::calculateDubinsPath(pathTypeEnum pathType) {
 	//TODO of course, we need to check the dubins Path Parameters like
 	// RSR, LSL, glideAngle, radius...
 	curDat.setDubinsPath(curDat.pos, curDat.elf, curDat.true_psi,
-			curDat.elfHeading, CIRCLE_RADIUS, GLIDE_RATIO_STRAIGHT,
-			GLIDE_RATIO_CIRCLE, pathType);
+			curDat.elfHeading, autoCircleRadius, autoGlideRatioCircle,
+			autoGlideRatioStraight, pathType);
 
 	//TODO ist das sinnvoll? ist ja eigentlich egal
 //	curDat.isElfSet = curDat.isValidDubinsPath();	// in case it's invalid, we got to reset

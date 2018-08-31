@@ -66,16 +66,51 @@ public:
 	std::string getPathAsMatlabCommand(void);
 //	std::string getExtendedPathAsMatlabCommand(void);
 
-	double getPathLength(void) {
+	double getPathLength(void) const {
 		return circleLength[0] + circleLength[1] + inBetweenLength
 				+ finalApproachLengthExt;
 	}
-	double getCircleLength(void) {
+
+	double getCircleLength(void) const {
 		return circleLength[0] + circleLength[1];
 	}
-	double getStraightLength(void) {
+
+	double getStraightLength(void) const {
 		return inBetweenLength + finalApproachLengthExt;
 	}
+
+	double getHeightLossTotal(void) const{
+		return heightLoss;
+	}
+
+	double getHeightLossCircle(int i) const {
+		switch (i) {
+			case 0:
+				return circleEntry[0].getAltitudeDiff(circleExit[0]);
+				break;
+			case 1:
+				return circleEntry[1].getAltitudeDiff(circleExit[1]);
+				break;
+			default:
+				return 0.0;
+				break;
+		}
+	}
+
+	double getHeightLossStraight(int i) const {
+		switch (i) {
+			case 0:
+				return circleExit[0].getAltitudeDiff(circleEntry[1]);
+				break;
+			case 1:
+				return circleExit[1].getAltitudeDiff(endPoint);
+				break;
+			default:
+				return 0.0;
+				break;
+		}
+	}
+
 
 	json asJson();
 
@@ -95,12 +130,40 @@ public:
 		return circleEntryAngle;
 	}
 
+	double getCircleAngle(int i) const {
+		if(i==0 || i == 1){
+			return circleRotation[i];
+		} else {
+			return 0.0;
+		}
+	}
+
+	double getAngleTotal(void) const {
+		return circleTotalRot;
+	}
+
 	const Position* getCircleExit() const {
 		return circleExit;
 	}
 
 	const double* getCircleExitAngle() const {
 		return circleExitAngle;
+	}
+
+	double getCircleExitHeading(int i) const {
+		if(i==0){
+			if(pathType==+pathTypeEnum::LSL || pathType==+pathTypeEnum::LSR)
+				return circleExitAngle[0] -90.0;
+			else
+				return circleExitAngle[0] +90.0;
+		} else if (i==1){
+			if(pathType==+pathTypeEnum::LSL || pathType==+pathTypeEnum::RSL)
+				return circleExitAngle[1] -90.0;
+			else
+				return circleExitAngle[1] +90.0;
+		} else {
+			return 0;
+		}
 	}
 
 	double getCircleGlideRatio() const {

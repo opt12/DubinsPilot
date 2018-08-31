@@ -11,6 +11,8 @@
 #include <QObject>
 
 #include "Dataset.h"
+#include "SegmentStatistics.h"
+
 #include <vector>
 #include "json.hpp"
 // for convenience
@@ -116,6 +118,10 @@ public:
 		return isPaused;
 	}
 
+	const SegmentStatistics* getSegmentStats() const {
+		return &segmentStats;
+	}
+
 public slots:
 
 //TODO Prüfe, ob das alles nicht einfach rauskann, weil ich es aktuell nicht benutze
@@ -136,6 +142,32 @@ public slots:
 
 	void SendXPDataRef(const char* dataRefName, double value);
 	void SendXPDataRef(const char* dataRefName, bool state);
+
+	void changeSegmentStatisticsState(bool isActive);
+	void updateSegmentStatistics(void);
+
+	void setFlightPathCharacteristics(double valClimbRateStraight,
+			double valClimbRateCircle, double valAutoCircleRadius);
+
+	double getAutoCircleRadius() const {
+		return autoCircleRadius;
+	}
+
+	double getAutoGlideAngleCircle() const {
+		return autoGlideAngleCircle;
+	}
+
+	double getAutoGlideAngleStraight() const {
+		return autoGlideAngleStraight;
+	}
+
+	double getAutoGlideRatioCircle() const {
+		return autoGlideRatioCircle;
+	}
+
+	double getAutoGlideRatioStraight() const {
+		return autoGlideRatioStraight;
+	}
 
 private slots:
 	void timerExpired(void);
@@ -159,6 +191,12 @@ private:
 
 	//Data Items
 	Dataset curDat;
+	SegmentStatistics segmentStats = SegmentStatistics();
+
+	double autoGlideAngleStraight=0.0, autoGlideRatioStraight=0.0;
+	double autoGlideAngleCircle=0.0, autoGlideRatioCircle=0.0;
+	double autoCircleRadius=0.0;
+
 	std::vector<Dataset> dataSeries;
 	unsigned int count = 0;
 	QTimer *basicTimer = NULL;

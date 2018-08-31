@@ -12,6 +12,7 @@
 #include <tuple>
 #include <algorithm>    // std::transform
 #include "constants.h"
+#include <sstream>
 
 /*
  * The Matlab output uses a command to draw circular segments that goes like this
@@ -167,9 +168,9 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	double deltaX, deltaY;// cartesian distance between the two circle centers
 	double headingStraight_t;// heading of the interconnection tangential
 	double rotCircle[2];// turning angle within each circle
-	double circleLength[2];//the length of each circle segment
+//	double circleLength[2];//the length of each circle segment
 	double heightLossCircle[2], heightLossStraight;
-	double straightLength;
+//	double straightLength;
 
 	int dirSign = (_pathType == +pathTypeEnum::LSL) ? -1 : 1;// this is used to use the correct direction of turns for LSL and RSR
 
@@ -219,8 +220,8 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	heightLossCircle[0] = -circleLength[0] / circleGlideRatio;
 	circleLength[1] = fabs(_circleRadius * to_radians(circleRotation[1]));
 	heightLossCircle[1] = -circleLength[1] / circleGlideRatio;
-	straightLength = sqrt(deltaX * deltaX + deltaY * deltaY);
-	heightLossStraight = -straightLength / straightGlideRatio;
+	inBetweenLength = sqrt(deltaX * deltaX + deltaY * deltaY);
+	heightLossStraight = -inBetweenLength / straightGlideRatio;
 
 	// setze die Höhendaten für die einzelnen Kreispunkte
 	circleEntry_t[0].z = startCart.z;

@@ -26,6 +26,11 @@ double Position::getDistanceCart(const Position pointB) const {
 	return sqrt(x*x +y*y);	//altitude difference is neglected as only the straight glide path is relevant
 }
 
+double Position::getAltitudeDiff(const Position pointB) const{
+	return pos.altitude-pointB.pos.altitude;
+}
+
+
 Position_Cartesian Position::getCartesianDifference(const Position pointB) const {
 	LocalCartesian tempProj = LocalCartesian(pos.lati, pos.longi, pos.altitude,earth);
 

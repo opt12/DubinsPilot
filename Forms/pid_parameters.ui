@@ -1760,28 +1760,6 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
-         <widget class="QLabel" name="labelApproachLength">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>FA-length: [m]</string>
-          </property>
-         </widget>
-        </item>
         <item row="5" column="3">
          <widget class="QCheckBox" name="checkBoxCont">
           <property name="text">
@@ -2294,6 +2272,144 @@ down</string>
       <string>Engine Failure Now</string>
      </property>
     </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>570</x>
+       <y>330</y>
+       <width>409</width>
+       <height>193</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_18">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_15">
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>γ Circle:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditForward</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QwtKnob" name="KnobClimbCircle">
+          <property name="focusPolicy">
+           <enum>Qt::WheelFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="climbRateCircleLabel">
+          <property name="text">
+           <string>climb: 50 ft/min, 9.843m/sec</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_16">
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>γ Straigth:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditForward</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QwtKnob" name="KnobClimbStraight">
+          <property name="focusPolicy">
+           <enum>Qt::WheelFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="climbRateStraightLabel">
+          <property name="text">
+           <string>climb: 50 ft/min, 9.843m/sec</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_17">
+        <item>
+         <widget class="QLabel" name="label_12">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Circle Radius:</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineEditForward</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QwtKnob" name="KnobAutoCircleRadius">
+          <property name="focusPolicy">
+           <enum>Qt::WheelFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="autoCircleRadiusLabel">
+          <property name="text">
+           <string>Radius = xm</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <zorder>layoutWidget</zorder>
+    <zorder>saveButton</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>pushButtonResetOrigin</zorder>
+    <zorder>pushButtonFlyPath</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>checkBoxPause</zorder>
+    <zorder>labelPathFeasible</zorder>
+    <zorder>ledIndicatorPathFeasible</zorder>
+    <zorder>checkBoxPlaneHeading</zorder>
+    <zorder>layoutWidget</zorder>
+    <zorder>igniterOffButton</zorder>
    </widget>
   </widget>
  </widget>

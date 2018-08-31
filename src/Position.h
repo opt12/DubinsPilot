@@ -108,6 +108,15 @@ public:
 		return Position_Cartesian(x, y, this->z);
 	}
 
+	double length(void) const {
+		return sqrt(x*x+y*y);
+	}
+
+	double heading(void) const {
+		double headingRad = -atan2(y, x) + M_PI/2;
+		return to_degrees(headingRad);
+	}
+
 	double x = 0.0, y = 0.0, z = 0.0;
 };
 
@@ -192,6 +201,7 @@ public:
 
 	double getDistanceCart(const Position pointB) const;
 	double getHeadingCart(const Position pointB) const;
+	double getAltitudeDiff(const Position pointB) const;
 
 	void setAltitude(double _altitude){
 		pos.altitude = _altitude;

@@ -29,6 +29,8 @@ signals:
 	void sigCircleDirectionChanged(bool isLeftCircle, double radius);
 	void sigDisplayFlightPhase(QString flightPhase, QString toGo);
 
+//	void sigStartSegStats(bool isActive);
+
 
 
 public:
@@ -39,10 +41,25 @@ public:
 		segType = _segType;
 	}
 
+	segmentTypeEnum getSegType() const {
+		return segType;
+	}
+
 protected:
 	static DataCenter *dc;
 	Position_Cartesian initialDisplacement;
+
+//	Position startPosition;
+//	QTime startTime = QTime();
+//	Position lastPosition;
+//	Position_Cartesian lastWindDisplacement;
+//	double cartesianPathLengthEarthFrame = 0.0; //holds the Integral of the path in the xy-plane in meters
+//	double cartesianPathLengthWindFrame = 0.0; //holds the Integral of the path in the xy-plane in meters
+//	double heightLoss = 0.0;	//holds the height loss of this segment in meters
+//	double flightTime = 0.0;	//holds the flight time of this segment in seconds;
 	segmentTypeEnum segType = segmentTypeEnum::INVALID;
+
+	void updateSegmentData(void);
 };
 
 class CirclePhase: public FlightPhase {

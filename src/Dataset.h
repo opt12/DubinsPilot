@@ -24,6 +24,7 @@ using json = nlohmann::json;
 
 //#include <iostream>
 
+
 class Dataset {
 public:
 	friend std::ostream& operator<<(std::ostream& o, const Dataset& data) {
@@ -181,5 +182,7 @@ private:
 
 
 };
+
+
 
 #endif /* SRC_DATASET_H_ */

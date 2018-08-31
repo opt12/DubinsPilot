@@ -18,6 +18,7 @@ HEADERS += Forms/pid_parameters.h \
            Forms/qledindicator.h \
            src/DataCenter.h \
            src/Dataset.h \
+           src/SegmentStatistics.h \
            src/pid_controller.h \
            src/Position.h \
            src/SockServer.h \
@@ -35,6 +36,7 @@ SOURCES += Forms/pid_parameters.cpp \
            src/json.hpp \
            src/DataCenter.cpp \
            src/Dataset.cpp \
+           src/SegmentStatistics.cpp \
            src/pid_controller.cpp \
            src/Position.cpp \
            src/SockServer.cpp \

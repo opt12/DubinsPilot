@@ -8,6 +8,12 @@
 #include <FlightPhase.h>
 #include "utils.h"
 
+#include "json.hpp"
+// for convenience
+using json = nlohmann::json;
+#include <stdio.h>
+
+
 DataCenter *FlightPhase::dc = DataCenter::getInstance();
 
 FlightPhase::FlightPhase(QObject* parent) :
@@ -17,6 +23,7 @@ FlightPhase::FlightPhase(QObject* parent) :
 
 FlightPhase::~FlightPhase() {
 }
+
 
 
 
@@ -44,6 +51,9 @@ void CirclePhase::performFlight(void) {
 	double currentAngle = circleCenterBlown.getHeadingCart(dc->getPosition());
 
 	if (!isCircleStarted) {
+
+		dc->changeSegmentStatisticsState(true);
+
 		std::cout <<"Starting circle Flight\n";
 		// let's start the circle now by calling the respective Autopilot function
 		double distanceToCenter = circleCenterBlown.getDistanceCart(
@@ -82,6 +92,7 @@ void CirclePhase::performFlight(void) {
 		// we made it through the circle
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);
 		isCircleFinished = true;
+		dc->changeSegmentStatisticsState(false);	//TODO hier noch die daten der statistik abholen
 		std::cout <<"Finishing circle Flight\n";
 	}
 }
@@ -118,7 +129,8 @@ void StraightPhase::performFlight(void) {
 			targetHeading);
 
 	if(!isStraightStarted){
-		//TODO hier die Path Interception von Allerton einbauen!!!
+
+		dc->changeSegmentStatisticsState(true);
 
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure
 		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, requestedHeading, true);
@@ -148,11 +160,12 @@ void StraightPhase::performFlight(void) {
 		// That is, when the next circle center is left or right of us, we leave straight flight
 		double headingToNextCircleCenter = dc->getPosition().getHeadingCart(nextcircleCenterBlown);
 		double relativeHeading = getAngularDifference(currentHeading, headingToNextCircleCenter);
-		std::cout << "relative Heading to nextCircleCenter: " <<  relativeHeading <<"\n";
+//		std::cout << "relative Heading to nextCircleCenter: " <<  relativeHeading <<"\n";
 		if(fabs(relativeHeading) >= 90){
 			// we made it over the tangential straight line
 			std::cout <<"Straight Flight: finished\n";
 			isStraightFinished = true;
+			dc->changeSegmentStatisticsState(false);	//TODO hier noch die daten der statistik abholen
 		}
 	}
 }
@@ -168,6 +181,9 @@ RunOutPhase::~RunOutPhase() {
 }
 
 void RunOutPhase::performFlight(void) {
+	dc->changeSegmentStatisticsState(true);	//to reset;
+	dc->changeSegmentStatisticsState(false);
+
 	//nothing to do any more
 	//continue straight flight and enable the controls again
 	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure

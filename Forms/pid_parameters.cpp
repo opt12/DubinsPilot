@@ -191,6 +191,18 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	setupPlot();
 
 //	KnobSpeed->setRange(-8.0, 8.0, .1);	//for Pitch-Control
+	KnobClimbCircle->setRange(-10, 0, 0.025);
+	connect(KnobClimbCircle, SIGNAL(valueChanged(double)), this,
+			SLOT(setClimbRateCircleLabel(double)));
+	KnobClimbStraight->setRange(-10, 0, 0.025);
+	connect(KnobClimbStraight, SIGNAL(valueChanged(double)), this,
+			SLOT(setClimbRateStraightLabel(double)));
+
+	KnobAutoCircleRadius->setRange(300, 1000, 10.0);
+	connect(KnobAutoCircleRadius, SIGNAL(valueChanged(double)), this,
+			SLOT(setAutoCircleRadiusLabel(double)));
+
+
 	KnobClimb->setRange(-15, 15, 0.025);
 	connect(KnobClimb, SIGNAL(valueChanged(double)), this,
 			SLOT(setClimbRateLabel(double)));
@@ -500,11 +512,33 @@ void PIDParametersDialog::setClimbRateLabel(double climbRate) {
 	valClimbRate = climbRate;
 	climbRateLabel->setText(
 			"gamma: " + QString::number(climbRate) + " [°]\n"
-					+ QString::number(1 / tan(deg2rad(climbRate))) + " [m/m]");
+					+ QString::number(-1 / tan(deg2rad(climbRate))) + " [m/m]");
 	emit sigRequestedSetValueChanged(ctrlType::CLIMB_CONTROL, valClimbRate);
 	climbMarker->setYValue(valClimbRate);
 	climbMarker->setLabel("sink = " + QString::number(valClimbRate));
 	qwtPlotClimb->replot();
+}
+
+void PIDParametersDialog::setClimbRateStraightLabel(double climbRate) {
+	valClimbRateStraight = climbRate;
+	climbRateStraightLabel->setText(
+			"gamma: " + QString::number(climbRate) + " [°]\n"
+					+ QString::number(-1 / tan(deg2rad(climbRate))) + " [m/m]");
+	emit sigFlightPathCharacteristicsChanged(valClimbRateStraight, valClimbRateCircle, valAutoCircleRadius);
+}
+
+void PIDParametersDialog::setClimbRateCircleLabel(double climbRate) {
+	valClimbRateCircle = climbRate;
+	climbRateCircleLabel->setText(
+			"gamma: " + QString::number(climbRate) + " [°]\n"
+					+ QString::number(-1 / tan(deg2rad(climbRate))) + " [m/m]");
+	emit sigFlightPathCharacteristicsChanged(valClimbRateStraight, valClimbRateCircle, valAutoCircleRadius);
+}
+
+void PIDParametersDialog::setAutoCircleRadiusLabel(double radius) {
+	valAutoCircleRadius = radius;
+	autoCircleRadiusLabel->setText("radius = " + QString::number(valAutoCircleRadius));
+	emit sigFlightPathCharacteristicsChanged(valClimbRateStraight, valClimbRateCircle, valAutoCircleRadius);
 }
 
 void PIDParametersDialog::setTargetValueControlKnob(ctrlType ctrl, double targetValue, bool isLeftCircle){
@@ -825,6 +859,12 @@ void PIDParametersDialog::headingControlActiveStateChanged(bool active) {
 	emit sigPidParametersChanged(ctrlType::HEADING_CONTROL, valPHeading,
 			valIHeading, valDHeading);
 	emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, active);
+
+	DataCenter* dc = DataCenter::getInstance();
+	dc->changeSegmentStatisticsState(false);	// to be sure to start new stats
+	if(active){
+		dc->changeSegmentStatisticsState(true);
+	}
 }
 void PIDParametersDialog::circleControlActiveStateChanged(bool active) {
 	emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, valCircle);
@@ -833,6 +873,12 @@ void PIDParametersDialog::circleControlActiveStateChanged(bool active) {
 	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(),
 			valCircle);
 	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, active);
+
+	DataCenter* dc = DataCenter::getInstance();
+	dc->changeSegmentStatisticsState(false);	// to be sure to start new stats
+	if(active){
+		dc->changeSegmentStatisticsState(true);
+	}
 }
 
 void PIDParametersDialog::radioButtonCircleClicked(void) {
@@ -925,6 +971,17 @@ void PIDParametersDialog::readSettings() {
 	checkBoxCircleController->setChecked(tempActive);
 	circleControlActiveStateChanged(tempActive);
 
+	valClimbRateStraight = settings.value("valClimbRateStraight").toDouble();
+	KnobClimbStraight->setValue(valClimbRateStraight);
+	setClimbRateStraightLabel(valClimbRateStraight);
+
+	valClimbRateCircle = settings.value("valClimbRateCircle").toDouble();
+	KnobClimbCircle->setValue(valClimbRateCircle);
+	setClimbRateCircleLabel(valClimbRateCircle);
+
+	valAutoCircleRadius = settings.value("valAutoCircleRadius").toDouble();
+	KnobAutoCircleRadius->setValue(valAutoCircleRadius);
+	setAutoCircleRadiusLabel(valAutoCircleRadius);
 
 	initialLogFileDir = settings.value("initialLogFileDir").toString();
 }
@@ -934,7 +991,7 @@ void PIDParametersDialog::writeSettings() {
 	qDebug() << "Saving: valP: " << valPClimb;
 	qDebug() << "\tvalI: " << valIClimb;
 	qDebug() << "\tvalD: " << valDClimb;
-	qDebug() << "\tvalSpeed: " << valClimbRate << endl;
+	qDebug() << "\tvalClimbRate: " << valClimbRate << endl;
 
 	settings.setValue("valPClimb", QVariant::fromValue(valPClimb));
 	settings.setValue("valIClimb", QVariant::fromValue(valIClimb));
@@ -960,6 +1017,11 @@ void PIDParametersDialog::writeSettings() {
 	settings.setValue("valICircle", QVariant::fromValue(valICircle));
 	settings.setValue("valDCircle", QVariant::fromValue(valDCircle));
 	settings.setValue("valCircle", QVariant::fromValue(valCircle));
+
+	settings.setValue("valClimbRateCircle", QVariant::fromValue(valClimbRateCircle));
+	settings.setValue("valClimbRateStraight", QVariant::fromValue(valClimbRateStraight));
+	settings.setValue("valAutoCircleRadius", QVariant::fromValue(valAutoCircleRadius));
+
 
 	settings.setValue("initialLogFileDir",
 			QVariant::fromValue(initialLogFileDir));
@@ -1057,6 +1119,7 @@ void PIDParametersDialog::takeMeDown(void){
 		//TODO Da müsste man eigentlich noch die ganzenEingabefelder disablen bis angekommen oder Cancel
 	} else {
 		emit sigStartPathTracking(false);
+		DataCenter::getInstance()->changeSegmentStatisticsState(false);	//nicht die schönste Stelle, aber sollte gehen
 		isPathTracking = false;
 	}
 	displayPathTrackingStatus(isPathTracking);

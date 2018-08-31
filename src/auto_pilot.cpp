@@ -177,8 +177,8 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 			ENABLED, CHECKED);
 		}
 		if (_ct == +ctrlType::RADIUS_CONTROL) {
-			ctrl[ctrlType::CLIMB_CONTROL].requestedTargetValue = GLIDE_ANGLE_CIRCLE;
-			emit sigRequestTargetValue(ctrlType::CLIMB_CONTROL, GLIDE_ANGLE_CIRCLE);
+			ctrl[ctrlType::CLIMB_CONTROL].requestedTargetValue = dc->getAutoGlideAngleCircle();
+			emit sigRequestTargetValue(ctrlType::CLIMB_CONTROL, dc->getAutoGlideAngleCircle());
 			//we need the heading controller for circle flight
 			invokeController(ctrlType::HEADING_CONTROL, true);
 			emit sigSetControllerCheckButtons(ctrlType::HEADING_CONTROL,
@@ -205,8 +205,8 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 			// hide the circle in the visualization
 			emit sigSocketSendData(std::string("CIRCLE_DATA"), 0,
 					getCircleDataAsJson());
-			ctrl[ctrlType::CLIMB_CONTROL].requestedTargetValue = GLIDE_ANGLE_STRAIGTH;
-			emit sigRequestTargetValue(ctrlType::CLIMB_CONTROL, GLIDE_ANGLE_STRAIGTH);
+			ctrl[ctrlType::CLIMB_CONTROL].requestedTargetValue = dc->getAutoGlideAngleStraight();
+			emit sigRequestTargetValue(ctrlType::CLIMB_CONTROL, dc->getAutoGlideAngleStraight());
 
 			// set the heading to the current value to leave the circle in a tangential way
 			Position displacedCircleCenter = circleCenter
@@ -305,6 +305,9 @@ void AutoPilot::timerExpired(void) {
 	if (dubinsSchedulerActive) {
 
 	}
+
+	dc->updateSegmentStatistics();	//update the stats for the current flight segment
+
 	if (circleFlightActive) {
 		// when in circle flight, we need to permanently update the heading
 		Position displacedCircleCenter = circleCenter

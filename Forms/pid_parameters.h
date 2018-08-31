@@ -32,6 +32,8 @@ signals:
 	void sigCtrlActiveStateChanged(ctrlType ctrl, bool active);
 	void sigRequestedSetValueChanged(ctrlType ctrl, double setValue);
 	void sigCircleDirectionChanged(bool isLeftCircle, double radius);
+	void sigFlightPathCharacteristicsChanged(double valClimbRateStraight,
+			double valClimbRateCircle, double valAutoCircleRadius);
 
 	void sigSendXPDataRef(const char*, double);
 
@@ -66,6 +68,10 @@ private slots:
 	void setPSpinners(QString text);
 	void setISpinners(QString text);
 	void setClimbRateLabel(double val);
+	void setClimbRateStraightLabel(double val);
+	void setClimbRateCircleLabel(double val);
+	void setAutoCircleRadiusLabel(double radius);
+
 
 	void setDValueBank(void);
 	void setPValueBank(void);
@@ -131,6 +137,7 @@ private:
 		return false;
 	} //maybe I don't want to always save the parameters at closing
 	double valPClimb, valIClimb, valDClimb, valClimbRate;
+	double valClimbRateStraight, valClimbRateCircle, valAutoCircleRadius;
 	double valPRoll, valIRoll, valDRoll, valRoll;
 	double valPHeading, valIHeading, valDHeading, valHeading;
 	double valPCircle, valICircle, valDCircle, valCircle;
