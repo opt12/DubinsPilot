@@ -106,6 +106,14 @@ public:
 		return curDat.pos;
 	}
 
+	double getAltitude(void) const {	//altitude above sea level in m
+		return ft_to_m(curDat.altitude_ft_pilot);
+	}
+
+	double getHeight(void) const{	//height above ground in m
+		return curDat.y_agl;
+	}
+
 	Position_Cartesian getWindDisplacement() {
 		return curDat.windDisplacement;
 	}

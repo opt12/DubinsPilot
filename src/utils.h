@@ -18,6 +18,7 @@ constexpr double deg2rad(const double deg){
 double to_radians(const double degrees);
 double knots_to_ms(const double valKnots);
 double ms_to_knots(const double valKnots);
+double ft_to_m(const double valFt);
 
 //rotates a coordinate pair (x, y) by rotDeg degrees around the origin (0,0)
 // positive rotDeg rotates clockwise

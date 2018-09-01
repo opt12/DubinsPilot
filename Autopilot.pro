@@ -28,6 +28,7 @@ HEADERS += Forms/pid_parameters.h \
            src/auto_pilot.h \
            src/FlightPhase.h \
            src/DubinsScheduler.h \
+           src/ControlAutomation.h \
            src/constants.h
 FORMS +=   Forms/pid_parameters.ui
 SOURCES += Forms/pid_parameters.cpp \
@@ -45,6 +46,7 @@ SOURCES += Forms/pid_parameters.cpp \
            src/DubinsPath.cpp \
            src/auto_pilot.cpp \
            src/FlightPhase.cpp \
+           src/ControlAutomation.cpp \
            src/DubinsScheduler.cpp
 
 #to debug try to compile XplaneLib myself

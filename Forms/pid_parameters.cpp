@@ -313,6 +313,11 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 
 	connect(checkBoxPause, SIGNAL(toggled(bool)), this, SLOT(pauseSimulation(bool)));
 
+	connect(lineEditAltitudeApproachStart, SIGNAL(textChanged(QString)),
+			this, SIGNAL(sigApproachStartingAltitudeChanged(QString)));
+	connect(lineEditAGLLifeSaver, SIGNAL(textChanged(QString)),
+			this, SIGNAL(sigLifeSaverHeightChanged(QString)));
+
 	//do this  in the next turn of the event loop to have everything wired together already
 	QTimer::singleShot(0, this, SLOT(readSettings()));
 }
@@ -1138,6 +1143,16 @@ void PIDParametersDialog::displayPathTrackingStatus(bool _isPathTracking){
 		checkBoxCont->setEnabled(true);
 	}
 }
+
+void PIDParametersDialog::clickSetHeight(void){	//to enable the "Life Saver" when Altitude AGL is too low
+	setHeightButton->click();
+}
+
+void PIDParametersDialog::clickTakeMeDown(void){ //to start path tracking at a defined altitude
+	pushButtonFlyPath->click();
+}
+
+
 
 void PIDParametersDialog::setWind(void) {
 	// Eingabe sind Knoten, Rückgabe sind Meter pro Sekunde

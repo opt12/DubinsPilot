@@ -34,6 +34,9 @@ signals:
 	void sigCircleDirectionChanged(bool isLeftCircle, double radius);
 	void sigFlightPathCharacteristicsChanged(double valClimbRateStraight,
 			double valClimbRateCircle, double valAutoCircleRadius);
+	void sigApproachStartingAltitudeChanged(QString approachStartingAltitude);
+	void sigLifeSaverHeightChanged(QString lifeSaverHeight);
+
 
 	void sigSendXPDataRef(const char*, double);
 
@@ -58,6 +61,8 @@ public slots:
 	void displayFlightPhase(QString flightPhase, QString toGo);
 	void displayPathTrackingStatus(bool _isPathTracking);
 
+	void clickSetHeight(void);	//to enable the "Life Saver" when Altitude AGL is too low
+	void clickTakeMeDown(void); //to start path tracking at a defined altitude
 
 private slots:
 	void setDValue(void);

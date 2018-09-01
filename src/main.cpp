@@ -17,6 +17,7 @@
 #include "DubinsPath.h"
 #include "enumDeclarations.h"
 #include "DubinsScheduler.h"
+#include "ControlAutomation.h"
 
 #include "json.hpp"
 // for convenience
@@ -82,6 +83,9 @@ int main(int argc, char *argv[]) {
 //	sock->setDebug(true);
 
 	RequestDispatcher rqd;
+
+	ControlAutomation ctrlAuto;
+
 
 	//connections from PIDParametersDialog --> AutoPilot
 	QObject::connect(pidParams,
@@ -199,6 +203,19 @@ int main(int argc, char *argv[]) {
 				pidParams, SLOT(displayFlightPhase(QString, QString)));
 	QObject::connect(&dubSched, SIGNAL(sigPathTrackingStatus(bool)),
 				pidParams, SLOT(displayPathTrackingStatus(bool)));
+
+	//connections from PIDParametersDialog --> ControlAutomation
+	QObject::connect(pidParams, SIGNAL(sigLifeSaverHeightChanged(QString)),
+			&ctrlAuto, SLOT(setLifeSaverHeightChanged(QString)));
+	QObject::connect(pidParams, SIGNAL(sigApproachStartingAltitudeChanged(QString)),
+			&ctrlAuto, SLOT(setApproachStartingAltitudeChanged(QString)));
+	//connections from ControlAutomation --> PIDParametersDialog
+	QObject::connect(&ctrlAuto, SIGNAL(sigLifeSaverTriggered(void)),
+			pidParams, SLOT(clickSetHeight(void)));
+	QObject::connect(&ctrlAuto, SIGNAL(sigApproachStartingTriggered(void)),
+			pidParams, SLOT(clickTakeMeDown(void)));
+
+
 
 	return app.exec();
 #endif
