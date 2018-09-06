@@ -70,10 +70,14 @@ private:
 		double heightLoss = 0.0;
 		Position_Cartesian totalWindDisplacement = Position_Cartesian();
 		double totalAngleFlown = 0.0;
-		double glideAngleEarthFrame = 0.0;
+		double glideAngleEarthFrame = 0.0, glideAngleWindFrame = 0.0;
 		segmentTypeEnum segType = segmentTypeEnum::INVALID;
+		Position_Cartesian errorWindFrame, errorEarthFrame;
+		double headingError;
 	};
 	std::vector<PathFollowStats*> pathFollowStats;
+
+	std::vector<SegmentStatistics> segmentStats;
 
 };
 

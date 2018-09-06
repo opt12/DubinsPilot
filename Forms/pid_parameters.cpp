@@ -251,7 +251,7 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 			SLOT(fileNameSelectorClicked()));
 	connect(lineEditFileName, SIGNAL(editingFinished()), this,
 			SLOT(fileNameEditingFinished()));
-	toggleLogButton->setEnabled(false);
+//	toggleLogButton->setEnabled(false);
 
 	if (initialLogFileDir.isEmpty())
 		initialLogFileDir = QDir::homePath();
@@ -269,6 +269,10 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 	connect(radioButtonRSR, SIGNAL(clicked()), this,
 			SLOT(submitElfData()));
 
+	connect(radioButtonRelative, SIGNAL(clicked()), this,
+				SLOT(toggleAbsoluteRelative()));
+	connect(radioButtonAbsolute, SIGNAL(clicked()), this,
+				SLOT(toggleAbsoluteRelative()));
 
 	lineEditForward->setValidator(new QDoubleValidator);
 	connect(lineEditForward, SIGNAL(textChanged(QString)), this,
@@ -989,6 +993,9 @@ void PIDParametersDialog::readSettings() {
 	setAutoCircleRadiusLabel(valAutoCircleRadius);
 
 	initialLogFileDir = settings.value("initialLogFileDir").toString();
+	if (initialLogFileDir.isEmpty())
+		initialLogFileDir = QDir::homePath();
+	lineEditFileName->setText(initialLogFileDir);
 }
 
 void PIDParametersDialog::writeSettings() {
@@ -1045,47 +1052,38 @@ void PIDParametersDialog::setIgniterOff(void) {
 }
 
 void PIDParametersDialog::logButtonClicked() {
-	qDebug() << "logButtonClicked(), loggingActive(before) = " << loggingActive
-			<< endl;
 	if (loggingActive) {
-		loggingActive = false;
-		emit sigLoggingActiveStateChanged(loggingActive, &fileLog);
-		if (fileLog.isOpen())
-			fileLog.close();
-		free(outLog);
+		emit sigLoggingActiveStateChanged(false, QDir(""), "");
+		setLoggingState(false);
+	} else {
+		//start logging
+		emit sigLoggingActiveStateChanged(true, initialLogFileDir, generateLogfilename());
+		setLoggingState(true);
+	}
+}
+
+void PIDParametersDialog::setLoggingState(bool _loggingActive){
+	loggingActive = _loggingActive;
+	if(!loggingActive){
 		//stop logging
 		lineEditFileName->setEnabled(true);
 		choseFileNameButton->setEnabled(true);
 		toggleLogButton->setText(tr("Start &Logging"));
 	} else {
 		//start logging
-		QFileInfo fileName = QFileInfo(initialLogFileDir,
-				generateLogfilename());
-		fileLog.setFileName(fileName.absoluteFilePath());
-		if (!fileLog.open(QIODevice::WriteOnly)) {
-			qDebug() << "Cannot open file for writing: "
-					<< qPrintable(fileLog.errorString()) << endl;
-			return;
-		}
-		lineEditFileName->setText(fileName.absoluteFilePath());
-		lineEditFileName->setEnabled(false);
 		choseFileNameButton->setEnabled(false);
-		outLog = new QTextStream(&fileLog);
-		qDebug() << Dataset::csvHeading();
-		*outLog << Dataset::csvHeading();
-		outLog->flush();
+		lineEditFileName->setEnabled(false);
 		toggleLogButton->setText(tr("Stop &Logging"));
-		loggingActive = true;
-		emit sigLoggingActiveStateChanged(loggingActive, &fileLog);
 	}
 }
+
 void PIDParametersDialog::fileNameSelectorClicked(void) {
 	initialLogFileDir = QFileDialog::getExistingDirectory(this,
 			tr("Open Directory for logging:"), initialLogFileDir,
 			QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	logFile = generateLogfilename();
 	lineEditFileName->setText(
-			QFileInfo(initialLogFileDir, logFile).absoluteFilePath());
+			QFileInfo(initialLogFileDir, logFile).absolutePath());
 }
 
 void PIDParametersDialog::fileNameEditingFinished() {
@@ -1103,16 +1101,44 @@ void PIDParametersDialog::submitElfData(void) {
 	height = lineEditHeight->text().toDouble();
 	rotation = lineEditRotation->text().toDouble();
 
-	if(elfInputFieldsDirty || !isElfSet || checkBoxAlwaysRelative->isChecked()){
+	if (radioButtonRelative->isChecked()
+			&& (elfInputFieldsDirty || !isElfSet
+					|| checkBoxAlwaysRelative->isChecked())) {
 		emit sigSetElfLocation(forward, right, height, rotation,
 				radioButtonLSL->isChecked()?pathTypeEnum::LSL:pathTypeEnum::RSR);
 		isElfSet = true;
 		elfInputFieldsDirty = false;
+	} else if (radioButtonAbsolute->isChecked()){
+		Position_WGS84 elf=Position_WGS84(forward, right, height);
+		emit sigSetElfLocation(elf, rotation,
+				radioButtonLSL->isChecked()?pathTypeEnum::LSL:pathTypeEnum::RSR);
 	} else {
 		emit sigSetElfLocation(elfPosition, elfHeading,
 				radioButtonLSL->isChecked()?pathTypeEnum::LSL:pathTypeEnum::RSR);
 	}
 }
+
+void PIDParametersDialog::toggleAbsoluteRelative(void){
+	clearInputFields();
+	if(radioButtonRelative->isChecked()){
+		labelForward->setText("forward:");
+		labelUnitForward->setText("m");
+		labelRight->setText("right:");
+		labelUnitRight->setText("m");
+		labelHeight->setText("height:");
+		labelRotation->setText("rotation:");
+		checkBoxAlwaysRelative->setEnabled(true);
+	} else {
+		labelForward->setText("lati:");
+		labelUnitForward->setText("°N");
+		labelRight->setText("longi:");
+		labelUnitRight->setText("°E");
+		labelHeight->setText("elevation:");
+		labelRotation->setText("heading:");
+		checkBoxAlwaysRelative->setEnabled(false);
+	}
+}
+
 
 void PIDParametersDialog::takeMeDown(void){
 	if(!isPathTracking){
@@ -1145,10 +1171,16 @@ void PIDParametersDialog::displayPathTrackingStatus(bool _isPathTracking){
 }
 
 void PIDParametersDialog::clickSetHeight(void){	//to enable the "Life Saver" when Altitude AGL is too low
+	if(loggingActive){
+		toggleLogButton->click();	//stop logging, if active
+	}
 	setHeightButton->click();
 }
 
 void PIDParametersDialog::clickTakeMeDown(void){ //to start path tracking at a defined altitude
+	if(!loggingActive){
+		toggleLogButton->click();	//start logging, if not already active
+	}
 	pushButtonFlyPath->click();
 }
 

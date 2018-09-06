@@ -210,6 +210,7 @@ private:
 	 * as geodetic coordinates to be prepared for changes of the origin.
 	 */
 
+	bool debug = false;
 	bool isValidDubinsPath = false;
 	double heightLoss = 0.0;
 	Position startPoint, endPoint;

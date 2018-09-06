@@ -9,6 +9,7 @@
 #define FORMS_PID_PARAMETERS_H_
 
 #include <QDialog>
+#include <QDir>
 
 #include "ui_pid_parameters.h"
 #include <qwt_plot_curve.h>
@@ -40,7 +41,6 @@ signals:
 
 	void sigSendXPDataRef(const char*, double);
 
-	void sigLoggingActiveStateChanged(bool active, QFile* fileLog);
 	void resetOrigin(void);
 	void sigSetElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
 	void sigSetElfLocation(Position_WGS84 elfPosition, double heading, pathTypeEnum pathType);
@@ -48,6 +48,9 @@ signals:
 	void sigSetSimulationPaused(bool isPaused);
 
 	void sigStartPathTracking(bool active);
+
+	void sigLoggingActiveStateChanged(bool isLoggingActive, QDir dir, QString name);
+	void sigLoggingActiveStateChanged(bool isLoggingActive);
 
 public slots:
 	void setXPlaneConnection(bool);
@@ -63,6 +66,8 @@ public slots:
 
 	void clickSetHeight(void);	//to enable the "Life Saver" when Altitude AGL is too low
 	void clickTakeMeDown(void); //to start path tracking at a defined altitude
+
+	void setLoggingState(bool _loggingActive);
 
 private slots:
 	void setDValue(void);
@@ -133,6 +138,8 @@ private slots:
 	void setWind(void);
 
 	void pauseSimulation(bool pause);
+
+	void toggleAbsoluteRelative(void);
 
 protected:
 	void closeEvent(QCloseEvent *event);

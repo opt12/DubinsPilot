@@ -360,7 +360,7 @@ void XPlaneUDPClient::listenerThread() {
 					sendto(sock, (void *) buf, sizeof(buf), 0,
 							(struct sockaddr *) &serverAddr, slen);
 
-					if (1 || debug) {
+					if (debug) {
 						cerr << "Sent subscribe datagram RREF for freq="
 								<< dref_freq << ", en=" << dref_en << ", name:"
 								<< dataRef->getDataRefName().c_str() << " last:"

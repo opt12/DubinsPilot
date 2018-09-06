@@ -8,6 +8,7 @@
 #include <pid_controller.h>
 
 #include <QObject>
+#include <QFileInfo>
 
 #include "Dataset.h"
 #include <vector>
@@ -77,7 +78,6 @@ void DataCenter::timerExpired(void) {
 
 	if (loggingActive) {
 		*outLog << curDat.csvDataRecord();
-//		std::cout << curDat.csvDataRecord().toStdString();
 	}
 
 	//store curDat to archive
@@ -117,8 +117,6 @@ void DataCenter::receiverBeaconCallback(
 
 void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 	//Add the value to the hashmap of datarefs
-	//TODO welche Daten wollen wir jetzt wie und wo speichern?
-//	receivedData[dataref] = {value, time(NULL)};
 	switch (hash(dataref.c_str())) {
 	case hash("sim/flightmodel/position/indicated_airspeed"):
 		curDat.indicated_airspeed_ms = knots_to_ms(value);
@@ -201,7 +199,7 @@ void DataCenter::receiverCallbackString(std::string dataref,
 
 void DataCenter::connectToXPlane() {
 	//XXX This does not work with the debugger. check why!
-	XPlaneBeaconListener::getInstance()->setDebug(1);
+	XPlaneBeaconListener::getInstance()->setDebug(false);
 	XPlaneBeaconListener::getInstance()->registerNotificationCallback(
 			[this](XPlaneBeaconListener::XPlaneServer server,
 					bool exists) {return receiverBeaconCallback(server, exists);});
@@ -262,25 +260,28 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 					< (minHeightLoss - EPS))) {
 		// we won't make it there. the height loss is inconsistent
 		// TODO negative elevations are neglected :-(
-		std::cout
-				<< "ATTENTION!!! The given height of the ELf is not feasible; We're not gonna make it there!\n";
+		if (debug) {
+			std::cout
+					<< "ATTENTION!!! The given height of the ELf is not feasible; We're not gonna make it there!\n";
+		}
 		// The real failure handling is done in calculating the path
 	}
 
 	//implicit else
-	std::cout << "ELF determined to be"
-			<< curDat.elf.getPosition_WGS84().asJson().dump(4) << std::endl;
-	std::cout << "ELF heading set to " << curDat.elfHeading << std::endl;
-	std::cout << "ELF distance from here is "
-			<< curDat.pos.getDistanceCart(curDat.elf)
-			<< ", Height difference is: "
-			<< curDat.pos.getPosition_WGS84().altitude
-					- curDat.elf.getPosition_WGS84().altitude << std::endl;
-	std::cout << "minimum height loss is " << minHeightLoss;
-	std::cout << ", heading is " << curDat.pos.getHeadingCart(curDat.elf)
-			<< std::endl;
-	std::cout << "Now try to calculate the concrete path;\n";
-
+	if (debug) {
+		std::cout << "ELF determined to be"
+				<< curDat.elf.getPosition_WGS84().asJson().dump(4) << std::endl;
+		std::cout << "ELF heading set to " << curDat.elfHeading << std::endl;
+		std::cout << "ELF distance from here is "
+				<< curDat.pos.getDistanceCart(curDat.elf)
+				<< ", Height difference is: "
+				<< curDat.pos.getPosition_WGS84().altitude
+						- curDat.elf.getPosition_WGS84().altitude << std::endl;
+		std::cout << "minimum height loss is " << minHeightLoss;
+		std::cout << ", heading is " << curDat.pos.getHeadingCart(curDat.elf)
+				<< std::endl;
+		std::cout << "Now try to calculate the concrete path;\n";
+	}
 //	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(), curDat.elfHeading, true);
 	emit sigCalculateDubinsPath(pathType);
 	json j;
@@ -316,11 +317,11 @@ void DataCenter::resetElfLocation(void) {
 void DataCenter::changeSegmentStatisticsState(bool isActive){
 	if(!isActive){
 		segmentStats.stopSegmentStatsUpdate();
-		std::cout << "Stats of last segment are: " << segmentStats.asJson().dump(4) << "\n";
-		std::cout<<"changeSegmentStatisticsState(false)\n";
+//		std::cout << "Stats of last segment are: " << segmentStats.asJson().dump(4) << "\n";
+//		std::cout<<"changeSegmentStatisticsState(false)\n";
 	} else {
 		if(!segmentStats.isSegmentStatsActive()){
-			std::cout<<"changeSegmentStatisticsState(true)\n";
+//			std::cout<<"changeSegmentStatisticsState(true)\n";
 			segmentStats.initialize();
 		} else {
 			//nothing to do, it's already running;
@@ -405,8 +406,50 @@ void DataCenter::invokeLogging(bool active, QFile* fileLog) {
 	} else {
 		free(outLog);
 	}
-	std::cout << "loggingActive: " << loggingActive << "; File: "
+	std::cout << (loggingActive?"Started ":"Stopped ") << "logging; File: "
 			<< fileLog->fileName().toStdString() << std::endl;
+}
+
+void DataCenter::invokeLogging(bool active, QDir initialLogFileDir, QString fileName) {
+	if(active){
+		//start logging
+		QFileInfo fileInfo= QFileInfo(initialLogFileDir, fileName);
+		fileLog = new QFile();
+		fileLog->setFileName(fileInfo.absoluteFilePath());
+		if (!fileLog->open(QIODevice::WriteOnly)) {
+			std::cout << "Cannot open file for writing: "
+					<< qPrintable(fileLog->errorString()) << std::endl;
+			emit sigLoggingStateChanged(false);
+			free(fileLog);
+			return;
+		}
+		loggingActive = true;
+		std::cout << "loggingActive: " << loggingActive << "; File: "
+				<< fileLog->fileName().toStdString() << std::endl;
+		outLog = new QTextStream(fileLog);
+		setOrigin(); //we do this with each logfile
+//		resetWindDisplacement();
+		*outLog << Dataset::csvHeading();
+		emit sigLoggingStateChanged(false);
+	} else {
+		//stop logging
+		loggingActive = false;
+		if(outLog != NULL){
+			outLog->flush();
+			free(outLog);
+			outLog = NULL;
+		}
+		if(fileLog->isOpen()){
+			fileLog->close();
+		}
+		std::cout << (loggingActive?"Started ":"Stopped ") << "logging; File: "
+				<< fileLog->fileName().toStdString() << std::endl;
+		if(fileLog != NULL){
+			free(fileLog);
+			fileLog = NULL;
+		}
+		emit sigLoggingStateChanged(false);
+	}
 }
 
 void DataCenter::SendXPDataRef(const char* dataRefName, double value) {
@@ -439,7 +482,7 @@ void DataCenter::setConnected(bool connected) {
 				}, [this](std::string dataref, std::string value) {
 					return receiverCallbackString(dataref, value);
 				});
-		xp->setDebug(0);
+		xp->setDebug(false);
 
 		xp->subscribeDataRef("sim/flightmodel/position/indicated_airspeed",
 				UPDATE_RATE);
@@ -477,8 +520,9 @@ void DataCenter::setConnected(bool connected) {
 
 	//we only need the timer, while being connected to XPlane
 	if (connected && xp) {
-		std::cout << "started timer" << std::endl;
-		//TODO der Timer sollte nicht mehr gebraucht werden, wenn XPlane alles schön kann
+		if (debug) {
+			std::cout << "started timer" << std::endl;
+		}
 		basicTimer->start(timerMilliseconds);
 	} else {
 		basicTimer->stop();

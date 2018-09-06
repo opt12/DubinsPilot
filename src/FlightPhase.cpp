@@ -62,7 +62,9 @@ void CirclePhase::performFlight(void) {
 		angleFlown = getAngularDifference(currentAngle, angleIn);
 		lastAngle = currentAngle;
 
-		std::cout <<"angleFlown: "<< angleFlown <<"; angleIn "<< angleIn<<"; angleOut: "<<angleOut<<"\n";
+		if (debug) {
+			std::cout <<"angleFlown: "<< angleFlown <<"; angleIn "<< angleIn<<"; angleOut: "<<angleOut<<"\n";
+		}
 
 		//we just emit signals to keep loose coupling
 		emit sigCircleDirectionChanged((segType == +segmentTypeEnum::L), distanceToCenter);
@@ -150,6 +152,8 @@ void StraightPhase::performFlight(void) {
 		//		std::cout <<"Straight Flight: there's still way to go\n";
 		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL,
 				requestedHeading, true);
+		//TODO Here we can add a glide angle correction to adjust for the right height at the end of straight segments;
+		//This would also be kind of a P-controller
 	} else {
 		//		std::cout <<"Straight Flight: we are close to the target\n";
 		//we are close to our target point, so let's get the correct heading for next circle
@@ -165,7 +169,7 @@ void StraightPhase::performFlight(void) {
 			// we made it over the tangential straight line
 			std::cout <<"Straight Flight: finished\n";
 			isStraightFinished = true;
-			dc->changeSegmentStatisticsState(false);	//TODO hier noch die daten der statistik abholen
+			dc->changeSegmentStatisticsState(false);
 		}
 	}
 }
@@ -189,8 +193,6 @@ void RunOutPhase::performFlight(void) {
 	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure
 	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, elfHeading, true);
 	emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, true);
-
-	//TODO emit enable controls.....
 
 	return;
 }

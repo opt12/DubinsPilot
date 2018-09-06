@@ -103,9 +103,12 @@ int main(int argc, char *argv[]) {
 			SLOT(requestCircleDirection(bool, double)));
 
 	//connections from PIDParametersDialog --> DataCenter
+//	QObject::connect(pidParams,
+//			SIGNAL(sigLoggingActiveStateChanged(bool, QFile *)), dc,
+//			SLOT(invokeLogging(bool, QFile *)));
 	QObject::connect(pidParams,
-			SIGNAL(sigLoggingActiveStateChanged(bool, QFile *)), dc,
-			SLOT(invokeLogging(bool, QFile *)));
+			SIGNAL(sigLoggingActiveStateChanged(bool, QDir, QString)), dc,
+			SLOT(invokeLogging(bool, QDir, QString)));
 	QObject::connect(pidParams, SIGNAL(resetOrigin(void)), dc,
 			SLOT(setOrigin(void)));
 	QObject::connect(pidParams, SIGNAL(sigSendXPDataRef(const char*, double)),
@@ -142,6 +145,10 @@ int main(int argc, char *argv[]) {
 			SLOT(showElfCoords(Position_WGS84, double, bool)));
 	QObject::connect(dc, SIGNAL(sigWindChanged(double, double)), pidParams,
 			SLOT(displayCurrentWind(double, double)));
+	QObject::connect(dc, SIGNAL(sigLoggingStateChanged(bool)), pidParams,
+			SLOT(setLoggingState(bool)));
+
+
 
 
 	//connections from AutoPilot --> PIDParametersDialog

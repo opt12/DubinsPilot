@@ -49,17 +49,11 @@ public:
 		// ELf distance need to be transformed from Aircraft CoSy to Earth frame
 		// The aircraft has a heading of true_psi
 		// We need a rotation of the coordinates by -true_psi
-		//TODO XXX
 		double true_psi_rad = to_radians(true_psi);
 		double xTransf = cos(-true_psi_rad)*right - sin(-true_psi_rad)*forward;
 		double yTransf = sin(-true_psi_rad)*right + cos(-true_psi_rad)*forward;
 		double hTransf = height;
-		std::cout << "Coordinate Transform yielded with true_Psi= "<<
-				to_degrees(true_psi_rad) <<std::endl;
-		std::cout << "xTransf= "<< xTransf << "; yTransf= "<< yTransf << "; hTransf= "<< hTransf <<std::endl;
 		elf = Position(_pos.getPosition_WGS84(), xTransf, yTransf, hTransf);
-		std::cout <<"elf set to: "<< elf.getPosition_WGS84().asJson().dump(4) << std::endl;
-		std::cout <<"elf set to: "<< elf.getPosition_Cart().asJson().dump(4) << std::endl;
 		elfHeading = true_psi + rotation;
 		isElfSet = true;
 	}

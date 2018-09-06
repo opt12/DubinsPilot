@@ -133,7 +133,6 @@ AutoPilot::Controller::Controller() {
 	outputValueCurve->setSamples(timeData, outputValueHistory, plotDataSize);
 	outputValueCurve->setPen(QPen(Qt::blue, 2));
 	outputValueCurve->setAxes(QwtPlot::xBottom, QwtPlot::yRight);
-	std::cout << "\t\tConstructor for inner Controller\n";
 }
 
 AutoPilot::Controller::~Controller() {
@@ -240,12 +239,12 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 }
 
 void AutoPilot::requestCtrlTargetValue(ctrlType _ct, double _targetValue, bool _forwardToGui, bool isLeftCircle) {
-	ctrl[_ct].requestedTargetValue = _targetValue;
-	if (false && debug) {
+	if (debug) {
 		std::cout << "New targetValue requested for " << _ct._to_string()
 				<< ": targetValue= " << _targetValue << ";\n";
-		dc->setRequestedTargetValue(_ct, _targetValue);
 	}
+	ctrl[_ct].requestedTargetValue = _targetValue;
+	dc->setRequestedTargetValue(_ct, _targetValue);
 	if(_forwardToGui){
 		//show this also in the Gui panel
 		emit sigRequestTargetValue(_ct, _targetValue, isLeftCircle); //adapt the knob in the GUI
@@ -258,8 +257,10 @@ void AutoPilot::setControllerParameters(ctrlType _ct, double _p, double _i,
 	ctrl[_ct].i = _i;
 	ctrl[_ct].d = _d;
 	ctrl[_ct].controller->PIDTuningsSet(_p, _i, _d);
-	std::cout << "New controller parameters for " << _ct._to_string() << ": P= "
-			<< _p << "; I= " << _i << "; D= " << _d << ";\n";
+	if (debug) {
+		std::cout << "New controller parameters for " << _ct._to_string()
+				<< ": P= " << _p << "; I= " << _i << "; D= " << _d << ";\n";
+	}
 }
 
 void AutoPilot::requestCircleDirection(bool isLeftCircle, double radius) {
@@ -277,10 +278,12 @@ void AutoPilot::requestCircleDirection(bool isLeftCircle, double radius) {
 	initialDisplacement = dc->getWindDisplacement();
 	//TODO I Anteil im Regler auf jeden Fall zurücksetzen.
 	ctrl[ctrlType::RADIUS_CONTROL].controller->PIDResetInternals();
-	std::cout << "Current_Position: \t"
-			<< dc->getPosition().getPosition_Cart().asJson() << std::endl;
-	std::cout << "Circle Center Po: \t"
-			<< circleCenter.getPosition_Cart().asJson() << std::endl;
+	if (debug) {
+		std::cout << "Current_Position: \t"
+				<< dc->getPosition().getPosition_Cart().asJson() << std::endl;
+		std::cout << "Circle Center Po: \t"
+				<< circleCenter.getPosition_Cart().asJson() << std::endl;
+	}
 }
 
 json AutoPilot::getCircleDataAsJson(void) {
@@ -387,7 +390,9 @@ void AutoPilot::Controller::updatePlot(void) {
 }
 
 void AutoPilot::attachPlots(void) {
-	std::cout << "attaching the plots now \n";
+	if (debug) {
+		std::cout << "attaching the plots now \n";
+	}
 	for (ctrlType _ct : ctrlType::_values()) {
 		emit sigAttachControllerCurve(_ct, ctrl[_ct].currentValueCurve);
 		emit sigAttachControllerCurve(_ct, ctrl[_ct].outputValueCurve);

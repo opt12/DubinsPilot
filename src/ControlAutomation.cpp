@@ -30,12 +30,16 @@ void ControlAutomation::setApproachStartingAltitudeChanged(QString approachStart
 	if(approachStartingAltitude.isEmpty()){
 		approachStartAltitude = MAX;
 		approachStartArmed = false;
-		std::cout << "Approach Starter disabled\n";
+		if (debug) {
+			std::cout << "Approach Starter disabled\n";
+		}
 		return;
 	}
 
 	approachStartAltitude = approachStartingAltitude.toDouble();
-	std::cout << "Approach Starter enabled at "<< approachStartAltitude <<"[m  a.s.l.]\n";
+	if (debug) {
+		std::cout << "Approach Starter enabled at "<< approachStartAltitude <<"[m  a.s.l.]\n";
+	}
 
 	if(dc->getAltitude()<= approachStartAltitude)
 		approachStartArmed = true;
@@ -47,12 +51,16 @@ void ControlAutomation::setLifeSaverHeightChanged(QString _lifeSaverHeight) {
 	if(_lifeSaverHeight.isEmpty()){
 		lifeSaverHeight = MAX;
 		lifeSaverArmed = false;
-		std::cout << "Life Saver disabled\n";
+		if (debug) {
+			std::cout << "Life Saver disabled\n";
+		}
 		return;
 	}
 
 	lifeSaverHeight = _lifeSaverHeight.toDouble();
-	std::cout << "Life Saver enabled at "<< lifeSaverHeight <<"[m AGL]\n";
+	if (debug) {
+		std::cout << "Life Saver enabled at "<< lifeSaverHeight <<"[m AGL]\n";
+	}
 	if(dc->getHeight()<= lifeSaverHeight)
 		lifeSaverArmed = true;
 	else
@@ -71,7 +79,9 @@ void ControlAutomation::checkForAutomationEvents(void){
 		}
 	} else if(!approachStartArmed){
 		approachStartArmed = true;
-		std::cout << "Approach Starter armed at "<< approachStartAltitude <<"[m  a.s.l.]\n";
+		if (debug) {
+			std::cout << "Approach Starter armed at "<< approachStartAltitude <<"[m  a.s.l.]\n";
+		}
 	}
 
 	if(dc->getHeight() <= lifeSaverHeight){
@@ -82,6 +92,8 @@ void ControlAutomation::checkForAutomationEvents(void){
 		}
 	} else if(!lifeSaverArmed){
 		lifeSaverArmed = true;
-		std::cout << "Life Saver armed at "<< lifeSaverHeight <<"[m  AGL]\n";
+		if (debug) {
+			std::cout << "Life Saver armed at "<< lifeSaverHeight <<"[m  AGL]\n";
+		}
 	}
 }

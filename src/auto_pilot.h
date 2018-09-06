@@ -91,7 +91,7 @@ private:
 	std::vector<Controller> ctrl;
 
 	int count=0;
-	bool debug = true;
+	bool debug = false;
 
 	//For flying circles
 	bool circleDirectionLeft = true;	//TODO kann ich das auch sinnvoll im Controller unterbringen?

@@ -36,6 +36,7 @@ private:
 	static const double MAX;
 	static const int TIMER_VALUE;
 
+	bool debug = false;
 
 	double approachStartAltitude = 0.0;
 	double lifeSaverHeight= 50.0;

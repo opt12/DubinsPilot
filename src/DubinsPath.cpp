@@ -268,8 +268,10 @@ void DubinsPath::calculateDubinsPath(const Position start,
 
 	if (heightLoss >= requiredHeightDiff + EPS) {
 		isValidDubinsPath = false;	// we won't make it there;
-		std::cout
-				<< "ATTENTION!!! (1) The endpoint is not reachable due to height constraints.\n";
+		if (debug) {
+			std::cout
+					<< "ATTENTION!!! (1) The endpoint is not reachable due to height constraints.\n";
+		}
 		return;
 	}
 
@@ -286,12 +288,16 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	double requiredHeightLossStraight = requiredHeightDiff - overallCircleHeightLoss;	// Sollwert
 
 	if(fabs(requiredHeightLossStraight-heightLossStraight) < EPS){
-		std::cout
-				<< "Shortest Path matches the extended Path due to height constraints.\n";
-		std::cout<< "requiredHeightDiff: " << requiredHeightDiff;
-		std::cout<< "; Achieved: heightLoss: " << heightLoss<< ";\n";
-		std::cout<< "Flown Angle[0]: "<< circleRotation[0]<<"; Flown Angle[1]: "<< circleRotation[1]<<";\n";
-		std::cout<< "total flown Angle: "<< circleRotation[0]+ circleRotation[1]<<";\n";
+		if (debug) {
+			std::cout
+					<< "Shortest Path matches the extended Path due to height constraints.\n";
+			std::cout << "requiredHeightDiff: " << requiredHeightDiff;
+			std::cout << "; Achieved: heightLoss: " << heightLoss << ";\n";
+			std::cout << "Flown Angle[0]: " << circleRotation[0]
+					<< "; Flown Angle[1]: " << circleRotation[1] << ";\n";
+			std::cout << "total flown Angle: "
+					<< circleRotation[0] + circleRotation[1] << ";\n";
+		}
 		return;
 	}
 
@@ -324,18 +330,23 @@ void DubinsPath::calculateDubinsPath(const Position start,
 		heightLoss+= finalApproachHeightLoss;
 		endPoint = end;
 
-		std::cout<< "Found feasible Dubins Path:\n";
-		std::cout<< "requiredHeightDiff: " << requiredHeightDiff
-				<< "; Achieved: heightLoss: " << heightLoss<< ";\n";
-		std::cout<< "Flown Angle[0]: "<< circleRotation[0]<<"; Flown Angle[1]: "<< circleRotation[1]<<";\n";
-		std::cout<< "total flown Angle: "<< circleTotalRot<<";\n";
+		if (debug) {
+			std::cout << "Found feasible Dubins Path:\n";
+			std::cout << "requiredHeightDiff: " << requiredHeightDiff
+					<< "; Achieved: heightLoss: " << heightLoss << ";\n";
+			std::cout << "Flown Angle[0]: " << circleRotation[0]
+					<< "; Flown Angle[1]: " << circleRotation[1] << ";\n";
+			std::cout << "total flown Angle: " << circleTotalRot << ";\n";
+		}
 		return;
 	}
 
 	//implicit else: the longer Dubins path is not feasible
 	// this must be due to angle changes in flying
-	std::cout << "adapted Dubins Path has angle of " << circleTotalRot<<
+	if (debug) {
+		std::cout << "adapted Dubins Path has angle of " << circleTotalRot<<
 			"; shortest Dubins Path has angle of "<< rotTotal<< ";\n";
+	}
 
 	double fullCircleHeight = 2 * M_PI * circleRadius / (-circleGlideRatio);
 
@@ -374,17 +385,28 @@ void DubinsPath::calculateDubinsPath(const Position start,
 				heightLoss+= finalApproachHeightLoss;
 				endPoint = end;
 
-				std::cout<< "Found feasible Dubins Path:\n";
-				std::cout<< "requiredHeightDiff: " << requiredHeightDiff
-						<< "; Achieved: heightLoss: " << heightLoss<< ";\n";
-				std::cout<< "Flown Angle[0]: "<< circleRotation[0]<<"; Flown Angle[1]: "<< circleRotation[1]<<";\n";
-				std::cout<< "total flown Angle: "<< circleTotalRot<<";\n";
+				if (debug) {
+					std::cout << "Found feasible Dubins Path:\n";
+					std::cout << "requiredHeightDiff: " << requiredHeightDiff
+							<< "; Achieved: heightLoss: " << heightLoss
+							<< ";\n";
+					std::cout << "Flown Angle[0]: " << circleRotation[0]
+							<< "; Flown Angle[1]: " << circleRotation[1]
+							<< ";\n";
+					std::cout << "total flown Angle: " << circleTotalRot
+							<< ";\n";
+				}
 				return;
 			} else {
-				std::cout << "ATTENTION!!! (2) The endpoint is not reachable due to height constraints.\n";
-				std::cout << "No Additional Circle will be flown: \n";
-				std::cout << "adapted Dubins Path has angle of " << circleTotalRot<<
-						"; shortest Dubins Path has angle of "<< rotTotal<< ";\n";
+				if (debug) {
+					std::cout
+							<< "ATTENTION!!! (2) The endpoint is not reachable due to height constraints.\n";
+					std::cout << "No Additional Circle will be flown: \n";
+					std::cout << "adapted Dubins Path has angle of "
+							<< circleTotalRot
+							<< "; shortest Dubins Path has angle of "
+							<< rotTotal << ";\n";
+				}
 				isValidDubinsPath = false;
 				return;
 			}
@@ -394,7 +416,10 @@ void DubinsPath::calculateDubinsPath(const Position start,
 
 	if (fabs(requiredHeightDiff - fullCircleHeight- (heightLoss+ finalApproachHeightLoss)) < EPS) {
 		// wir müssen einen Kreis mehr fliegen, weil die Verlängerung die Winkel ändert
-		std::cout <<"INSERTING another entry circle round to achieve the required height loss.\n";
+		if (debug) {
+			std::cout
+					<< "INSERTING another entry circle round to achieve the required height loss.\n";
+		}
 		circleExitAngle[0] = circleExitAngle[0] + dirSign*360;
 		circleRotation[0] = circleRotation[0] + dirSign*360;
 		circleExit[0].setAltitude(circleExit[0].getAltitude()- fullCircleHeight);
@@ -406,11 +431,16 @@ void DubinsPath::calculateDubinsPath(const Position start,
 		heightLoss+= finalApproachHeightLoss + fullCircleHeight;
 		endPoint = end;
 
-		std::cout<< "Found feasible Dubins Path with additional full entry circle: requiredHeightDiff: " << requiredHeightDiff;
-		std::cout<< "; Achieved: heightLoss: " << heightLoss<< ";\n";
-		std::cout<< "Flown Angle[0]: "<< circleRotation[0]<<"; Flown Angle[1]: "<< circleRotation[1]<<";\n";
-		std::cout<< "total flown Angle: "<< circleRotation[0]+ circleRotation[1]<<";\n";
-		return;
+		if (debug) {
+			std::cout
+					<< "Found feasible Dubins Path with additional full entry circle: requiredHeightDiff: "
+					<< requiredHeightDiff;
+			std::cout << "; Achieved: heightLoss: " << heightLoss << ";\n";
+			std::cout << "Flown Angle[0]: " << circleRotation[0]
+					<< "; Flown Angle[1]: " << circleRotation[1] << ";\n";
+			std::cout << "total flown Angle: "
+					<< circleRotation[0] + circleRotation[1] << ";\n";
+		}		return;
 	}
 
 	//implicit else; Nein, es geht nicht

@@ -9,6 +9,8 @@
 #define SRC_DATACENTER_H_
 
 #include <QObject>
+#include <QFile>
+#include <QDir>
 
 #include "Dataset.h"
 #include "SegmentStatistics.h"
@@ -144,6 +146,8 @@ public slots:
 	}
 	void resetWindDisplacement(void);
 	void invokeLogging(bool active, QFile* fileLog);
+	void invokeLogging(bool active, QDir initialLogFileDir, QString fileName);
+
 	void setElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
 	void setElfLocation(Position_WGS84 elfPosition, double elfHeading, pathTypeEnum pathType);
 	void resetElfLocation(void);
@@ -191,6 +195,7 @@ signals:
 	void sigElfCoordsSet(Position_WGS84 elf, double elfHeading, bool pathFeasible);
 	void sigWindChanged(double windDirFrom, double windVelocity);
 	void sigCalculateDubinsPath(pathTypeEnum pathType);
+	void sigLoggingStateChanged(bool isActive);
 
 private:
 	bool debug = false;
@@ -232,6 +237,7 @@ private:
 	bool isPaused = false;
 
 	bool loggingActive = false;
+	QFile* fileLog = NULL;
 	QTextStream *outLog = NULL;
 
 	bool originSet = false;
