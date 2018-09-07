@@ -39,9 +39,9 @@ private:
 	bool debug = false;
 
 	double approachStartAltitude = 0.0;
-	double lifeSaverHeight= 50.0;
+	double lifeSaverHeight= 0.0;
 	bool approachStartArmed = false;
-	bool lifeSaverArmed = true;
+	bool lifeSaverArmed = false;
 	DataCenter* dc;
 	QTimer* automationTimer;
 };

@@ -450,7 +450,7 @@ void DubinsPath::calculateDubinsPath(const Position start,
 }
 
 
-json DubinsPath::asJson() {
+json DubinsPath::asJson() const{
 	json j;
 	if (!isValidDubinsPath) {
 		return j;
@@ -471,9 +471,37 @@ json DubinsPath::asJson() {
 	return j;
 }
 
+json DubinsPath::blownAsJson(Position_Cartesian dispCircleInExit,
+		Position_Cartesian dispTangentialEnd,
+		Position_Cartesian dispCircleOutExit, Position_Cartesian dispFinalEnd) const {
+	json j;
+	if (!isValidDubinsPath) {
+		return j;
+	}
+
+	j["pathType"] = pathType._to_string();
+	j["startingPoint"]= {startPoint.getPosition_WGS84().lati, startPoint.getPosition_WGS84().longi};
+	Position endPointBlown = (endPoint + dispCircleInExit + dispTangentialEnd
+			+ dispCircleOutExit + dispFinalEnd);
+	j["endPoint"]= {endPointBlown.getPosition_WGS84().lati, endPointBlown.getPosition_WGS84().longi};
+	j["trochoidOne"] = trochoidAsJson(circleCenter[0], circleRadius,
+			circleEntryAngle[0], circleExitAngle[0], dispCircleInExit);
+	j["trochoidTwo"] = trochoidAsJson(
+			(circleCenter[1] + dispCircleInExit + dispTangentialEnd),
+			circleRadius, circleEntryAngle[1], circleExitAngle[1],
+			dispCircleOutExit);
+	j["startHeading"] = circleEntryAngle[0]
+			+ ((pathType == +pathTypeEnum::LSL) ? -90 : +90);
+	j["endHeading"] = circleExitAngle[1]
+			+ ((pathType == +pathTypeEnum::LSL) ? -90 : +90);
+	j["isValidDubinsPath"] = isValidDubinsPath;
+	return j;
+}
+
+
 json DubinsPath::trochoidAsJson(Position circleCenter, double circleRadius,
 		double entryAngleDeg, double exitAngleDeg,
-		Position_Cartesian displacement) {
+		Position_Cartesian displacement) const {
 	const int DEGREE_SCALE = 10;
 	json j;
 	j["trochoRadius"] = circleRadius;

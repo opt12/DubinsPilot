@@ -260,10 +260,10 @@ void DataCenter::setElfLocation(double forward, double right, double height,
 					< (minHeightLoss - EPS))) {
 		// we won't make it there. the height loss is inconsistent
 		// TODO negative elevations are neglected :-(
-		if (debug) {
-			std::cout
-					<< "ATTENTION!!! The given height of the ELf is not feasible; We're not gonna make it there!\n";
-		}
+		std::cout
+				<< "ATTENTION!!! The given height of the ELf is not feasible; We're not gonna make it there!\n";
+		std::cout << "Minimum height loss is minHeightLoss >= "
+				<< minHeightLoss << "\n";
 		// The real failure handling is done in calculating the path
 	}
 
@@ -311,6 +311,7 @@ void DataCenter::setElfLocation(Position_WGS84 elfPosition, double elfHeading,
 void DataCenter::resetElfLocation(void) {
 	curDat.resetElfPos();
 	emit sigSocketSendData(std::string("DUBINS_PATH"), 0, json::object( { }));
+	emit sigSocketSendData(std::string("DUBINS_PATH_BLOWN"), 0, json::object( { }));
 	emit sigSocketSendData(std::string("ELF_POSITION"), 0, json::object( { }));
 }
 
@@ -364,6 +365,7 @@ void DataCenter::calculateDubinsPath(pathTypeEnum pathType) {
 	emit sigElfCoordsSet(curDat.elf.getPosition_WGS84(), curDat.elfHeading,
 			curDat.isValidDubinsPath());
 	emit sigSocketSendData(std::string("DUBINS_PATH"), 0, curDat.db.asJson());
+	emit sigSocketSendData(std::string("DUBINS_PATH_BLOWN"), 0, json::object( { }));
 }
 
 void DataCenter::setOrigin(void) {
@@ -393,29 +395,31 @@ void DataCenter::resetWindDisplacement(void) {
 	curDat.resetWindDisplacement();
 }
 
-void DataCenter::invokeLogging(bool active, QFile* fileLog) {
-	loggingActive = active;
-	if (active) {
-		outLog = new QTextStream(fileLog);
-		if (!originSet) {
-			setOrigin();
-			resetWindDisplacement();
-		}
-		*outLog << Dataset::csvHeading();
+//void DataCenter::invokeLogging(bool active, QFile* fileLog) {
+//	loggingActive = active;
+//	if (active) {
+//		outLog = new QTextStream(fileLog);
+//		if (!originSet) {
+//			setOrigin();
+//			resetWindDisplacement();
+//		}
+//		*outLog << Dataset::csvHeading();
+//
+//	} else {
+//		free(outLog);
+//	}
+//	std::cout << (loggingActive?"Started ":"Stopped ") << "logging; File: "
+//			<< fileLog->fileName().toStdString() << std::endl;
+//}
 
-	} else {
-		free(outLog);
-	}
-	std::cout << (loggingActive?"Started ":"Stopped ") << "logging; File: "
-			<< fileLog->fileName().toStdString() << std::endl;
-}
-
-void DataCenter::invokeLogging(bool active, QDir initialLogFileDir, QString fileName) {
+void DataCenter::invokeLogging(bool active, QDir _logFileDir, QString _fileName) {
 	if(active){
 		//start logging
-		QFileInfo fileInfo= QFileInfo(initialLogFileDir, fileName);
+		logFileDir = _logFileDir;
+		logFileName = _fileName;
+		QFileInfo logFileInfo = QFileInfo(_logFileDir, _fileName);
 		fileLog = new QFile();
-		fileLog->setFileName(fileInfo.absoluteFilePath());
+		fileLog->setFileName(logFileInfo.absoluteFilePath());
 		if (!fileLog->open(QIODevice::WriteOnly)) {
 			std::cout << "Cannot open file for writing: "
 					<< qPrintable(fileLog->errorString()) << std::endl;
@@ -451,6 +455,30 @@ void DataCenter::invokeLogging(bool active, QDir initialLogFileDir, QString file
 		emit sigLoggingStateChanged(false);
 	}
 }
+
+void DataCenter::outputPathTrackingStats(const json stats) {
+	emit sigSocketSendData("PATH_TRACKING_STATS", 0, stats);	//send data to the socket
+
+	if(loggingActive){
+		//try to open a file and dump the JSON in;
+		QString baseName = QFileInfo(logFileName).completeBaseName();
+		baseName = baseName+".JSON";
+		QFileInfo jsonFileInfo = QFileInfo(logFileDir, baseName);
+		QFile jsonFile;
+		jsonFile.setFileName(jsonFileInfo.absoluteFilePath());
+		if (!jsonFile.open(QIODevice::WriteOnly)) {
+			std::cout << "Cannot open file for writing: "
+					<< qPrintable(jsonFile.errorString()) << std::endl;
+			return;
+		}
+		QTextStream outJson(&jsonFile);
+		stats.dump(4);
+		jsonFile.write(stats.dump(4).c_str());
+		outJson.flush();
+		jsonFile.close();
+	}
+}
+
 
 void DataCenter::SendXPDataRef(const char* dataRefName, double value) {
 	if (xp) {

@@ -2401,9 +2401,9 @@ down</string>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>750</x>
+       <x>732</x>
        <y>200</y>
-       <width>258</width>
+       <width>281</width>
        <height>89</height>
       </rect>
      </property>
@@ -2445,7 +2445,7 @@ down</string>
         <item>
          <widget class="QLabel" name="label_15">
           <property name="text">
-           <string>[m] Approach Start Altitude</string>
+           <string>[ftmsl] Approach Start Altitude</string>
           </property>
          </widget>
         </item>
@@ -2468,14 +2468,14 @@ down</string>
            </size>
           </property>
           <property name="text">
-           <string>50</string>
+           <string/>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_16">
           <property name="text">
-           <string>[m AGL] Life Saver Height</string>
+           <string>[ftagl] Life Saver Height</string>
           </property>
          </widget>
         </item>

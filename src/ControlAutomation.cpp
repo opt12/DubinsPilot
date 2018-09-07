@@ -36,7 +36,7 @@ void ControlAutomation::setApproachStartingAltitudeChanged(QString approachStart
 		return;
 	}
 
-	approachStartAltitude = approachStartingAltitude.toDouble();
+	approachStartAltitude = ft_to_m(approachStartingAltitude.toDouble());
 	if (debug) {
 		std::cout << "Approach Starter enabled at "<< approachStartAltitude <<"[m  a.s.l.]\n";
 	}
@@ -57,7 +57,7 @@ void ControlAutomation::setLifeSaverHeightChanged(QString _lifeSaverHeight) {
 		return;
 	}
 
-	lifeSaverHeight = _lifeSaverHeight.toDouble();
+	lifeSaverHeight = ft_to_m(_lifeSaverHeight.toDouble());
 	if (debug) {
 		std::cout << "Life Saver enabled at "<< lifeSaverHeight <<"[m AGL]\n";
 	}

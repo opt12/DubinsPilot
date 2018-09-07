@@ -12,7 +12,7 @@
 #include <QTimer>
 
 #include <vector>
-
+#include <string>
 #include <iostream>
 #include "json.hpp"
 // for convenience
@@ -45,9 +45,11 @@ signals:
 
 	void sigDisplayFlightPhase(QString flightPhase, QString toGo);
 	void sigPathTrackingStatus(bool isTracking);
+	void sigOutputPathTrackingStats(const json statistics);
+	void sigSocketSendData(std::string msgType, int requestId, json data);
 
 private:
-
+	bool debug = false;
 	static DataCenter *dc;
 	void clearOutSchedule(void);
 	void clearOutStats(void);
@@ -65,6 +67,12 @@ private:
 	//statistics
 	class PathFollowStats {
 	public:
+		json asJson(void);
+		void setName(std::string s){
+			segmentName = s;
+		}
+	public:
+		std::string segmentName="";
 		double cartesianPathLengthEarthFrame = 0.0, cartesianPathLengthWindFrame =0.0;
 		double flightTime = 0.0;
 		double heightLoss = 0.0;
@@ -76,8 +84,7 @@ private:
 		double headingError;
 	};
 	std::vector<PathFollowStats*> pathFollowStats;
-
-	std::vector<SegmentStatistics> segmentStats;
+	json statistics;
 
 };
 

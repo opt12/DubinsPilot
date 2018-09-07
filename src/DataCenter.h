@@ -145,8 +145,10 @@ public slots:
 		isPaused = _isPaused;
 	}
 	void resetWindDisplacement(void);
-	void invokeLogging(bool active, QFile* fileLog);
+//	void invokeLogging(bool active, QFile* fileLog);
 	void invokeLogging(bool active, QDir initialLogFileDir, QString fileName);
+	void outputPathTrackingStats(const json stats);
+
 
 	void setElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
 	void setElfLocation(Position_WGS84 elfPosition, double elfHeading, pathTypeEnum pathType);
@@ -237,6 +239,8 @@ private:
 	bool isPaused = false;
 
 	bool loggingActive = false;
+	QDir logFileDir = QDir();
+	QString logFileName = "";
 	QFile* fileLog = NULL;
 	QTextStream *outLog = NULL;
 

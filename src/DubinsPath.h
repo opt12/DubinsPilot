@@ -71,12 +71,20 @@ public:
 				+ finalApproachLengthExt;
 	}
 
-	double getCircleLength(void) const {
-		return circleLength[0] + circleLength[1];
+	double getCircleLength(const int i) const {
+		return circleLength[i];
 	}
 
-	double getStraightLength(void) const {
-		return inBetweenLength + finalApproachLengthExt;
+	double getStraightLength(const int i) const {
+		switch (i) {
+			case 0:
+				return inBetweenLength;
+				break;
+			case 1:
+				return finalApproachLengthExt;
+				break;
+		}
+		return -666;
 	}
 
 	double getHeightLossTotal(void) const{
@@ -112,7 +120,12 @@ public:
 	}
 
 
-	json asJson();
+	json asJson() const;
+	json blownAsJson(Position_Cartesian dispCircleInExit,
+			Position_Cartesian dispTangentialEnd,
+			Position_Cartesian dispCircleOutExit,
+			Position_Cartesian dispFinalEnd) const;
+
 
 	pathTypeEnum getPathType() const {
 		return pathType;
@@ -226,7 +239,7 @@ private:
 
 	json trochoidAsJson(Position circleCenter, double circleRadius,
 			double entryAngleDeg, double exitAngleDeg,
-			Position_Cartesian displacement = Position_Cartesian());
+			Position_Cartesian displacement = Position_Cartesian()) const;
 };
 
 #endif /* DUBINSPATH_H_ */

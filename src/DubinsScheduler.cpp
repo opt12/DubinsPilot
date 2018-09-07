@@ -60,23 +60,27 @@ void DubinsScheduler::flyThePath(void) {
 			case 0:	//Circle In
 				std::cout << "Finished Phase: Circle In:\n";
 				j["flightPhase"] = "Circle In";
+				pathFollowStats[currentPhase]->setName("Circle In");
 				target = &(db->getCircleExit())[0];
 				targetHeading = db->getCircleExitHeading(0);
 				break;
 			case 1:	//straight Segment Tangential
 				j["flightPhase"] = "Straight Tangential";
+				pathFollowStats[currentPhase]->setName("Straight Tangential");
 				std::cout << "Finished Phase: straight Segment Tangential:\n";
 				target = &(db->getCircleEntry())[1];
 				targetHeading = db->getCircleExitHeading(0);
 				break;
 			case 2:	//Circle Out
 				j["flightPhase"] = "Circle Out";
+				pathFollowStats[currentPhase]->setName("Circle Out");
 				std::cout << "Finished Phase: Circle Out:\n";
 				target = &(db->getCircleExit())[1];
 				targetHeading = db->getCircleExitHeading(1);
 				break;
 			case 3:	//straight Segment FinalApproach // EndPosition
 				j["flightPhase"] = "Straight Final Approach";
+				pathFollowStats[currentPhase]->setName("Final Approach");
 				std::cout
 						<< "Finished Phase: straight Segment FinalApproach:\n";
 				target = &db->getEndPoint();
@@ -84,6 +88,7 @@ void DubinsScheduler::flyThePath(void) {
 				break;
 			default: //runOutPhase
 				j["flightPhase"] = "Run Out";
+				pathFollowStats[currentPhase]->setName("Run Out");
 				std::cout << "Finished Phase: runOutPhase:\n";
 				target = &db->getEndPoint();
 				targetHeading = db->getCircleExitHeading(1);
@@ -132,12 +137,14 @@ void DubinsScheduler::flyThePath(void) {
 					pathFollowStats[currentPhase]->errorWindFrame.asJson();
 			j["headingError"] = pathFollowStats[currentPhase]->headingError;
 
-			std::cout << "\tFinished Phase " << j["flightPhase"]
-					<< " with stats:\n" << j.dump(4) << "\n";
+			if( debug ){
+				std::cout << "\tFinished Phase " << j["flightPhase"]
+						<< " with stats:\n" << j.dump(4) << "\n";
+				std::cout << "\tEntering Flight Phase " << currentPhase
+						<< " now.\n\n";
+			}
 
 			currentPhase++;
-			std::cout << "\tEntering Flight Phase " << currentPhase
-					<< " now.\n\n";
 		}
 	} else {
 		std::cout
@@ -146,6 +153,13 @@ void DubinsScheduler::flyThePath(void) {
 		emit sigPathTrackingStatus(false);
 		flyPathTimer->stop();
 		statsSummaryAsJson();
+		std::cout <<"Statistics:\n"<< statistics.dump(4) <<std::endl;
+		emit sigOutputPathTrackingStats(statistics);
+		emit sigSocketSendData(std::string("DUBINS_PATH_BLOWN"), 0,
+				db->blownAsJson(pathFollowStats[0]->totalWindDisplacement,
+						pathFollowStats[1]->totalWindDisplacement,
+						pathFollowStats[2]->totalWindDisplacement,
+						pathFollowStats[3]->totalWindDisplacement));
 	}
 }
 
@@ -177,6 +191,7 @@ void DubinsScheduler::clearOutStats(void) {
 		free(st);
 	}
 	pathFollowStats.clear();
+	statistics = json({});
 }
 
 json DubinsScheduler::statsSummaryAsJson(void) {
@@ -193,7 +208,11 @@ json DubinsScheduler::statsSummaryAsJson(void) {
 	double glideAngleEarthFrameStraight = 0.0, glideAngleEarthFrameCircle = 0.0;
 	double glideAngleWindFrameStraight = 0.0, glideAngleWindFrameCircle = 0.0;
 
+	statistics["segStats"] = json::array();
 	for (auto st : pathFollowStats) {
+		if(st->segType!= +segmentTypeEnum::INVALID){	//no need to include run out phase
+			statistics["segStats"].push_back(st->asJson());
+		}
 		cartesianPathLengthEarthFrame += st->cartesianPathLengthEarthFrame;
 		cartesianPathLengthWindFrame += st->cartesianPathLengthWindFrame;
 		if ((+segmentTypeEnum::L == st->segType)
@@ -227,50 +246,71 @@ json DubinsScheduler::statsSummaryAsJson(void) {
 			atan(heightLossCircle / cartesianPathLengthWindFrameCircle));
 
 	json j;
-	j["cartesianPathLengthWindFrame"] = cartesianPathLengthWindFrame;
-	j["cartesianPathLengthWindFrameCircle"] =
-			cartesianPathLengthWindFrameCircle;
-	j["cartesianPathLengthWindFrameStraight"] =
-			cartesianPathLengthWindFrameStraight;
-	j["glideAngleWindFrameStraight"] = glideAngleWindFrameStraight;
-	j["glideAngleWindFrameCircle"] = glideAngleWindFrameCircle;
-	j["cartesianPathLengthEarthFrame"] = cartesianPathLengthEarthFrame;
-	j["cartesianPathLengthEarthFrameCircle"] =
-			cartesianPathLengthEarthFrameCircle;
-	j["cartesianPathLengthEarthFrameStraight"] =
-			cartesianPathLengthEarthFrameStraight;
-	j["glideAngleEarthFrameStraight"] = glideAngleEarthFrameStraight;
-	j["glideAngleEarthFrameCircle"] = glideAngleEarthFrameCircle;
+	j["airFrame"]["pathLength"] = cartesianPathLengthWindFrame;
+	j["airFrame"]["pathLengthDetails"]["pathLengthCircleIn"] = pathFollowStats[0]->cartesianPathLengthWindFrame;
+	j["airFrame"]["pathLengthDetails"]["pathLengthStraightTangential"] = pathFollowStats[1]->cartesianPathLengthWindFrame;
+	j["airFrame"]["pathLengthDetails"]["pathLengthCircleOut"] = pathFollowStats[2]->cartesianPathLengthWindFrame;
+	j["airFrame"]["pathLengthDetails"]["pathLengthStraightFinal"] = pathFollowStats[3]->cartesianPathLengthWindFrame;
+	j["earthFrame"]["pathLength"] = cartesianPathLengthEarthFrame;
+	j["earthFrame"]["pathLengthDetails"]["pathLengthCircleIn"] = pathFollowStats[0]->cartesianPathLengthEarthFrame;
+	j["earthFrame"]["pathLengthDetails"]["pathLengthStraightTangential"] = pathFollowStats[1]->cartesianPathLengthEarthFrame;
+	j["earthFrame"]["pathLengthDetails"]["pathLengthCircleOut"] = pathFollowStats[2]->cartesianPathLengthEarthFrame;
+	j["earthFrame"]["pathLengthDetails"]["pathLengthStraightFinal"] = pathFollowStats[3]->cartesianPathLengthEarthFrame;
+
+	j["totalAngle"] = totalAngleFlown;
+	j["angleDetails"]["angleCircleIn"] = pathFollowStats[0]->totalAngleFlown;
+	j["angleDetails"]["angleCircleOut"] = pathFollowStats[2]->totalAngleFlown;
+
+
+	j["airFrame"]["glideAngle"]["glideAngleStraight"] = glideAngleWindFrameStraight;
+	j["airFrame"]["glideAngle"]["glideAngleCircle"] = glideAngleWindFrameCircle;
+	j["earthFrame"]["glideAngle"]["glideAngleStraight"] = glideAngleEarthFrameStraight;
+	j["earthFrame"]["glideAngle"]["glideAngleCircle"] = glideAngleEarthFrameCircle;
+
 	j["heightLoss"] = heightLoss;
-	j["heightLossCircle"] = heightLossCircle;
-	j["heightLossStraight"] = heightLossStraight;
+	j["heightLossDetails"]["timeCircleIn"] = pathFollowStats[0]->heightLoss;
+	j["heightLossDetails"]["timeStraightTangential"] = pathFollowStats[1]->heightLoss;
+	j["heightLossDetails"]["timeCircleOut"] = pathFollowStats[2]->heightLoss;
+	j["heightLossDetails"]["timeStraightFinal"] = pathFollowStats[3]->heightLoss;
+
 	j["flightTime"] = flightTime;
-	j["totalAngleFlown"] = totalAngleFlown;
-	j["windDisplacementLength"] = totalWindDisplacement.length();
-	j["windDisplacementHeading"] = totalWindDisplacement.heading();
+	j["flightTimeDetails"]["timeCircleIn"] = pathFollowStats[0]->flightTime;
+	j["flightTimeDetails"]["timeStraightTangential"] = pathFollowStats[1]->flightTime;
+	j["flightTimeDetails"]["timeCircleOut"] = pathFollowStats[2]->flightTime;
+	j["flightTimeDetails"]["timeStraightFinal"] = pathFollowStats[3]->flightTime;
+
+	j["earthFrame"]["windDisplacement"]["Length"] = totalWindDisplacement.length();
+	j["earthFrame"]["windDisplacement"]["Heading"] = totalWindDisplacement.heading();
+
+	j["earthFrame"]["deviation"] = pathFollowStats[3]->errorEarthFrame.asJson();
+	j["earthFrame"]["deviation"]["heading"] = pathFollowStats[3]->headingError;
+	j["airFrame"]["deviation"] = pathFollowStats[3]->errorWindFrame.asJson();
+	j["airFrame"]["deviation"]["heading"] = pathFollowStats[3]->headingError;
 
 	std::cout << "PathTracking Statistical Summary:\n";
-	std::cout << j.dump(4) << std::endl;
+//	std::cout << j.dump(4) << std::endl;
+	statistics["flownPath"]=j;
 	return j;
 }
 
 json DubinsScheduler::dubinsPathCharacteristicsAsJson(void) {
 	json j;
 
-	j["pathLength"] = db->getPathLength();
-	j["pathLengthStraight"] = db->getStraightLength();
-	j["pathLengthCircle"] = db->getCircleLength();
+	j["pathLengthAirFrame"] = db->getPathLength();
+	j["pathLengthAirFrameDetails"]["pathLengthStraightTangential"] = db->getStraightLength(0);
+	j["pathLengthAirFrameDetails"]["pathLengthStraightFinal"] = db->getStraightLength(1);
+	j["pathLengthAirFrameDetails"]["pathLengthCircleIn"] = db->getCircleLength(0);
+	j["pathLengthAirFrameDetails"]["pathLengthCircleOut"] = db->getCircleLength(1);
 	j["heightLoss"] = db->getHeightLossTotal();
-	j["heightLossTangential"] = db->getHeightLossStraight(0);
-	j["heightLossFinal"] = db->getHeightLossStraight(1);
-	j["heightLossCircleIn"] = db->getHeightLossCircle(0);
-	j["heightLossCircleOut"] = db->getHeightLossCircle(1);
+	j["heightLossDetails"]["heightLossTangential"] = db->getHeightLossStraight(0);
+	j["heightLossDetails"]["heightLossFinal"] = db->getHeightLossStraight(1);
+	j["heightLossDetails"]["heightLossCircleIn"] = db->getHeightLossCircle(0);
+	j["heightLossDetails"]["heightLossCircleOut"] = db->getHeightLossCircle(1);
 	j["angleTotal"] = db->getAngleTotal();
-	j["angleCircleIn"] = db->getCircleAngle(0);
-	j["angleCircleOut"] = db->getCircleAngle(1);
-	j["glideAngleCircle"] = to_degrees(atan(1/db->getCircleGlideRatio()));
-	j["glideAngleStraigth"] = to_degrees(atan(1/db->getStraightGlideRatio()));
-
+	j["angleDetails"]["angleCircleIn"] = db->getCircleAngle(0);
+	j["angleDetails"]["angleCircleOut"] = db->getCircleAngle(1);
+	j["glideAngleAirFrame"]["glideAngleCircle"] = to_degrees(atan(1/db->getCircleGlideRatio()));
+	j["glideAngleAirFrame"]["glideAngleStraigth"] = to_degrees(atan(1/db->getStraightGlideRatio()));
 	return j;
 }
 
@@ -318,6 +358,7 @@ void DubinsScheduler::initialize(const DubinsPath* _db) {
 
 //	std::cout << dubinsPathCartesiansAsJson().dump(4) << std::endl;
 	std::cout << "Start Path tracking for:\n";
+	statistics["plannedPath"]=dubinsPathCharacteristicsAsJson();
 	std::cout << dubinsPathCharacteristicsAsJson().dump(4) << std::endl;
 
 	currentPhase = 0;
@@ -357,11 +398,15 @@ void DubinsScheduler::initialize(const DubinsPath* _db) {
 		flightPhases[0]->setSegmentType(segmentTypeEnum::L);
 		flightPhases[1]->setSegmentType(segmentTypeEnum::S);
 		flightPhases[2]->setSegmentType(segmentTypeEnum::L);
+		flightPhases[3]->setSegmentType(segmentTypeEnum::FINAL);
+		flightPhases[4]->setSegmentType(segmentTypeEnum::INVALID);
 		break;
 	case pathTypeEnum::RSR:
 		flightPhases[0]->setSegmentType(segmentTypeEnum::R);
 		flightPhases[1]->setSegmentType(segmentTypeEnum::S);
 		flightPhases[2]->setSegmentType(segmentTypeEnum::R);
+		flightPhases[3]->setSegmentType(segmentTypeEnum::FINAL);
+		flightPhases[4]->setSegmentType(segmentTypeEnum::INVALID);
 		break;
 	}
 
@@ -384,3 +429,24 @@ void DubinsScheduler::initialize(const DubinsPath* _db) {
 				this, SIGNAL(sigDisplayFlightPhase(QString, QString)));
 	}
 }
+
+json DubinsScheduler::PathFollowStats::asJson(void){
+	json j;
+	j["segmentName"] = segmentName;
+	j["earthFrame"]["pathLength"] = cartesianPathLengthEarthFrame;
+	j["airFrame"]["pathLength"] = cartesianPathLengthWindFrame;
+	j["earthFrame"]["heightLoss"] = heightLoss;
+	j["airFrame"]["heightLoss"] = heightLoss;
+	j["windDisplacement"] = totalWindDisplacement.asJson();
+	j["angleFlown"] = totalAngleFlown;
+	j["earthFrame"]["glideAngle"] = glideAngleEarthFrame;
+	j["airFrame"]["glideAngle"] = glideAngleWindFrame;
+	j["flightTime"]=flightTime;
+	j["airFrame"]["deviation"] = errorWindFrame.asJson();
+	j["airFrame"]["deviation"]["heading"] = headingError;
+	j["earthFrame"]["deviation"] = errorEarthFrame.asJson();
+	j["earthFrame"]["deviation"]["heading"] = headingError;
+
+	return j;
+}
+

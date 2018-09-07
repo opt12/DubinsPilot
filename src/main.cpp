@@ -211,6 +211,15 @@ int main(int argc, char *argv[]) {
 	QObject::connect(&dubSched, SIGNAL(sigPathTrackingStatus(bool)),
 				pidParams, SLOT(displayPathTrackingStatus(bool)));
 
+	//connections from DubinsScheduler --> DataCenter
+	QObject::connect(&dubSched, SIGNAL(sigOutputPathTrackingStats(const json)),
+				dc, SLOT(outputPathTrackingStats(const json)));
+
+	//connections from DubinsScheduler --> SockServer
+	QObject::connect(&dubSched, SIGNAL(sigSocketSendData(std::string, int, json)),
+			sock, SLOT(socketSendData(std::string, int, json)));
+
+
 	//connections from PIDParametersDialog --> ControlAutomation
 	QObject::connect(pidParams, SIGNAL(sigLifeSaverHeightChanged(QString)),
 			&ctrlAuto, SLOT(setLifeSaverHeightChanged(QString)));
