@@ -47,7 +47,7 @@ public:
 
 protected:
 	static DataCenter *dc;
-	boolean debug = false;
+	bool debug = false;
 	Position_Cartesian initialDisplacement;
 
 //	Position startPosition;
