@@ -155,11 +155,15 @@ void DubinsScheduler::flyThePath(void) {
 		statsSummaryAsJson();
 		std::cout <<"Statistics:\n"<< statistics.dump(4) <<std::endl;
 		emit sigOutputPathTrackingStats(statistics);
-		emit sigSocketSendData(std::string("DUBINS_PATH_BLOWN"), 0,
-				db->blownAsJson(pathFollowStats[0]->totalWindDisplacement,
-						pathFollowStats[1]->totalWindDisplacement,
-						pathFollowStats[2]->totalWindDisplacement,
-						pathFollowStats[3]->totalWindDisplacement));
+		if(statistics["flownPath"]["earthFrame"]["windDisplacement"]["Length"]>EPS){
+			emit sigSocketSendData(std::string("DUBINS_PATH_BLOWN"), 0,
+					db->blownAsJson(pathFollowStats[0]->totalWindDisplacement,
+							pathFollowStats[1]->totalWindDisplacement,
+							pathFollowStats[2]->totalWindDisplacement,
+							pathFollowStats[3]->totalWindDisplacement));
+		}
+		//TODO: comment this out if you don't want the world to stop after reaching the target
+		emit sigPauseSimTriggered(true);
 	}
 }
 

@@ -210,6 +210,10 @@ int main(int argc, char *argv[]) {
 				pidParams, SLOT(displayFlightPhase(QString, QString)));
 	QObject::connect(&dubSched, SIGNAL(sigPathTrackingStatus(bool)),
 				pidParams, SLOT(displayPathTrackingStatus(bool)));
+	QObject::connect(&dubSched, SIGNAL(sigPathTrackingStatus(bool)),
+				pidParams, SLOT(displayPathTrackingStatus(bool)));
+	QObject::connect(&dubSched, SIGNAL(sigPauseSimTriggered(bool)),
+			pidParams, SLOT(clickPause(bool)));
 
 	//connections from DubinsScheduler --> DataCenter
 	QObject::connect(&dubSched, SIGNAL(sigOutputPathTrackingStats(const json)),

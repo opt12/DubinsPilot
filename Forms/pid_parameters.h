@@ -66,6 +66,7 @@ public slots:
 
 	void clickSetHeight(void);	//to enable the "Life Saver" when Altitude AGL is too low
 	void clickTakeMeDown(void); //to start path tracking at a defined altitude
+	void clickPause(bool isPaused);
 
 	void setLoggingState(bool _loggingActive);
 

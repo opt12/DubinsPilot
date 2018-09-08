@@ -48,6 +48,8 @@ signals:
 	void sigOutputPathTrackingStats(const json statistics);
 	void sigSocketSendData(std::string msgType, int requestId, json data);
 
+	void sigPauseSimTriggered(bool isPaused);
+
 private:
 	bool debug = false;
 	static DataCenter *dc;

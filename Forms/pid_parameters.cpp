@@ -1181,7 +1181,12 @@ void PIDParametersDialog::clickTakeMeDown(void){ //to start path tracking at a d
 	if(!loggingActive){
 		toggleLogButton->click();	//start logging, if not already active
 	}
-	pushButtonFlyPath->click();
+//TODO das muss wieder raus, wenn wirklich geflogen werden soll. aktuell nur logging
+		pushButtonFlyPath->click();
+}
+
+void PIDParametersDialog::clickPause(bool isPaused){ //to pause the simulator on certain events
+	checkBoxPause->setChecked(isPaused);
 }
 
 

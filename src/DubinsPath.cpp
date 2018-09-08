@@ -422,6 +422,7 @@ void DubinsPath::calculateDubinsPath(const Position start,
 		}
 		circleExitAngle[0] = circleExitAngle[0] + dirSign*360;
 		circleRotation[0] = circleRotation[0] + dirSign*360;
+		circleTotalRot = circleTotalRot + dirSign*360;
 		circleExit[0].setAltitude(circleExit[0].getAltitude()- fullCircleHeight);
 		circleCenter[0].setAltitude(circleCenter[0].getAltitude()- fullCircleHeight/2);
 		circleEntry[1].setAltitude(circleEntry[1].getAltitude()- fullCircleHeight);
