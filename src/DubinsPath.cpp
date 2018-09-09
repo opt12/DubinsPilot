@@ -55,6 +55,7 @@ std::string DubinsPath::getPathAsMatlabCommand(void) {
 	return matlabCommand.str();
 }
 
+//static function, so don't use member variables
 double DubinsPath::calculateMinimumHeightLoss(const Position start,
 		const Position end, const double startHeading, const double endHeading,
 		const double _circleRadius, const double _circleGlideRatio,
@@ -64,8 +65,9 @@ double DubinsPath::calculateMinimumHeightLoss(const Position start,
 
 	// get the cartesian coordinates of the start, and endpoints
 	// firstly, the endpoint is used as the origin
-	Position_Cartesian startCart = end.getCartesianDifference(start), endCart =
-			Position_Cartesian(0, 0, end.getPosition_WGS84().altitude);
+	//static function, so don't use member variables
+	Position_Cartesian startCart = end.getCartesianDifference(start);
+	Position_Cartesian endCart = Position_Cartesian(0, 0, end.getPosition_WGS84().altitude);
 
 	// rotate the system to have the endHeading in 270° direction (-X-axis)
 	double rotation = fmod(270.0 - endHeading, 360);
@@ -73,11 +75,12 @@ double DubinsPath::calculateMinimumHeightLoss(const Position start,
 	// all variables with suffix _t are transformed with this rotation
 	double startHead_t = fmod(startHeading + rotation, 360), endHead_t = fmod(
 			endHeading + rotation, 360);
-	Position_Cartesian start_t, end_t;
-	rotatePoint(startCart.x, startCart.y, rotation, start_t.x, start_t.y);
-	start_t.z = startCart.z;
-	rotatePoint(endCart.x, endCart.y, rotation, end_t.x, end_t.y);
-	end_t.z = endCart.z;
+	//static function, so don't use member variables
+	Position_Cartesian startTransformed, endTransformed;
+	rotatePoint(startCart.x, startCart.y, rotation, startTransformed.x, startTransformed.y);
+	startTransformed.z = startCart.z;
+	rotatePoint(endCart.x, endCart.y, rotation, endTransformed.x, endTransformed.y);
+	endTransformed.z = endCart.z;
 
 	//start with the calculation of the shortest dubins path:
 	Position_Cartesian circleCenter_t[2];
@@ -91,14 +94,14 @@ double DubinsPath::calculateMinimumHeightLoss(const Position start,
 	int dirSign = (_pathType == +pathTypeEnum::LSL) ? -1 : 1; // this is used to use the correct direction of turns for LSL and RSR
 
 	// der erste Kreismittelpunkt kann direkt berechnet werden
-	circleCenter_t[0].x = start_t.x
+	circleCenter_t[0].x = startTransformed.x
 			- _circleRadius * sin(to_radians(-dirSign * 90 - startHead_t));
-	circleCenter_t[0].y = start_t.y
+	circleCenter_t[0].y = startTransformed.y
 			+ _circleRadius * cos(to_radians(-dirSign * 90 - startHead_t));
 	// der Mittelpunkt des zweiten Kreises kann auch direkt berechnet werden
 	// der zweite Kreis hat seinen Mittelpunkt einen Radius unterhalb und rechts des Zielpunkts
-	circleCenter_t[1].y = end_t.y + _circleRadius * (dirSign);// cos(to_radians(90 - endHead_t)) == 1, da endHead_t == 270;
-	circleCenter_t[1].x = end_t.x - _circleRadius * (0.0); //sin(to_radians(90 - endHead_t)) == 0, da endHead_t == 270;
+	circleCenter_t[1].y = endTransformed.y + _circleRadius * (dirSign);// cos(to_radians(90 - endHead_t)) == 1, da endHead_t == 270;
+	circleCenter_t[1].x = endTransformed.x - _circleRadius * (0.0); //sin(to_radians(90 - endHead_t)) == 0, da endHead_t == 270;
 
 	// der Abstand in y-Richtung
 	deltaY = circleCenter_t[1].y - circleCenter_t[0].y;
@@ -156,13 +159,23 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	double rotation = fmod(270.0 - endHeading, 360);
 
 	// all variables with suffix _t are transformed with this rotation
-	double startHead_t = fmod(startHeading + rotation, 360), endHead_t = fmod(
-			endHeading + rotation, 360);
-	Position_Cartesian start_t, end_t;
-	rotatePoint(startCart.x, startCart.y, rotation, start_t.x, start_t.y);
-	start_t.z = startCart.z;
-	rotatePoint(endCart.x, endCart.y, rotation, end_t.x, end_t.y);
-	end_t.z = endCart.z;
+	double startHeadTransformed = fmod(startHeading + rotation, 360);
+	double endHeadTransformed = fmod(endHeading + rotation, 360);	//this should always be -90°
+
+	Position_Cartesian startTransformed, endTransformed;
+	rotatePoint(startCart.x, startCart.y, rotation, startTransformed.x, startTransformed.y);
+	startTransformed.z = startCart.z;
+	rotatePoint(endCart.x, endCart.y, rotation, endTransformed.x, endTransformed.y);
+	endTransformed.z = endCart.z;
+
+	if(!specStashed){
+		//first recursive call, so let's stash away the cache
+		specStashed = true;
+		startSpec = startTransformed;
+		startHeadingSpec=startHeading;
+		endHeadingSpec=endHeading;
+	}
+
 
 	//start with the calculation of the shortest dubins path:
 	double deltaX, deltaY;// cartesian distance between the two circle centers
@@ -175,14 +188,14 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	int dirSign = (_pathType == +pathTypeEnum::LSL) ? -1 : 1;// this is used to use the correct direction of turns for LSL and RSR
 
 	// der erste Kreismittelpunkt kann direkt berechnet werden
-	circleCenter_t[0].x = start_t.x
-	- _circleRadius * sin(to_radians(-dirSign * 90 - startHead_t));
-	circleCenter_t[0].y = start_t.y
-	+ _circleRadius * cos(to_radians(-dirSign * 90 - startHead_t));
+	circleCenter_t[0].x = startTransformed.x
+	- _circleRadius * sin(to_radians(-dirSign * 90 - startHeadTransformed));
+	circleCenter_t[0].y = startTransformed.y
+	+ _circleRadius * cos(to_radians(-dirSign * 90 - startHeadTransformed));
 	// der Mittelpunkt des zweiten Kreises kann auch direkt berechnet werden
 	// der zweite Kreis hat seinen Mittelpunkt einen Radius unterhalb und rechts des Zielpunkts
-	circleCenter_t[1].y = end_t.y + _circleRadius * (dirSign);// cos(to_radians(90 - endHead_t)) == 1, da endHead_t == 270;
-	circleCenter_t[1].x = end_t.x - _circleRadius * (0.0);//sin(to_radians(90 - endHead_t)) == 0, da endHead_t == 270;
+	circleCenter_t[1].y = endTransformed.y + _circleRadius * (dirSign);// cos(to_radians(90 - endHeadTransformed)) == 1, da endHeadTransformed == 270;
+	circleCenter_t[1].x = endTransformed.x - _circleRadius * (0.0);//sin(to_radians(90 - endHeadTransformed)) == 0, da endHead_t == 270;
 
 	// der Abstand in y-Richtung
 	deltaY = circleCenter_t[1].y - circleCenter_t[0].y;
@@ -192,16 +205,16 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	headingStraight_t = fmod(to_degrees(atan2(deltaX, deltaY)),
 			dirSign * 360.0);
 	// die Rotationen in den einzelnen Kreisen
-	rotCircle[0] = fmod(headingStraight_t - startHead_t + dirSign * 2 * 360,
+	rotCircle[0] = fmod(headingStraight_t - startHeadTransformed + dirSign * 2 * 360,
 			dirSign * 360.0);
-	rotCircle[1] = fmod(endHead_t - headingStraight_t + dirSign * 2 * 360,
+	rotCircle[1] = fmod(endHeadTransformed - headingStraight_t + dirSign * 2 * 360,
 			dirSign * 360.0);
 	circleRotation[0] = rotCircle[0];
 	circleRotation[1] = rotCircle[1];
 	double rotTotal = rotCircle[0] + rotCircle[1];	//for caching
 	circleTotalRot = circleRotation[0] + circleRotation[1];
 
-	circleEntry_t[0] = start_t;
+	circleEntry_t[0] = startTransformed;
 	circleExit_t[0].x = circleCenter_t[0].x
 			- dirSign * circleRadius * cos(to_radians(-headingStraight_t));
 	circleExit_t[0].y = circleCenter_t[0].y
@@ -210,7 +223,7 @@ void DubinsPath::calculateDubinsPath(const Position start,
 			- dirSign * circleRadius * cos(to_radians(-headingStraight_t));
 	circleEntry_t[1].y = circleCenter_t[1].y
 			- dirSign *  circleRadius * sin(to_radians(-headingStraight_t));
-	circleExit_t[1] = end_t;
+	circleExit_t[1] = endTransformed;
 	circleEntryAngle[0] = startHeading + (-dirSign *90);
 	circleExitAngle[0] = startHeading + circleRotation[0] + (-dirSign *90);
 	circleEntryAngle[1] = endHeading - circleRotation[1] + (-dirSign *90);
@@ -533,4 +546,51 @@ json DubinsPath::trochoidAsJson(Position circleCenter, double circleRadius,
 	j["trochoBorder"] = latlongArray;
 	return j;
 }
+
+json DubinsPath::dubinsPathCharacteristicsAsJson(void) const {
+	json j;
+
+	j["pathLengthAirFrame"] = getPathLength();
+	j["pathLengthAirFrameDetails"]["pathLengthStraightTangential"] = getStraightLength(0);
+	j["pathLengthAirFrameDetails"]["pathLengthStraightFinal"] = getStraightLength(1);
+	j["pathLengthAirFrameDetails"]["pathLengthCircleIn"] = getCircleLength(0);
+	j["pathLengthAirFrameDetails"]["pathLengthCircleOut"] = getCircleLength(1);
+	j["heightLoss"] = getHeightLossTotal();
+	j["heightLossDetails"]["heightLossTangential"] = getHeightLossStraight(0);
+	j["heightLossDetails"]["heightLossFinal"] = getHeightLossStraight(1);
+	j["heightLossDetails"]["heightLossCircleIn"] = getHeightLossCircle(0);
+	j["heightLossDetails"]["heightLossCircleOut"] = getHeightLossCircle(1);
+	j["angleTotal"] = getAngleTotal();
+	j["angleDetails"]["angleCircleIn"] = getCircleAngle(0);
+	j["angleDetails"]["angleCircleOut"] = getCircleAngle(1);
+	j["glideAngleAirFrame"]["glideAngleCircle"] = to_degrees(atan(1/getCircleGlideRatio()));
+	j["glideAngleAirFrame"]["glideAngleStraigth"] = to_degrees(atan(1/getStraightGlideRatio()));
+	return j;
+}
+
+json DubinsPath::dubinsPathSpecificationAsJson(void) const{
+	json j;
+	double heightLoss= endPoint.getAltitude() - startPoint.getAltitude();
+	j["heightLoss"] = heightLoss;
+
+	//calculate the cartesian difference with respect to the airplane having a 0° heading
+	Position_Cartesian deltaCart=Position_Cartesian(-startSpec.y, startSpec.x, heightLoss);
+	Position_Cartesian specificationRelativeToAircraft;
+	rotatePoint(deltaCart.x, deltaCart.y, -getAngularDifference(startHeadingSpec, endHeadingSpec),
+			specificationRelativeToAircraft.x, specificationRelativeToAircraft.y);
+
+	j["forward"] = specificationRelativeToAircraft.x;
+	j["right"] = -specificationRelativeToAircraft.y;
+	j["rotation"] = getAngularDifference(startHeadingSpec, endHeadingSpec);
+	j["pathType"] = pathType._to_string();
+	j["WGS84"]["start"] = startPoint.getPosition_WGS84().asJson();
+	j["WGS84"]["start"]["heading"] = startHeadingSpec;
+	j["WGS84"]["end"] = endPoint.getPosition_WGS84().asJson();
+	j["WGS84"]["end"]["heading"] = endHeadingSpec;
+
+	return j;
+}
+
+
+
 

@@ -55,7 +55,7 @@ private:
 	static DataCenter *dc;
 	void clearOutSchedule(void);
 	void clearOutStats(void);
-	json dubinsPathCharacteristicsAsJson(void);
+//	json dubinsPathCharacteristicsAsJson(void);
 	json dubinsPathCartesiansAsJson(void);
 	json statsSummaryAsJson(void);
 

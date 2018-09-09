@@ -2468,7 +2468,7 @@ down</string>
            </size>
           </property>
           <property name="text">
-           <string/>
+           <string>50</string>
           </property>
          </widget>
         </item>
@@ -2482,6 +2482,19 @@ down</string>
        </layout>
       </item>
      </layout>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxStopTheWorld">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>160</y>
+       <width>221</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Stop the World afterwards</string>
+     </property>
     </widget>
     <zorder>layoutWidget</zorder>
     <zorder>layoutWidget</zorder>
@@ -2499,6 +2512,7 @@ down</string>
     <zorder>checkBoxPlaneHeading</zorder>
     <zorder>layoutWidget</zorder>
     <zorder>igniterOffButton</zorder>
+    <zorder>checkBoxStopTheWorld</zorder>
    </widget>
   </widget>
  </widget>

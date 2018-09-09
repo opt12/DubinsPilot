@@ -162,7 +162,7 @@ void DubinsScheduler::flyThePath(void) {
 							pathFollowStats[2]->totalWindDisplacement,
 							pathFollowStats[3]->totalWindDisplacement));
 		}
-		//TODO: comment this out if you don't want the world to stop after reaching the target
+		//this stops the world after reaching the target if selected in GUI
 		emit sigPauseSimTriggered(true);
 	}
 }
@@ -297,27 +297,6 @@ json DubinsScheduler::statsSummaryAsJson(void) {
 	return j;
 }
 
-json DubinsScheduler::dubinsPathCharacteristicsAsJson(void) {
-	json j;
-
-	j["pathLengthAirFrame"] = db->getPathLength();
-	j["pathLengthAirFrameDetails"]["pathLengthStraightTangential"] = db->getStraightLength(0);
-	j["pathLengthAirFrameDetails"]["pathLengthStraightFinal"] = db->getStraightLength(1);
-	j["pathLengthAirFrameDetails"]["pathLengthCircleIn"] = db->getCircleLength(0);
-	j["pathLengthAirFrameDetails"]["pathLengthCircleOut"] = db->getCircleLength(1);
-	j["heightLoss"] = db->getHeightLossTotal();
-	j["heightLossDetails"]["heightLossTangential"] = db->getHeightLossStraight(0);
-	j["heightLossDetails"]["heightLossFinal"] = db->getHeightLossStraight(1);
-	j["heightLossDetails"]["heightLossCircleIn"] = db->getHeightLossCircle(0);
-	j["heightLossDetails"]["heightLossCircleOut"] = db->getHeightLossCircle(1);
-	j["angleTotal"] = db->getAngleTotal();
-	j["angleDetails"]["angleCircleIn"] = db->getCircleAngle(0);
-	j["angleDetails"]["angleCircleOut"] = db->getCircleAngle(1);
-	j["glideAngleAirFrame"]["glideAngleCircle"] = to_degrees(atan(1/db->getCircleGlideRatio()));
-	j["glideAngleAirFrame"]["glideAngleStraigth"] = to_degrees(atan(1/db->getStraightGlideRatio()));
-	return j;
-}
-
 json DubinsScheduler::dubinsPathCartesiansAsJson(void) {
 	// This puts out the relevant Points of the Dubins path as JSON object
 	json j;
@@ -362,8 +341,12 @@ void DubinsScheduler::initialize(const DubinsPath* _db) {
 
 //	std::cout << dubinsPathCartesiansAsJson().dump(4) << std::endl;
 	std::cout << "Start Path tracking for:\n";
-	statistics["plannedPath"]=dubinsPathCharacteristicsAsJson();
-	std::cout << dubinsPathCharacteristicsAsJson().dump(4) << std::endl;
+	statistics["plannedPath"]=db->dubinsPathCharacteristicsAsJson();
+	std::cout << statistics["plannedPath"].dump(4) << std::endl;
+
+	statistics["pathSpecs"]=db->dubinsPathSpecificationAsJson();
+	std::cout << statistics["pathSpecs"].dump(4) << std::endl;
+
 
 	currentPhase = 0;
 

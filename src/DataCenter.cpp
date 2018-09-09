@@ -476,6 +476,8 @@ void DataCenter::outputPathTrackingStats(const json stats) {
 		jsonFile.write(stats.dump(4).c_str());
 		outJson.flush();
 		jsonFile.close();
+	} else {
+		std::cout<<"Logging not active\n";
 	}
 }
 

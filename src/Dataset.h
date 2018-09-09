@@ -54,13 +54,13 @@ public:
 		double yTransf = sin(-true_psi_rad)*right + cos(-true_psi_rad)*forward;
 		double hTransf = height;
 		elf = Position(_pos.getPosition_WGS84(), xTransf, yTransf, hTransf);
-		elfHeading = true_psi + rotation;
+		elfHeading = fmod(true_psi + rotation,360.0);
 		isElfSet = true;
 	}
 
 	void setElfPos(Position_WGS84 elfPosition, double _elfHeading){
 		elf = Position(elfPosition);
-		elfHeading = _elfHeading;
+		elfHeading = fmod(_elfHeading, 360.0);
 		isElfSet = true;
 	}
 
@@ -134,8 +134,8 @@ public:
 	double vpath = 0.0, alpha = 0.0, true_theta = 0.0; // deg
 	double true_phi = 0.0, true_psi = 0.0; // deg
 
-	double altitude_ft_pilot = 0.0; //ft
-	double y_agl = 0.0; //meter
+	double altitude_ft_pilot = 0; //ft	//the default value is chosen, so that the control automation does not trigger at startup
+	double y_agl = 66666.66; //meter	//the default value is chosen, so that the control automation does not trigger at startup
 
 	double wind_direction_degt=0.0, wind_speed_ms=0.0;
 	// the displacement due to wind is integrated with each wind_direction_degt update

@@ -67,7 +67,7 @@ AutoPilot::AutoPilot(QObject* parent) :
 			[this](void) {return dc->getTrue_phi();};
 
 	ctrl[ctrlType::HEADING_CONTROL].controller = new PIDControl(1.0, 0.0, 0.0,
-			0.1, -20.0, 20.0, MANUAL, REVERSE);
+			0.1, -60.0, 60.0, MANUAL, REVERSE);
 	ctrl[ctrlType::HEADING_CONTROL].publishOutput = [this](double output)
 	{
 //		ctrl[ctrlType::ROLL_CONTROL].controlActive = true;	//just to ensure this
@@ -218,13 +218,14 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 			emit sigRequestTargetValue(ctrlType::HEADING_CONTROL, newHeading);
 			//TODO I Anteil im Regler auf jeden Fall zurücksetzen.
 			ctrl[ctrlType::HEADING_CONTROL].controller->PIDResetInternals();
+			ctrl[ctrlType::RADIUS_CONTROL].controller->PIDResetInternals();
+
 			emit sigSetControllerCheckButtons(ctrlType::RADIUS_CONTROL,
 			ENABLED, UNCHECKED);
 			emit sigSetControllerCheckButtons(ctrlType::HEADING_CONTROL,
 			ENABLED, CHECKED);
 //
 //			invokeController(ctrlType::HEADING_CONTROL, false);		//we want to go straight out of the circle
-
 		}
 		if (_ct == +ctrlType::HEADING_CONTROL) {
 			//we want to go straight afterwards
@@ -319,14 +320,7 @@ void AutoPilot::timerExpired(void) {
 				dc->getPosition());
 		// during the circle flight we permanently oversteer to hold the plane in max. roll angle
 		double newHeading = circleAngle
-				+ (circleDirectionLeft ? -135 : +135);
-		// this roll angle is calculated with respect to the requested radius
-		double bankingLimit = getRollAngle(dc->getTrue_airspeed(),
-				ctrl[ctrlType::RADIUS_CONTROL].requestedTargetValue);
-//		ctrl[ctrlType::HEADING_CONTROL].controlActive = true;	//just ensure that
-		ctrl[ctrlType::HEADING_CONTROL].controller->PIDOutputLimitsSet(
-				-bankingLimit - circleRadiusCorrection,
-				bankingLimit + circleRadiusCorrection);
+				+ (circleDirectionLeft ? -90-45 : +90+45);
 		ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = fmod(newHeading,
 				360.0);
 		emit sigRequestTargetValue(ctrlType::HEADING_CONTROL, newHeading); //adapt the knob in the GUI
@@ -334,6 +328,15 @@ void AutoPilot::timerExpired(void) {
 		emit sigSocketSendData(std::string("CIRCLE_DATA"), 0,
 				getCircleDataAsJson());
 	}
+
+	// this roll angle is calculated with respect to the requested radius
+	// this is calculated always even if the circle flight is not active as it is also valid for Heading hold
+	double bankingLimit = getRollAngle(dc->getTrue_airspeed(),
+			ctrl[ctrlType::RADIUS_CONTROL].requestedTargetValue);
+	ctrl[ctrlType::HEADING_CONTROL].controller->PIDOutputLimitsSet(
+			-bankingLimit - circleRadiusCorrection,
+			bankingLimit + circleRadiusCorrection);
+
 
 	//calculate new control output for all controllers
 	for (ctrlType c : ctrlType::_values()) {

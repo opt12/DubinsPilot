@@ -172,17 +172,6 @@ int main(int argc, char *argv[]) {
 	QObject::connect(sock, SIGNAL(sigDispatchSockMessage(json)), &rqd,
 			SLOT(dispatchSockMessage(json)));
 
-//TODO Prüfe, ob das alles nicht einfach rauskann, weil ich es aktuell nicht benutze
-	//connections from RequestDispatcher --> DataCenter
-//	QObject::connect(&rqd, SIGNAL(requested_getPosition(int)), dc,
-//			SLOT(on_rqd_requested_getPosition(int)));
-//	QObject::connect(&rqd, SIGNAL(requested_getPositionXY(int)), dc,
-//			SLOT(on_rpd_requested_getPositionXY(int)));
-//	QObject::connect(&rqd, SIGNAL(requested_getOrigin(int)), dc,
-//			SLOT(on_rqd_requested_getOrigin(int)));
-//	QObject::connect(&rqd, SIGNAL(requested_getPlaneState(int)), dc,
-//			SLOT(on_rqd_requested_getPlaneState(int)));
-
 	//connections from DataCenter --> SockServer
 	QObject::connect(dc, SIGNAL(sigSocketSendData(std::string, int, json)),
 			sock, SLOT(socketSendData(std::string, int, json)));

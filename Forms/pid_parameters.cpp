@@ -1099,7 +1099,7 @@ void PIDParametersDialog::submitElfData(void) {
 	forward = lineEditForward->text().toDouble();
 	right = lineEditRight->text().toDouble();
 	height = lineEditHeight->text().toDouble();
-	rotation = lineEditRotation->text().toDouble();
+	rotation = fmod(lineEditRotation->text().toDouble(), 360.0);
 
 	if (radioButtonRelative->isChecked()
 			&& (elfInputFieldsDirty || !isElfSet
@@ -1186,7 +1186,9 @@ void PIDParametersDialog::clickTakeMeDown(void){ //to start path tracking at a d
 }
 
 void PIDParametersDialog::clickPause(bool isPaused){ //to pause the simulator on certain events
-	checkBoxPause->setChecked(isPaused);
+	if(checkBoxStopTheWorld->isChecked()){
+		checkBoxPause->setChecked(isPaused);
+	}
 }
 
 

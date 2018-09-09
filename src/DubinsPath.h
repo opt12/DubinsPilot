@@ -125,6 +125,9 @@ public:
 			Position_Cartesian dispTangentialEnd,
 			Position_Cartesian dispCircleOutExit,
 			Position_Cartesian dispFinalEnd) const;
+	json dubinsPathCharacteristicsAsJson(void) const;
+	json dubinsPathSpecificationAsJson(void) const;
+
 
 
 	pathTypeEnum getPathType() const {
@@ -227,6 +230,9 @@ private:
 	bool isValidDubinsPath = false;
 	double heightLoss = 0.0;
 	Position startPoint, endPoint;
+	bool specStashed = false;
+	Position_Cartesian startSpec;	//to have the specification data available
+	double startHeadingSpec=0.0, endHeadingSpec=0.0;	//to have the specification data available
 	Position circleCenter[2];
 	double circleEntryAngle[2], circleExitAngle[2];
 	double circleRotation[2], circleTotalRot=0.0;

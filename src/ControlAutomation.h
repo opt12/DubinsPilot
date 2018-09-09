@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include"utils.h"
 
 class DataCenter;
 
@@ -39,9 +40,9 @@ private:
 	bool debug = false;
 
 	double approachStartAltitude = 0.0;
-	double lifeSaverHeight= 0.0;
+	double lifeSaverHeight= ft_to_m(50.0);
 	bool approachStartArmed = false;
-	bool lifeSaverArmed = false;
+	bool lifeSaverArmed = true;
 	DataCenter* dc;
 	QTimer* automationTimer;
 };
