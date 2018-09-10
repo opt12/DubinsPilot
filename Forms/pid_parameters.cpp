@@ -5,6 +5,8 @@
  *      Author: eckstein
  */
 
+#define GENERATE_FLIGHT_TEST_VALUES
+
 #include <QtGui>
 
 #include "pid_parameters.h"
@@ -21,6 +23,9 @@
 #include <math.h>       /* tan */
 #include "Dataset.h"
 #include "utils.h"
+#ifdef GENERATE_FLIGHT_TEST_VALUES
+#include "enumDeclarations.h"
+#endif
 
 #include "DataCenter.h"
 
@@ -433,6 +438,12 @@ void PIDParametersDialog::showElfCoords(Position_WGS84 elf, double elfHeading, b
 			QString::number(elfHeading, 'g'));
 	pushButtonFlyPath->setEnabled(pathFeasible);
 	ledIndicatorPathFeasible->setChecked(pathFeasible);
+
+#ifdef GENERATE_FLIGHT_TEST_VALUES
+	int lifeSaver = ((elf.altitude-250)/0.3048);
+	lineEditAGLLifeSaver->setText(QString::number(
+			(lifeSaver <= 300)? 300: lifeSaver));
+#endif
 }
 
 void PIDParametersDialog::setDValue(void) {
@@ -1175,6 +1186,34 @@ void PIDParametersDialog::clickSetHeight(void){	//to enable the "Life Saver" whe
 		toggleLogButton->click();	//stop logging, if active
 	}
 	setHeightButton->click();
+
+#ifdef GENERATE_FLIGHT_TEST_VALUES
+
+	int forward, right, rotation, heightLoss;
+	pathTypeEnum type=pathTypeEnum::LSL;
+	forward = -3000 + (rand() % static_cast<int>(3000 + 3000 + 1));
+	right = -3000 + (rand() % static_cast<int>(3000 + 3000 + 1));
+	rotation = 0 + (rand() % static_cast<int>(360 - 0 + 1));
+	type = (rand() % static_cast<int>(2)) == 0?pathTypeEnum::LSL : pathTypeEnum::RSR;
+
+	heightLoss = (rand() % static_cast<int>(2)) == 0?
+			0 : -(700 + (rand() % static_cast<int>(1300 - 700 + 1)));
+
+	lineEditForward->setText(QString::number(forward));
+	lineEditRight->setText(QString::number(right));
+	lineEditHeight->setText(QString::number(heightLoss));
+	lineEditRotation->setText(QString::number(rotation));
+	if(type == +pathTypeEnum::LSL){
+		radioButtonLSL->setChecked(true);
+		radioButtonRSR->setChecked(false);
+	}else {
+		radioButtonLSL->setChecked(false);
+		radioButtonRSR->setChecked(true);
+	}
+	checkBoxCont->setChecked(true);
+	continuousDubinsCalc(true);
+#endif
+
 }
 
 void PIDParametersDialog::clickTakeMeDown(void){ //to start path tracking at a defined altitude
