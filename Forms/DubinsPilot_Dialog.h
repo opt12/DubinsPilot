@@ -11,7 +11,7 @@
 #include <QDialog>
 #include <QDir>
 
-#include "ui_pid_parameters.h"
+#include "ui_DubinsPilot_Dialog.h"
 #include <qwt_plot_curve.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_magnifier.h>
@@ -22,11 +22,11 @@
 class SpeedPlotData;
 
 
-class PIDParametersDialog: public QDialog, public Ui::PIDParametersDialog {
+class DubinsPilotDialog: public QDialog, public Ui::DubinsPilotDialog {
 Q_OBJECT
 
 public:
-	PIDParametersDialog(QWidget *parent = 0);
+	DubinsPilotDialog(QWidget *parent = 0);
 
 signals:
 	void sigPidParametersChanged(ctrlType ctrl, double P, double I, double D);
@@ -144,6 +144,8 @@ private slots:
 
 protected:
 	void closeEvent(QCloseEvent *event);
+	void reject();
+
 
 private:
 	bool allowSave() {

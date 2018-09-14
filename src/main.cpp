@@ -10,7 +10,7 @@
 #include <qobject.h>
 #include <iostream>
 
-#include "pid_parameters.h"
+#include "DubinsPilot_Dialog.h"
 #include "SockServer.h"
 #include "RequestDispatcher.h"
 #include "auto_pilot.h"
@@ -24,6 +24,8 @@
 using json = nlohmann::json;
 
 #include <qmetatype.h>
+
+class DubinsPilotDialog;
 
 //#define TEST
 
@@ -66,15 +68,15 @@ int main(int argc, char *argv[]) {
 
 	qRegisterMetaType<json>("json");
 
-	AutoPilot ap;	//have this before the PIDParametersDialog as we read in the controller settings there
+	AutoPilot ap;	//have this before the DubinsPilotDialog as we read in the controller settings there
 
 	DubinsScheduler dubSched;
 
-	PIDParametersDialog *pidParams;
-	pidParams = new PIDParametersDialog;
-	pidParams->setWindowTitle(QObject::tr("PID Parameter Selector"));
+	DubinsPilotDialog *mainDialog;
+	mainDialog = new DubinsPilotDialog;
+	mainDialog->setWindowTitle(QObject::tr("DubinsPilot - an Autopilot for Emergency Landings"));
 
-	pidParams->show();
+	mainDialog->show();
 
 	DataCenter *dc = DataCenter::getInstance();
 
@@ -87,45 +89,45 @@ int main(int argc, char *argv[]) {
 	ControlAutomation ctrlAuto;
 
 
-	//connections from PIDParametersDialog --> AutoPilot
-	QObject::connect(pidParams,
+	//connections from DubinsPilotDialog --> AutoPilot
+	QObject::connect(mainDialog,
 			SIGNAL(sigPidParametersChanged(ctrlType, double, double, double)),
 			&ap,
 			SLOT(setControllerParameters(ctrlType, double, double, double)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 			SIGNAL(sigCtrlActiveStateChanged(ctrlType, bool)), &ap,
 			SLOT(invokeController(ctrlType, bool)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 			SIGNAL(sigRequestedSetValueChanged(ctrlType, double)), &ap,
 			SLOT(requestCtrlTargetValue(ctrlType, double)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 			SIGNAL(sigCircleDirectionChanged(bool, double)), &ap,
 			SLOT(requestCircleDirection(bool, double)));
 
-	//connections from PIDParametersDialog --> DataCenter
+	//connections from DubinsPilotDialog --> DataCenter
 //	QObject::connect(pidParams,
 //			SIGNAL(sigLoggingActiveStateChanged(bool, QFile *)), dc,
 //			SLOT(invokeLogging(bool, QFile *)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 			SIGNAL(sigLoggingActiveStateChanged(bool, QDir, QString)), dc,
 			SLOT(invokeLogging(bool, QDir, QString)));
-	QObject::connect(pidParams, SIGNAL(resetOrigin(void)), dc,
+	QObject::connect(mainDialog, SIGNAL(resetOrigin(void)), dc,
 			SLOT(setOrigin(void)));
-	QObject::connect(pidParams, SIGNAL(sigSendXPDataRef(const char*, double)),
+	QObject::connect(mainDialog, SIGNAL(sigSendXPDataRef(const char*, double)),
 			dc, SLOT(SendXPDataRef(const char*, double)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 			SIGNAL(sigSetElfLocation(double, double, double, double, pathTypeEnum)), dc,
 			SLOT(setElfLocation(double, double, double, double, pathTypeEnum)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 			SIGNAL(sigSetElfLocation(Position_WGS84, double, pathTypeEnum)), dc,
 			SLOT(setElfLocation(Position_WGS84, double, pathTypeEnum)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 			SIGNAL(sigResetElf(void)), dc,
 			SLOT(resetElfLocation(void)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 				SIGNAL(sigSetSimulationPaused(bool)), dc,
 				SLOT(setIsSimulationPaused(bool)));
-	QObject::connect(pidParams,
+	QObject::connect(mainDialog,
 				SIGNAL(sigFlightPathCharacteristicsChanged(double, double, double)), dc,
 				SLOT(setFlightPathCharacteristics(double, double, double)));
 
@@ -136,37 +138,34 @@ int main(int argc, char *argv[]) {
 	QObject::connect(&ap, SIGNAL(sigSendXPDataRef(const char*, bool)), dc,
 			SLOT(SendXPDataRef(const char*, bool)));
 
-	//connections from DataCenter --> PIDParametersDialog
-	QObject::connect(dc, SIGNAL(XPlaneConnectionChanged(bool)), pidParams,
+	//connections from DataCenter --> DubinsPilotDialog
+	QObject::connect(dc, SIGNAL(XPlaneConnectionChanged(bool)), mainDialog,
 			SLOT(setXPlaneConnection(bool)));
 //	QObject::connect(dc, SIGNAL(originSetTo(Position_WGS84)), pidParams,
 //			SLOT(showOriginCoords(Position_WGS84)));
-	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position_WGS84, double, bool)), pidParams,
+	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position_WGS84, double, bool)), mainDialog,
 			SLOT(showElfCoords(Position_WGS84, double, bool)));
-	QObject::connect(dc, SIGNAL(sigWindChanged(double, double)), pidParams,
+	QObject::connect(dc, SIGNAL(sigWindChanged(double, double)), mainDialog,
 			SLOT(displayCurrentWind(double, double)));
-	QObject::connect(dc, SIGNAL(sigLoggingStateChanged(bool)), pidParams,
+	QObject::connect(dc, SIGNAL(sigLoggingStateChanged(bool)), mainDialog,
 			SLOT(setLoggingState(bool)));
 
 
 
 
-	//connections from AutoPilot --> PIDParametersDialog
+	//connections from AutoPilot --> DubinsPilotDialog
 	QObject::connect(&ap,
 			SIGNAL(sigAttachControllerCurve(ctrlType, QwtPlotCurve*)),
-			pidParams, SLOT(attachControllerCurve(ctrlType, QwtPlotCurve*)));
-	QObject::connect(&ap, SIGNAL(sigReplotControllerCurve(ctrlType)), pidParams,
+			mainDialog, SLOT(attachControllerCurve(ctrlType, QwtPlotCurve*)));
+	QObject::connect(&ap, SIGNAL(sigReplotControllerCurve(ctrlType)), mainDialog,
 			SLOT(replotControllerCurve(ctrlType)));
 
-	QObject::connect(&ap, SIGNAL(sigRequestTargetValue(ctrlType, double, bool)), pidParams,
+	QObject::connect(&ap, SIGNAL(sigRequestTargetValue(ctrlType, double, bool)), mainDialog,
 			SLOT(setTargetValueControlKnob(ctrlType, double, bool)));
 
 	QObject::connect(&ap,
 			SIGNAL(sigSetControllerCheckButtons(ctrlType, bool, bool)),
-			pidParams, SLOT(setControllerCheckButtons(ctrlType, bool, bool)));
-
-	std::cout<< "Connected AutoPilot --> PIDParametersDialog\n";
-
+			mainDialog, SLOT(setControllerCheckButtons(ctrlType, bool, bool)));
 
 	//connections from SockServer --> RequestDispatcher
 	QObject::connect(sock, SIGNAL(sigDispatchSockMessage(json)), &rqd,
@@ -190,19 +189,19 @@ int main(int argc, char *argv[]) {
 			SIGNAL(sigCircleDirectionChanged(bool, double)), &ap,
 			SLOT(requestCircleDirection(bool, double)));
 
-	//connections from PIDParametersDialog --> DubinsScheduler
-	QObject::connect(pidParams, SIGNAL(sigStartPathTracking(bool)),
+	//connections from DubinsPilotDialog --> DubinsScheduler
+	QObject::connect(mainDialog, SIGNAL(sigStartPathTracking(bool)),
 			&dubSched, SLOT(takeMeDown(bool)));
 
-	//connections from DubinsScheduler --> PIDParametersDialog
+	//connections from DubinsScheduler --> DubinsPilotDialog
 	QObject::connect(&dubSched, SIGNAL(sigDisplayFlightPhase(QString, QString)),
-				pidParams, SLOT(displayFlightPhase(QString, QString)));
+				mainDialog, SLOT(displayFlightPhase(QString, QString)));
 	QObject::connect(&dubSched, SIGNAL(sigPathTrackingStatus(bool)),
-				pidParams, SLOT(displayPathTrackingStatus(bool)));
+				mainDialog, SLOT(displayPathTrackingStatus(bool)));
 	QObject::connect(&dubSched, SIGNAL(sigPathTrackingStatus(bool)),
-				pidParams, SLOT(displayPathTrackingStatus(bool)));
+				mainDialog, SLOT(displayPathTrackingStatus(bool)));
 	QObject::connect(&dubSched, SIGNAL(sigPauseSimTriggered(bool)),
-			pidParams, SLOT(clickPause(bool)));
+			mainDialog, SLOT(clickPause(bool)));
 
 	//connections from DubinsScheduler --> DataCenter
 	QObject::connect(&dubSched, SIGNAL(sigOutputPathTrackingStats(const json)),
@@ -214,15 +213,15 @@ int main(int argc, char *argv[]) {
 
 
 	//connections from PIDParametersDialog --> ControlAutomation
-	QObject::connect(pidParams, SIGNAL(sigLifeSaverHeightChanged(QString)),
+	QObject::connect(mainDialog, SIGNAL(sigLifeSaverHeightChanged(QString)),
 			&ctrlAuto, SLOT(setLifeSaverHeightChanged(QString)));
-	QObject::connect(pidParams, SIGNAL(sigApproachStartingAltitudeChanged(QString)),
+	QObject::connect(mainDialog, SIGNAL(sigApproachStartingAltitudeChanged(QString)),
 			&ctrlAuto, SLOT(setApproachStartingAltitudeChanged(QString)));
 	//connections from ControlAutomation --> PIDParametersDialog
 	QObject::connect(&ctrlAuto, SIGNAL(sigLifeSaverTriggered(void)),
-			pidParams, SLOT(clickSetHeight(void)));
+			mainDialog, SLOT(clickSetHeight(void)));
 	QObject::connect(&ctrlAuto, SIGNAL(sigApproachStartingTriggered(void)),
-			pidParams, SLOT(clickTakeMeDown(void)));
+			mainDialog, SLOT(clickTakeMeDown(void)));
 
 
 

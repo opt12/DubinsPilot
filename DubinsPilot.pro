@@ -14,7 +14,7 @@ LIBS += -L/usr/lib/ -lqwt -lGeographic -lpthread
 #LIBS += -lXPlaneUDPClient
 
 # Input
-HEADERS += Forms/pid_parameters.h \
+HEADERS += Forms/DubinsPilot_Dialog.h \
            Forms/qledindicator.h \
            src/DataCenter.h \
            src/Dataset.h \
@@ -30,8 +30,8 @@ HEADERS += Forms/pid_parameters.h \
            src/DubinsScheduler.h \
            src/ControlAutomation.h \
            src/constants.h
-FORMS +=   Forms/pid_parameters.ui
-SOURCES += Forms/pid_parameters.cpp \
+FORMS +=   Forms/DubinsPilot_Dialog.ui
+SOURCES += Forms/DubinsPilot_Dialog.cpp \
            Forms/qledindicator.cpp \
            src/main.cpp \
            src/json.hpp \

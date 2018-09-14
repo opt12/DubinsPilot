@@ -230,7 +230,7 @@ json DubinsScheduler::statsSummaryAsJson(void) {
 			cartesianPathLengthEarthFrameStraight +=
 					st->cartesianPathLengthEarthFrame;
 			cartesianPathLengthWindFrameStraight +=
-					st->cartesianPathLengthEarthFrame;
+					st->cartesianPathLengthWindFrame;
 			heightLossStraight += st->heightLoss;
 		}
 		flightTime += st->flightTime;
@@ -272,10 +272,10 @@ json DubinsScheduler::statsSummaryAsJson(void) {
 	j["earthFrame"]["glideAngle"]["glideAngleCircle"] = glideAngleEarthFrameCircle;
 
 	j["heightLoss"] = heightLoss;
-	j["heightLossDetails"]["timeCircleIn"] = pathFollowStats[0]->heightLoss;
-	j["heightLossDetails"]["timeStraightTangential"] = pathFollowStats[1]->heightLoss;
-	j["heightLossDetails"]["timeCircleOut"] = pathFollowStats[2]->heightLoss;
-	j["heightLossDetails"]["timeStraightFinal"] = pathFollowStats[3]->heightLoss;
+	j["heightLossDetails"]["heightLossCircleIn"] = pathFollowStats[0]->heightLoss;
+	j["heightLossDetails"]["heightLossStraightTangential"] = pathFollowStats[1]->heightLoss;
+	j["heightLossDetails"]["heightLossCircleOut"] = pathFollowStats[2]->heightLoss;
+	j["heightLossDetails"]["heightLossStraightFinal"] = pathFollowStats[3]->heightLoss;
 
 	j["flightTime"] = flightTime;
 	j["flightTimeDetails"]["timeCircleIn"] = pathFollowStats[0]->flightTime;

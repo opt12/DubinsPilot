@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PIDParametersDialog</class>
- <widget class="QWidget" name="PIDParametersDialog">
+ <class>DubinsPilotDialog</class>
+ <widget class="QWidget" name="DubinsPilotDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tabClimb">
     <attribute name="title">

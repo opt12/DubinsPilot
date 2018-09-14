@@ -5,11 +5,12 @@
  *      Author: eckstein
  */
 
-#define GENERATE_FLIGHT_TEST_VALUES
+//#define GENERATE_FLIGHT_TEST_VALUES
+//#define GENERATE_CIRCLE_TEST_VALUES
 
 #include <QtGui>
 
-#include "pid_parameters.h"
+#include "DubinsPilot_Dialog.h"
 #include <qwt_plot.h>
 #include <QPen>
 #include <qwt_plot_curve.h>
@@ -29,7 +30,7 @@
 
 #include "DataCenter.h"
 
-PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
+DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 		QDialog(parent) {
 
 	setupUi(this);
@@ -332,7 +333,7 @@ PIDParametersDialog::PIDParametersDialog(QWidget* parent) :
 }
 
 //Implementation of protected functions
-void PIDParametersDialog::closeEvent(QCloseEvent *event) {
+void DubinsPilotDialog::closeEvent(QCloseEvent *event) {
 	if (allowSave()) {
 		writeSettings();
 		event->accept();
@@ -342,7 +343,11 @@ void PIDParametersDialog::closeEvent(QCloseEvent *event) {
 	}
 }
 
-void PIDParametersDialog::setXPlaneConnection(bool active) {
+void DubinsPilotDialog::reject(){
+	std::cout<<"Ignoring the ESCAPE key!\nUse the 'Close' button to quit!\n";	//just ignore the escape key
+}
+
+void DubinsPilotDialog::setXPlaneConnection(bool active) {
 	if (ledIndicator->isChecked() != active) {
 		qDebug() << "XPlane Connection changed" << endl;
 		ledIndicator->setChecked(active);
@@ -368,7 +373,7 @@ void PIDParametersDialog::setXPlaneConnection(bool active) {
 	}
 }
 
-void PIDParametersDialog::attachControllerCurve(ctrlType c,
+void DubinsPilotDialog::attachControllerCurve(ctrlType c,
 		QwtPlotCurve* ctrlCurve) {
 	switch (c) {
 	case ctrlType::HEADING_CONTROL:
@@ -390,7 +395,7 @@ void PIDParametersDialog::attachControllerCurve(ctrlType c,
 	}
 }
 
-void PIDParametersDialog::replotControllerCurve(ctrlType c) {
+void DubinsPilotDialog::replotControllerCurve(ctrlType c) {
 	switch (c) {
 	case ctrlType::HEADING_CONTROL:
 		qwtPlotHeading->replot();
@@ -407,7 +412,7 @@ void PIDParametersDialog::replotControllerCurve(ctrlType c) {
 	}
 }
 
-void PIDParametersDialog::clearInputFields(void) {
+void DubinsPilotDialog::clearInputFields(void) {
 	lineEditForward->clear();
 	lineEditRight->clear();
 	lineEditHeight->clear();
@@ -425,7 +430,7 @@ void PIDParametersDialog::clearInputFields(void) {
 //	labelLonOrigin->setText("Lon: " + QString::number(origin.longi, 'g'));
 //}
 
-void PIDParametersDialog::showElfCoords(Position_WGS84 elf, double elfHeading, bool pathFeasible) {
+void DubinsPilotDialog::showElfCoords(Position_WGS84 elf, double elfHeading, bool pathFeasible) {
 	this->elfPosition = elf;
 	this->elfHeading = elfHeading;
 	labelLatElf->setText("Lat: " +
@@ -439,14 +444,14 @@ void PIDParametersDialog::showElfCoords(Position_WGS84 elf, double elfHeading, b
 	pushButtonFlyPath->setEnabled(pathFeasible);
 	ledIndicatorPathFeasible->setChecked(pathFeasible);
 
-#ifdef GENERATE_FLIGHT_TEST_VALUES
-	int lifeSaver = ((elf.altitude-250)/0.3048);
+#if defined(GENERATE_FLIGHT_TEST_VALUES) || defined(GENERATE_CIRCLE_TEST_VALUES)
+	int lifeSaver = ((elf.altitude-150)/0.3048);
 	lineEditAGLLifeSaver->setText(QString::number(
 			(lifeSaver <= 300)? 300: lifeSaver));
 #endif
 }
 
-void PIDParametersDialog::setDValue(void) {
+void DubinsPilotDialog::setDValue(void) {
 	double mantissa = doubleSpinBoxDValue->value();
 	int exp = spinBoxExpDValue->value();
 	double value = mantissa * exp10(exp);
@@ -456,7 +461,7 @@ void PIDParametersDialog::setDValue(void) {
 	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valPClimb, valIClimb,
 			valDClimb);
 }
-void PIDParametersDialog::setIValue(void) {
+void DubinsPilotDialog::setIValue(void) {
 	double mantissa = doubleSpinBoxIValue->value();
 	int exp = spinBoxExpIValue->value();
 	double value = mantissa * exp10(exp);
@@ -466,7 +471,7 @@ void PIDParametersDialog::setIValue(void) {
 	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valPClimb, valIClimb,
 			valDClimb);
 }
-void PIDParametersDialog::setPValue(void) {
+void DubinsPilotDialog::setPValue(void) {
 	double mantissa = doubleSpinBoxPValue->value();
 	int exp = spinBoxExpPValue->value();
 	double value = mantissa * exp10(exp);
@@ -477,7 +482,7 @@ void PIDParametersDialog::setPValue(void) {
 			valDClimb);
 }
 
-void PIDParametersDialog::setDSpinners(QString text) {
+void DubinsPilotDialog::setDSpinners(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -494,7 +499,7 @@ void PIDParametersDialog::setDSpinners(QString text) {
 	}
 }
 
-void PIDParametersDialog::setPSpinners(QString text) {
+void DubinsPilotDialog::setPSpinners(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -511,7 +516,7 @@ void PIDParametersDialog::setPSpinners(QString text) {
 	}
 }
 
-void PIDParametersDialog::setISpinners(QString text) {
+void DubinsPilotDialog::setISpinners(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -528,7 +533,7 @@ void PIDParametersDialog::setISpinners(QString text) {
 	}
 }
 
-void PIDParametersDialog::setClimbRateLabel(double climbRate) {
+void DubinsPilotDialog::setClimbRateLabel(double climbRate) {
 	valClimbRate = climbRate;
 	climbRateLabel->setText(
 			"gamma: " + QString::number(climbRate) + " [°]\n"
@@ -539,7 +544,7 @@ void PIDParametersDialog::setClimbRateLabel(double climbRate) {
 	qwtPlotClimb->replot();
 }
 
-void PIDParametersDialog::setClimbRateStraightLabel(double climbRate) {
+void DubinsPilotDialog::setClimbRateStraightLabel(double climbRate) {
 	valClimbRateStraight = climbRate;
 	climbRateStraightLabel->setText(
 			"gamma: " + QString::number(climbRate) + " [°]\n"
@@ -547,7 +552,7 @@ void PIDParametersDialog::setClimbRateStraightLabel(double climbRate) {
 	emit sigFlightPathCharacteristicsChanged(valClimbRateStraight, valClimbRateCircle, valAutoCircleRadius);
 }
 
-void PIDParametersDialog::setClimbRateCircleLabel(double climbRate) {
+void DubinsPilotDialog::setClimbRateCircleLabel(double climbRate) {
 	valClimbRateCircle = climbRate;
 	climbRateCircleLabel->setText(
 			"gamma: " + QString::number(climbRate) + " [°]\n"
@@ -555,13 +560,13 @@ void PIDParametersDialog::setClimbRateCircleLabel(double climbRate) {
 	emit sigFlightPathCharacteristicsChanged(valClimbRateStraight, valClimbRateCircle, valAutoCircleRadius);
 }
 
-void PIDParametersDialog::setAutoCircleRadiusLabel(double radius) {
+void DubinsPilotDialog::setAutoCircleRadiusLabel(double radius) {
 	valAutoCircleRadius = radius;
 	autoCircleRadiusLabel->setText("radius = " + QString::number(valAutoCircleRadius));
 	emit sigFlightPathCharacteristicsChanged(valClimbRateStraight, valClimbRateCircle, valAutoCircleRadius);
 }
 
-void PIDParametersDialog::setTargetValueControlKnob(ctrlType ctrl, double targetValue, bool isLeftCircle){
+void DubinsPilotDialog::setTargetValueControlKnob(ctrlType ctrl, double targetValue, bool isLeftCircle){
 	switch (ctrl) {
 	case ctrlType::CLIMB_CONTROL:
 		KnobClimb->setValue(targetValue);
@@ -581,7 +586,7 @@ void PIDParametersDialog::setTargetValueControlKnob(ctrlType ctrl, double target
 	}
 }
 
-void PIDParametersDialog::setControllerCheckButtons(ctrlType ctrl, bool enable,
+void DubinsPilotDialog::setControllerCheckButtons(ctrlType ctrl, bool enable,
 		bool checked) {
 	switch (ctrl) {
 	case ctrlType::CLIMB_CONTROL:
@@ -604,7 +609,7 @@ void PIDParametersDialog::setControllerCheckButtons(ctrlType ctrl, bool enable,
 }
 
 
-void PIDParametersDialog::setDValueBank(void) {
+void DubinsPilotDialog::setDValueBank(void) {
 	double mantissa = doubleSpinBoxDValueBank->value();
 	int exp = spinBoxExpDValueBank->value();
 	double value = mantissa * exp10(exp);
@@ -614,7 +619,7 @@ void PIDParametersDialog::setDValueBank(void) {
 	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPRoll, valIRoll,
 			valDRoll);
 }
-void PIDParametersDialog::setIValueBank(void) {
+void DubinsPilotDialog::setIValueBank(void) {
 	double mantissa = doubleSpinBoxIValueBank->value();
 	int exp = spinBoxExpIValueBank->value();
 	double value = mantissa * exp10(exp);
@@ -624,7 +629,7 @@ void PIDParametersDialog::setIValueBank(void) {
 	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPRoll, valIRoll,
 			valDRoll);
 }
-void PIDParametersDialog::setPValueBank(void) {
+void DubinsPilotDialog::setPValueBank(void) {
 	double mantissa = doubleSpinBoxPValueBank->value();
 	int exp = spinBoxExpPValueBank->value();
 	double value = mantissa * exp10(exp);
@@ -635,7 +640,7 @@ void PIDParametersDialog::setPValueBank(void) {
 			valDRoll);
 }
 
-void PIDParametersDialog::setDSpinnersBank(QString text) {
+void DubinsPilotDialog::setDSpinnersBank(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -650,7 +655,7 @@ void PIDParametersDialog::setDSpinnersBank(QString text) {
 	}
 }
 
-void PIDParametersDialog::setPSpinnersBank(QString text) {
+void DubinsPilotDialog::setPSpinnersBank(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -665,7 +670,7 @@ void PIDParametersDialog::setPSpinnersBank(QString text) {
 	}
 }
 
-void PIDParametersDialog::setISpinnersBank(QString text) {
+void DubinsPilotDialog::setISpinnersBank(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -680,7 +685,7 @@ void PIDParametersDialog::setISpinnersBank(QString text) {
 	}
 }
 
-void PIDParametersDialog::setBankingLabel(double roll) {
+void DubinsPilotDialog::setBankingLabel(double roll) {
 	valRoll = roll;
 	rollLabel->setText("Roll: " + QString::number(valRoll) + " [deg]");
 	emit sigRequestedSetValueChanged(ctrlType::ROLL_CONTROL, roll);
@@ -689,7 +694,7 @@ void PIDParametersDialog::setBankingLabel(double roll) {
 	qwtPlotRoll->replot();
 }
 
-void PIDParametersDialog::setDValueHeading(void) {
+void DubinsPilotDialog::setDValueHeading(void) {
 	double mantissa = doubleSpinBoxDValueHeading->value();
 	int exp = spinBoxExpDValueHeading->value();
 	double value = mantissa * exp10(exp);
@@ -699,7 +704,7 @@ void PIDParametersDialog::setDValueHeading(void) {
 	emit sigPidParametersChanged(ctrlType::HEADING_CONTROL, valPHeading,
 			valIHeading, valDHeading);
 }
-void PIDParametersDialog::setIValueHeading(void) {
+void DubinsPilotDialog::setIValueHeading(void) {
 	double mantissa = doubleSpinBoxIValueHeading->value();
 	int exp = spinBoxExpIValueHeading->value();
 	double value = mantissa * exp10(exp);
@@ -709,7 +714,7 @@ void PIDParametersDialog::setIValueHeading(void) {
 	emit sigPidParametersChanged(ctrlType::HEADING_CONTROL, valPHeading,
 			valIHeading, valDHeading);
 }
-void PIDParametersDialog::setPValueHeading(void) {
+void DubinsPilotDialog::setPValueHeading(void) {
 	double mantissa = doubleSpinBoxPValueHeading->value();
 	int exp = spinBoxExpPValueHeading->value();
 	double value = mantissa * exp10(exp);
@@ -720,7 +725,7 @@ void PIDParametersDialog::setPValueHeading(void) {
 			valIHeading, valDHeading);
 }
 
-void PIDParametersDialog::setDSpinnersHeading(QString text) {
+void DubinsPilotDialog::setDSpinnersHeading(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -735,7 +740,7 @@ void PIDParametersDialog::setDSpinnersHeading(QString text) {
 	}
 }
 
-void PIDParametersDialog::setPSpinnersHeading(QString text) {
+void DubinsPilotDialog::setPSpinnersHeading(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -750,7 +755,7 @@ void PIDParametersDialog::setPSpinnersHeading(QString text) {
 	}
 }
 
-void PIDParametersDialog::setISpinnersHeading(QString text) {
+void DubinsPilotDialog::setISpinnersHeading(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -765,7 +770,7 @@ void PIDParametersDialog::setISpinnersHeading(QString text) {
 	}
 }
 
-void PIDParametersDialog::setHeadingLabel(double heading) {
+void DubinsPilotDialog::setHeadingLabel(double heading) {
 	valHeading = heading;
 	headingLabel->setText("Heading: " + QString::number(valHeading) + " [deg]");
 	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, heading);
@@ -774,7 +779,7 @@ void PIDParametersDialog::setHeadingLabel(double heading) {
 	qwtPlotHeading->replot();
 }
 
-void PIDParametersDialog::setDValueCircle(void) {
+void DubinsPilotDialog::setDValueCircle(void) {
 	double mantissa = doubleSpinBoxDValueCircle->value();
 	int exp = spinBoxExpDValueCircle->value();
 	double value = mantissa * exp10(exp);
@@ -784,7 +789,7 @@ void PIDParametersDialog::setDValueCircle(void) {
 	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
 			valICircle, valDCircle);
 }
-void PIDParametersDialog::setIValueCircle(void) {
+void DubinsPilotDialog::setIValueCircle(void) {
 	double mantissa = doubleSpinBoxIValueCircle->value();
 	int exp = spinBoxExpIValueCircle->value();
 	double value = mantissa * exp10(exp);
@@ -794,7 +799,7 @@ void PIDParametersDialog::setIValueCircle(void) {
 	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
 			valICircle, valDCircle);
 }
-void PIDParametersDialog::setPValueCircle(void) {
+void DubinsPilotDialog::setPValueCircle(void) {
 	double mantissa = doubleSpinBoxPValueCircle->value();
 	int exp = spinBoxExpPValueCircle->value();
 	double value = mantissa * exp10(exp);
@@ -805,7 +810,7 @@ void PIDParametersDialog::setPValueCircle(void) {
 			valICircle, valDCircle);
 }
 
-void PIDParametersDialog::setDSpinnersCircle(QString text) {
+void DubinsPilotDialog::setDSpinnersCircle(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -820,7 +825,7 @@ void PIDParametersDialog::setDSpinnersCircle(QString text) {
 	}
 }
 
-void PIDParametersDialog::setPSpinnersCircle(QString text) {
+void DubinsPilotDialog::setPSpinnersCircle(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -835,7 +840,7 @@ void PIDParametersDialog::setPSpinnersCircle(QString text) {
 	}
 }
 
-void PIDParametersDialog::setISpinnersCircle(QString text) {
+void DubinsPilotDialog::setISpinnersCircle(QString text) {
 	double value = text.toDouble();
 	double exp = floor(log10(fabs(value)));
 	if (exp < minExp - 1) {
@@ -850,7 +855,7 @@ void PIDParametersDialog::setISpinnersCircle(QString text) {
 	}
 }
 
-void PIDParametersDialog::setCircleLabel(double radius) {
+void DubinsPilotDialog::setCircleLabel(double radius) {
 	valCircle = radius;
 	circleRadiusLabel->setText(
 			"radius: " + QString::number(valCircle) + " [m]");
@@ -860,21 +865,21 @@ void PIDParametersDialog::setCircleLabel(double radius) {
 	qwtPlotCircle->replot();
 }
 
-void PIDParametersDialog::tempomatActiveStateChanged(bool active) {
+void DubinsPilotDialog::tempomatActiveStateChanged(bool active) {
 	emit sigPidParametersChanged(ctrlType::CLIMB_CONTROL, valPClimb, valIClimb,
 			valDClimb);
 	emit sigRequestedSetValueChanged(ctrlType::CLIMB_CONTROL, valClimbRate);
 	emit sigCtrlActiveStateChanged(ctrlType::CLIMB_CONTROL, active);
 }
 
-void PIDParametersDialog::rollControlActiveStateChanged(bool active) {
+void DubinsPilotDialog::rollControlActiveStateChanged(bool active) {
 	emit sigRequestedSetValueChanged(ctrlType::ROLL_CONTROL, valRoll);
 	emit sigPidParametersChanged(ctrlType::ROLL_CONTROL, valPRoll, valIRoll,
 			valDRoll);
 	emit sigCtrlActiveStateChanged(ctrlType::ROLL_CONTROL, active);
 }
 
-void PIDParametersDialog::headingControlActiveStateChanged(bool active) {
+void DubinsPilotDialog::headingControlActiveStateChanged(bool active) {
 	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, valHeading);
 	emit sigPidParametersChanged(ctrlType::HEADING_CONTROL, valPHeading,
 			valIHeading, valDHeading);
@@ -886,7 +891,7 @@ void PIDParametersDialog::headingControlActiveStateChanged(bool active) {
 		dc->changeSegmentStatisticsState(true);
 	}
 }
-void PIDParametersDialog::circleControlActiveStateChanged(bool active) {
+void DubinsPilotDialog::circleControlActiveStateChanged(bool active) {
 	emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, valCircle);
 	emit sigPidParametersChanged(ctrlType::RADIUS_CONTROL, valPCircle,
 			valICircle, valDCircle);
@@ -901,12 +906,12 @@ void PIDParametersDialog::circleControlActiveStateChanged(bool active) {
 	}
 }
 
-void PIDParametersDialog::radioButtonCircleClicked(void) {
+void DubinsPilotDialog::radioButtonCircleClicked(void) {
 	emit sigCircleDirectionChanged(radioButtonCircleLeft->isChecked(),
 			valCircle);
 }
 
-void PIDParametersDialog::continuousDubinsCalc(bool active){
+void DubinsPilotDialog::continuousDubinsCalc(bool active){
 	if(active){
 		contCalcTimer->start(timerMilliseconds);
 	} else {
@@ -914,12 +919,12 @@ void PIDParametersDialog::continuousDubinsCalc(bool active){
 	}
 }
 
-void PIDParametersDialog::contCalcTimerExpired(void) {
+void DubinsPilotDialog::contCalcTimerExpired(void) {
 	submitElfData();
 }
 
 
-void PIDParametersDialog::readSettings() {
+void DubinsPilotDialog::readSettings() {
 	QSettings settings("EEE", "PID_Parameters");
 	bool tempActive=false;
 
@@ -1009,7 +1014,7 @@ void PIDParametersDialog::readSettings() {
 	lineEditFileName->setText(initialLogFileDir);
 }
 
-void PIDParametersDialog::writeSettings() {
+void DubinsPilotDialog::writeSettings() {
 	QSettings settings("EEE", "PID_Parameters");
 	qDebug() << "Saving: valP: " << valPClimb;
 	qDebug() << "\tvalI: " << valIClimb;
@@ -1050,19 +1055,19 @@ void PIDParametersDialog::writeSettings() {
 			QVariant::fromValue(initialLogFileDir));
 }
 
-void PIDParametersDialog::setAltitude(void) {
+void DubinsPilotDialog::setAltitude(void) {
 	double altitudeAboveGround = lineEditAltitude->text().toDouble();
 	emit sigSendXPDataRef("sim/flightmodel/position/local_y",
 			altitudeAboveGround);
 }
-void PIDParametersDialog::setIgniterOff(void) {
+void DubinsPilotDialog::setIgniterOff(void) {
 	//see X-Plane failure enum here: http://www.xsquawkbox.net/xpsdk/mediawiki/Failure_Modeling
 	const int INOPERATIVE_NOW = 6;
 	emit sigSendXPDataRef("sim/operation/failures/rel_engfai0",
 			INOPERATIVE_NOW);
 }
 
-void PIDParametersDialog::logButtonClicked() {
+void DubinsPilotDialog::logButtonClicked() {
 	if (loggingActive) {
 		emit sigLoggingActiveStateChanged(false, QDir(""), "");
 		setLoggingState(false);
@@ -1073,7 +1078,7 @@ void PIDParametersDialog::logButtonClicked() {
 	}
 }
 
-void PIDParametersDialog::setLoggingState(bool _loggingActive){
+void DubinsPilotDialog::setLoggingState(bool _loggingActive){
 	loggingActive = _loggingActive;
 	if(!loggingActive){
 		//stop logging
@@ -1088,7 +1093,7 @@ void PIDParametersDialog::setLoggingState(bool _loggingActive){
 	}
 }
 
-void PIDParametersDialog::fileNameSelectorClicked(void) {
+void DubinsPilotDialog::fileNameSelectorClicked(void) {
 	initialLogFileDir = QFileDialog::getExistingDirectory(this,
 			tr("Open Directory for logging:"), initialLogFileDir,
 			QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -1097,7 +1102,7 @@ void PIDParametersDialog::fileNameSelectorClicked(void) {
 			QFileInfo(initialLogFileDir, logFile).absolutePath());
 }
 
-void PIDParametersDialog::fileNameEditingFinished() {
+void DubinsPilotDialog::fileNameEditingFinished() {
 	QFileInfo cleanPath = QFileInfo(lineEditFileName->text());
 	qDebug() << "Set logfile to: " << cleanPath.absoluteFilePath() << endl;
 	initialLogFileDir = cleanPath.filePath();
@@ -1105,7 +1110,7 @@ void PIDParametersDialog::fileNameEditingFinished() {
 	lineEditFileName->setText(cleanPath.absoluteFilePath());
 }
 
-void PIDParametersDialog::submitElfData(void) {
+void DubinsPilotDialog::submitElfData(void) {
 	double forward, right, height, rotation;
 	forward = lineEditForward->text().toDouble();
 	right = lineEditRight->text().toDouble();
@@ -1129,7 +1134,7 @@ void PIDParametersDialog::submitElfData(void) {
 	}
 }
 
-void PIDParametersDialog::toggleAbsoluteRelative(void){
+void DubinsPilotDialog::toggleAbsoluteRelative(void){
 	clearInputFields();
 	if(radioButtonRelative->isChecked()){
 		labelForward->setText("forward:");
@@ -1151,7 +1156,7 @@ void PIDParametersDialog::toggleAbsoluteRelative(void){
 }
 
 
-void PIDParametersDialog::takeMeDown(void){
+void DubinsPilotDialog::takeMeDown(void){
 	if(!isPathTracking){
 		checkBoxCont->setChecked(false);	// we need to stop the continuous calculation
 		checkBoxCont->setEnabled(false);	// we need to stop the continuous calculation
@@ -1167,7 +1172,7 @@ void PIDParametersDialog::takeMeDown(void){
 	displayPathTrackingStatus(isPathTracking);
 }
 
-void PIDParametersDialog::displayPathTrackingStatus(bool _isPathTracking){
+void DubinsPilotDialog::displayPathTrackingStatus(bool _isPathTracking){
 	isPathTracking = _isPathTracking;	//this should be in sync with above, but to be sure
 	isPathTracking ?
 			pushButtonFlyPath->setText("Cancel"):
@@ -1181,7 +1186,7 @@ void PIDParametersDialog::displayPathTrackingStatus(bool _isPathTracking){
 	}
 }
 
-void PIDParametersDialog::clickSetHeight(void){	//to enable the "Life Saver" when Altitude AGL is too low
+void DubinsPilotDialog::clickSetHeight(void){	//to enable the "Life Saver" when Altitude AGL is too low
 	if(loggingActive){
 		toggleLogButton->click();	//stop logging, if active
 	}
@@ -1214,9 +1219,29 @@ void PIDParametersDialog::clickSetHeight(void){	//to enable the "Life Saver" whe
 	continuousDubinsCalc(true);
 #endif
 
+#ifdef GENERATE_CIRCLE_TEST_VALUES
+	static double angle = -180;
+
+	double twoR = 901, dist = 2000;
+	double forward, right;
+
+
+	int rotation = 180, heightLoss = 0;
+	rotatePoint(dist, 0, angle, forward, right);
+	right += twoR;
+	angle += 10;
+
+	lineEditForward->setText(QString::number(int(forward)));
+	lineEditRight->setText(QString::number(int(right)));
+	lineEditHeight->setText(QString::number(heightLoss));
+	lineEditRotation->setText(QString::number(rotation));
+	checkBoxCont->setChecked(true);
+	continuousDubinsCalc(true);
+#endif
+
 }
 
-void PIDParametersDialog::clickTakeMeDown(void){ //to start path tracking at a defined altitude
+void DubinsPilotDialog::clickTakeMeDown(void){ //to start path tracking at a defined altitude
 	if(!loggingActive){
 		toggleLogButton->click();	//start logging, if not already active
 	}
@@ -1224,7 +1249,7 @@ void PIDParametersDialog::clickTakeMeDown(void){ //to start path tracking at a d
 		pushButtonFlyPath->click();
 }
 
-void PIDParametersDialog::clickPause(bool isPaused){ //to pause the simulator on certain events
+void DubinsPilotDialog::clickPause(bool isPaused){ //to pause the simulator on certain events
 	if(checkBoxStopTheWorld->isChecked()){
 		checkBoxPause->setChecked(isPaused);
 	}
@@ -1232,7 +1257,7 @@ void PIDParametersDialog::clickPause(bool isPaused){ //to pause the simulator on
 
 
 
-void PIDParametersDialog::setWind(void) {
+void DubinsPilotDialog::setWind(void) {
 	// Eingabe sind Knoten, Rückgabe sind Meter pro Sekunde
 	double windDirFrom = CompassWind->value();
 
@@ -1261,27 +1286,27 @@ void PIDParametersDialog::setWind(void) {
 			(windVelocityKnots));
 }
 
-void PIDParametersDialog::displayCurrentWind(double windDirFrom, double windVelocity){
+void DubinsPilotDialog::displayCurrentWind(double windDirFrom, double windVelocity){
 	labelCurrentWindFrom->setText(
 			"from "+QString::number(windDirFrom, 'f', 1) + " [deg]");
 	labelCurrentWindV->setText(
 			QString::number(windVelocity, 'f', 2) + " [m/s]");
 }
 
-void PIDParametersDialog::displayFlightPhase(QString flightPhase, QString toGo){
+void DubinsPilotDialog::displayFlightPhase(QString flightPhase, QString toGo){
 	labelFlightPhase->setText(flightPhase);
 	labelToGo->setText(toGo);
 }
 
 
-QString PIDParametersDialog::generateLogfilename() {
+QString DubinsPilotDialog::generateLogfilename() {
 	QString DateString =
 			QDateTime::currentDateTime().toString(Qt::ISODate).replace('-', '_').replace(
 					':', '_');
 	return "Log_" + DateString + ".csv";
 }
 
-void PIDParametersDialog::pauseSimulation(bool isPaused){
+void DubinsPilotDialog::pauseSimulation(bool isPaused){
 //	DataCenter* dc =DataCenter::getInstance();
 	emit sigSendXPDataRef("sim/time/sim_speed", isPaused?0.0:1.0);
 //			dc->SendXPDataRef("sim/time/sim_speed", pause?0.0:1.0);
@@ -1289,8 +1314,8 @@ void PIDParametersDialog::pauseSimulation(bool isPaused){
 }
 
 
-void PIDParametersDialog::setupPlot(void) {
-	qwtPlotClimb->setTitle("Flight Path / Sink Rate");
+void DubinsPilotDialog::setupPlot(void) {
+	qwtPlotClimb->setTitle("Flight Path Angle / Sink Control");
 
 // axes
 	qwtPlotClimb->setAxisTitle(qwtPlotClimb->xBottom, "t [ms] -->");

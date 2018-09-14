@@ -24,7 +24,7 @@ class QTimer;
 class QDebug;
 class XPlaneUDPClient;
 #include "XPlaneBeaconListener.h"
-class PIDParametersDialog;
+class DubinsPilotDialog;
 class QwtPlotCurve;
 class QFile;
 class QTextStream;
