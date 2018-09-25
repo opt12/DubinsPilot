@@ -1,0 +1,6 @@
+These are the files from:
+https://github.com/opt12/libXPlane-UDP-Client.git
+
+from folder:
+libXPlane-UDP-Client/src/libsrc/
+

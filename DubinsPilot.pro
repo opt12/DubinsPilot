@@ -5,7 +5,7 @@
 TEMPLATE = app
 TARGET = 
 DEPENDPATH += . src Forms libXPlane
-INCLUDEPATH += . src libXPlane Forms /usr/include/qwt
+INCLUDEPATH += . src ./external/libXPlane ./external/json ./external/betterEnums ./external/qLedIndicator Forms /usr/include/qwt
 LIBS += -L/usr/lib/ -lqwt -lGeographic -lpthread
 # TODO Check for Cygwin or whatever...
 # see https://stackoverflow.com/questions/2952733/using-sys-socket-h-functions-on-windows
@@ -15,7 +15,6 @@ LIBS += -L/usr/lib/ -lqwt -lGeographic -lpthread
 
 # Input
 HEADERS += Forms/DubinsPilot_Dialog.h \
-           Forms/qledindicator.h \
            src/DataCenter.h \
            src/Dataset.h \
            src/SegmentStatistics.h \
@@ -32,9 +31,7 @@ HEADERS += Forms/DubinsPilot_Dialog.h \
            src/constants.h
 FORMS +=   Forms/DubinsPilot_Dialog.ui
 SOURCES += Forms/DubinsPilot_Dialog.cpp \
-           Forms/qledindicator.cpp \
            src/main.cpp \
-           src/json.hpp \
            src/DataCenter.cpp \
            src/Dataset.cpp \
            src/SegmentStatistics.cpp \
@@ -49,13 +46,23 @@ SOURCES += Forms/DubinsPilot_Dialog.cpp \
            src/ControlAutomation.cpp \
            src/DubinsScheduler.cpp
 
-#to debug try to compile XplaneLib myself
-HEADERS += libXPlane/XPlaneBeaconListener.h \
-           libXPlane/XPlaneUDPClient.h \
-           libXPlane/XPUtils.h
-SOURCES += libXPlane/XPlaneBeaconListener.cpp \
-           libXPlane/XPlaneUDPClient.cpp \
-           libXPlane/XPUtils.cpp
+#branch of external libXPlane
+HEADERS += ./external/libXPlane/XPlaneBeaconListener.h \
+           ./external/libXPlane/XPlaneUDPClient.h \
+           ./external/libXPlane/XPUtils.h
+SOURCES += ./external/libXPlane/XPlaneBeaconListener.cpp \
+           ./external/libXPlane/XPlaneUDPClient.cpp \
+           ./external/libXPlane/XPUtils.cpp
+
+#nlohman/json library
+HEADERS += ./external/json/json.hpp
+
+#betterEnums library
+HEADERS += ./external/betterEnums/enum.h
+
+#qLedIndicator library
+HEADERS += ./external/qLedIndicator/qledindicator.h
+SOURCES += ./external/qLedIndicator/qledindicator.cpp
 
 
 

@@ -1,0 +1,6 @@
+These are the files from:
+https://github.com/aantron/better-enums.git
+
+from folder:
+./
+

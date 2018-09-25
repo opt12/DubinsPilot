@@ -1,0 +1,7 @@
+These are the files from:
+https://github.com/nlohmann/json.git
+
+from folder:
+json/single_include/nlohmann/
+
+
