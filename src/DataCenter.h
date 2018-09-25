@@ -212,7 +212,8 @@ private:
 	double autoGlideAngleCircle=0.0, autoGlideRatioCircle=0.0;
 	double autoCircleRadius=0.0;
 
-	std::vector<Dataset> dataSeries;
+//  the dataSeries may be used for in memory storage of all data, but long term it's a waste of memory.
+//	std::vector<Dataset> dataSeries;
 	unsigned int count = 0;
 	QTimer *basicTimer = NULL;
 	const int timerMilliseconds = 100;

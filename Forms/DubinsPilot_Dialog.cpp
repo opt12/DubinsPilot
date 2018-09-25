@@ -265,8 +265,6 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	logFile = QDir(initialLogFileDir).filePath(logFileName);
 	lineEditFileName->setText(logFile);
 
-	connect(pushButtonResetOrigin, SIGNAL(clicked()), this,
-			SIGNAL(resetOrigin(void)));
 	connect(pushButtonResetElf, SIGNAL(clicked()), this,
 			SLOT(clearInputFields(void)));
 

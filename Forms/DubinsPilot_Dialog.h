@@ -41,7 +41,6 @@ signals:
 
 	void sigSendXPDataRef(const char*, double);
 
-	void resetOrigin(void);
 	void sigSetElfLocation(double forward, double right, double height, double rotation, pathTypeEnum pathType);
 	void sigSetElfLocation(Position_WGS84 elfPosition, double heading, pathTypeEnum pathType);
 	void sigResetElf(void);

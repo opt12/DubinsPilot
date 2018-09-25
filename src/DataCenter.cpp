@@ -82,7 +82,8 @@ void DataCenter::timerExpired(void) {
 
 	//store curDat to archive
 	curDat.timestamp = QTime::currentTime();
-	dataSeries.push_back(curDat);//copies the curDat and is hence save to use here
+	// the dataSeries may be used for in memory storage of all data, but long term it's a waste of memory.
+	//	dataSeries.push_back(curDat);
 
 	//integrate over the windDisplacement
 	curDat.windDisplacement.x -= sin(to_radians(curDat.wind_direction_degt))
