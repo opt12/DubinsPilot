@@ -1,7 +1,7 @@
 # DubinsPilot
 
 
-Unfortunately, the QWT-library used in this project introduced some breaking changes in their interface from version 6.0 to version 6.1. This older version is not compatible with Qt 5. This is the reason, that currently, this application needs Qt4 and qwt.6.0.2 to be built. If anybody has ideas, how to overcome this issue, please tell me.
+Unfortunately, the QWT-library used in this project introduced some breaking changes in their interface from version 6.0 to version 6.1. This older version is not compatible with Qt 5. This is the reason, that currently, this application needs Qt4 and qwt-6.0.2 to be built. If anybody has ideas, how to overcome this issue, please tell me.
 
 The following installation instructions work on my machine, which is Ubuntu 16.04. Besides the explicitly named libraries, a recent version of `Node.js` and `npm` is needed. This can both be installed from the package manager.
 
@@ -27,7 +27,7 @@ Generate the Makefile:
 Build and install the qwt-6.0.2 library  
 `make`  
 `sudo make install`  
-Add the path to the `libqwt.so.6` to the run-time linker?  
+Add the path to the `libqwt.so.6` to the run-time linker:  
 `echo "/usr/local/qwt-6.0.2/lib" > qwt.conf && sudo mv qwt.conf /etc/ld.so.conf.d/`  
 Reload the library search configuration:  
 `sudo ldconfig`  
@@ -47,7 +47,8 @@ Build the DubinsPilot Application
 `make`
 
 Copy the config files to the appropriate position in your .config files  
-`mkdir ~/.config/EEE/ && cp ./config_EEE/PID_Parameters.conf ~/.config/EEE/`
+`mkdir ~/.config/EEE/ && cp ./config_EEE/PID_Parameters.conf ~/.config/EEE/`  
+This confgiuration contains parameters for the stock X-Plane Cessna 172. It has to be adapted when using another aircraft model.
 
 Check the path to the logfiles given in the config-file (key: `initialLogFileDir`)  
 `nano ~/.config/EEE/PID_Parameters.conf`  
@@ -57,8 +58,9 @@ Get out of the DubinsPilot directory.
 Prepare the DubinsViewerClient Application:  
 (The DubinsViewerClient currently queries the server at address  
 const baseURL = 'http://localhost:3001/api/queries'.  
-If you want the viewer app to be available from the outside, replace this by an address reachable within your network. E. g.:  
-`const baseURL = 'http://192.168.XXX.XXX:3001/api/queries';` in file `DubinsViewer/DubinsViewerClient/app/containers/MapContainer/sagas.js`)  
+If you want the viewer app to be available from the outside, replace this by an address reachable within your network. E. g.  
+`const baseURL = 'http://192.168.XXX.XXX:3001/api/queries';`  
+This lives in the file `DubinsViewer/DubinsViewerClient/app/containers/MapContainer/sagas.js`)  
 
 `cd DubinsViewer/DubinsViewerClient/`  
 Install all npm modules:  
@@ -86,7 +88,7 @@ DubinsPilot is running on. When X-Plane is also up and running, the "XPlane Conn
 If this doesn't happen, the broadcast messages won't come through.
 
 To view the position and state of the simulated aircraft, open up a recent web-browser and go to either [http://localhost:3001](http://localhost:3001) or, 
-if you have set up a different address before to that address [http://192.168.XXX.XXX:3001](http://192.168.XXX.XXX:3001).
+if you have set up a different address before, go to that address [http://192.168.XXX.XXX:3001](http://192.168.XXX.XXX:3001).
 
 **Have fun**
 
