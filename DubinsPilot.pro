@@ -5,13 +5,20 @@
 TEMPLATE = app
 TARGET = 
 DEPENDPATH += . src Forms libXPlane
-INCLUDEPATH += . src ./external/libXPlane ./external/json ./external/betterEnums ./external/qLedIndicator Forms /usr/include/qwt
-LIBS += -L/usr/lib/ -lqwt -lGeographic -lpthread
+INCLUDEPATH += . src ./external/libXPlane ./external/json ./external/betterEnums ./external/qLedIndicator Forms
+
+LIBS += -L/usr/lib/	#standard search path for libraries
+LIBS += -lGeographic	#GeographicLib https://geographiclib.sourceforge.io/
+#LIBS += -lpthread	#standard POSIX threading Library
+
+#QWT Library: ATTENTION. QWT has a breaking interface change from version 6.0 to 6.1.
+#Ensure to use maximum Version 6.0.2 of QWT Library
+#Make sure to set the right search path to the QWT 6.0.2 Library
+INCLUDEPATH += /usr/include/qwt /usr/local/qwt-6.0.2/include	#Check for the correct path to QWT 6.0.2 Library headers
+LIBS += -L/usr/local/qwt-6.0.2/lib -lqwt		#QWT Library https://sourceforge.net/projects/qwt/files/qwt/6.0.2/; include search path if necessary
+
 # TODO Check for Cygwin or whatever...
 # see https://stackoverflow.com/questions/2952733/using-sys-socket-h-functions-on-windows
-
-#use precompiled library in production build
-#LIBS += -lXPlaneUDPClient
 
 # Input
 HEADERS += Forms/DubinsPilot_Dialog.h \
@@ -64,12 +71,8 @@ HEADERS += ./external/betterEnums/enum.h
 HEADERS += ./external/qLedIndicator/qledindicator.h
 SOURCES += ./external/qLedIndicator/qledindicator.cpp
 
-
-
-#RESOURCES     = plotter.qrc
-
-DESTDIR =   ./destination
-OBJECTS_DIR = ./destination
+DESTDIR =   ./target
+OBJECTS_DIR = ./objDestination
 MOC_DIR =   ./generated/moc
 UI_DIR =    ./generated/ui
 RCC_DIR =   ./generated/rc
@@ -77,4 +80,4 @@ RCC_DIR =   ./generated/rc
 #additional features and flags
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CFLAGS += -std=c99
-CONFIG+=debug
+CONFIG+=debug	#comment this ou tfor production build skipping Debug symbols
