@@ -1,11 +1,19 @@
 # DubinsPilot
 
+The DubinsPilot software is part of my Bachelor thesis **Implementierung eines Notlandeassistenten auf Basis von Dubins-Kurven unter Berücksichtigung des Windes**
 
-Unfortunately, the QWT-library used in this project introduced some breaking changes in their interface from version 6.0 to version 6.1. This older version is not compatible with Qt 5. This is the reason, that currently, this application needs Qt4 and qwt-6.0.2 to be built. If anybody has ideas, how to overcome this issue, please tell me.
+In this bachelor thesis an emergency landing assistant (ELA) is developed that is able to fly an aircraft in a loss of thrust emergency to a reachable emergency landing field (ELF). The path planning to reach this ELF is based on Dubins curves. The novelty concept in this thesis is the path-tracking of the autopilot component in the so called air-frame which is a reference system that moves with the wind. By using this air-frame reference, the path planning algorithm can operate with simple geometries such as circle segments and straight lines. The developed software is connected to the commercial flight simulation software X-Plane and extensive experiments are conducted to evaluate the suitability and accuracy of the air-frame based path planning and tracking in no-wind as well as in constant wind situations.
+
+
+The main outcome of the experiments was, that the developed autopilot in the air-frame works very well regarding the target achievement precision. During the experiments it was also ascertained, that further research is needed to develop a model to predict the  duration of descent to incorporate the wind into the path planning in advance. In the end of the thesis some proposals are made how to further improve the path planning.
+
+The PDF for this thesis can befound in the `thesis` subdirectory.
+
+## Installation
 
 The following installation instructions work on my machine, which is Ubuntu 16.04. Besides the explicitly named libraries, a recent version of `Node.js` and `npm` is needed. This can both be installed from the package manager.
 
-## Installation
+Unfortunately, the QWT-library used in this project introduced some breaking changes in their interface from version 6.0 to version 6.1. This older version is not compatible with Qt 5. This is the reason, that currently, this application needs Qt4 and qwt-6.0.2 to be built from sources. If anybody has ideas, how to overcome this issue, please tell me.
 
 To build and run the DubinsPilot software, some prerequisites need to be met:
 
