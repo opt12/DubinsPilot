@@ -1,0 +1,14 @@
+#ignore the generated folders...
+generated/
+Log/
+objDestination/
+target/
+
+#ignore the generated Makefile
+Makefile
+
+#ignore the eclipse settings
+.project
+.cproject
+.settings/
+
