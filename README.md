@@ -17,7 +17,7 @@ Now install the GeographicLib package also from the package manager:
 `sudo apt-get install libgeographic-dev`
 
 Due to the named breaking changes, an older version of qwt needs to be used. To build and install the qwt-6.0.2 version follow these steps:  
-Downlaod and inflate the sources for qwt.6.0.2:  
+Downlaod and inflate the sources for qwt-6.0.2:  
 `wget -qO- -O tmp.zip https://sourceforge.net/projects/qwt/files/qwt/6.0.2/qwt-6.0.2.zip && unzip tmp.zip && rm tmp.zip`
 
 Descend in the qwt-6.0.2 directory:  
@@ -47,8 +47,7 @@ Build the DubinsPilot Application
 `make`
 
 Copy the config files to the appropriate position in your .config files  
-`mkdir ~/.config/EEE/`  
-`cp ./config_EEE/PID_Parameters.conf ~/.config/EEE/`
+`mkdir ~/.config/EEE/ && cp ./config_EEE/PID_Parameters.conf ~/.config/EEE/`
 
 Check the path to the logfiles given in the config-file (key: `initialLogFileDir`)  
 `nano ~/.config/EEE/PID_Parameters.conf`  
@@ -59,9 +58,9 @@ Prepare the DubinsViewerClient Application:
 (The DubinsViewerClient currently queries the server at address  
 const baseURL = 'http://localhost:3001/api/queries'.  
 If you want the viewer app to be available from the outside, replace this by an address reachable within your network. E. g.:  
-`const baseURL = 'http://192.168.XXX.XXX:3001/api/queries';` in file `DubinsViewerClient/app/containers/MapContainer/sagas.js`)  
+`const baseURL = 'http://192.168.XXX.XXX:3001/api/queries';` in file `DubinsViewer/DubinsViewerClient/app/containers/MapContainer/sagas.js`)  
 
-`cd DubinsViewerClient/`  
+`cd DubinsViewer/DubinsViewerClient/`  
 Install all npm modules:  
 `npm i`
 
