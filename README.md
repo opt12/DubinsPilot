@@ -1,7 +1,9 @@
 # DubinsPilot
 
 
-Unfortunately, the QWT-library used in this project introduced some breaking changes in their interface from version 6.0 to version 6.1. This is the reason, that currently, this application needs Qt4 and qwt.6.0.2 to be built. If anybody has ideas, how to overcome this issue, please tell me.
+Unfortunately, the QWT-library used in this project introduced some breaking changes in their interface from version 6.0 to version 6.1. This older version is not compatible with Qt 5. This is the reason, that currently, this application needs Qt4 and qwt.6.0.2 to be built. If anybody has ideas, how to overcome this issue, please tell me.
+
+The following installation instructions work on my machine, which is Ubuntu 16.04. Besides the explicitly named libraries, a recent version of `Node.js` and `npm` is needed. This can both be installed from the package manager.
 
 ## Installation
 
@@ -26,7 +28,7 @@ Build and install the qwt-6.0.2 library
 `make`  
 `sudo make install`  
 Add the path to the `libqwt.so.6` to the run-time linker?  
-`sudo echo "/usr/local/qwt-6.0.2/lib" > /etc/ld.so.conf.d/qwt.conf`  
+`echo "/usr/local/qwt-6.0.2/lib" > qwt.conf && sudo mv qwt.conf /etc/ld.so.conf.d/`  
 Reload the library search configuration:  
 `sudo ldconfig`  
 return from qwt-6.0.2 directory  
@@ -46,7 +48,7 @@ Build the DubinsPilot Application
 
 Copy the config files to the appropriate position in your .config files  
 `mkdir ~/.config/EEE/`  
-`copy ./config_EEE/PID_Parameters.conf ~/.config/EEE/`
+`cp ./config_EEE/PID_Parameters.conf ~/.config/EEE/`
 
 Check the path to the logfiles given in the config-file (key: `initialLogFileDir`)  
 `nano ~/.config/EEE/PID_Parameters.conf`  
@@ -59,7 +61,7 @@ const baseURL = 'http://localhost:3001/api/queries'.
 If you want the viewer app to be available from the outside, replace this by an address reachable within your network. E. g.:  
 `const baseURL = 'http://192.168.XXX.XXX:3001/api/queries';` in file `DubinsViewerClient/app/containers/MapContainer/sagas.js`)  
 
-`cd DubinsViewer/`  
+`cd DubinsViewerClient/`  
 Install all npm modules:  
 `npm i`
 
@@ -69,7 +71,9 @@ Build the bundle for the browser:
 Change to the DubinsViewerServer directory:  
 `cd ../DubinsViewerServer`  
 Install all needed modules:  
-`npm i`
+`npm i`  
+Leave the entire DubinsViewer directory:  
+`cd ../..`
 
 ## Running the applicattion
 
@@ -88,7 +92,3 @@ if you have set up a different address before to that address [http://192.168.XX
 **Have fun**
 
 I'll be glad to receive pull requests to integrate more features.
-
-
-
-
