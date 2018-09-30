@@ -1068,11 +1068,9 @@ void DubinsPilotDialog::setIgniterOff(void) {
 void DubinsPilotDialog::logButtonClicked() {
 	if (loggingActive) {
 		emit sigLoggingActiveStateChanged(false, QDir(""), "");
-		setLoggingState(false);
 	} else {
 		//start logging
 		emit sigLoggingActiveStateChanged(true, initialLogFileDir, generateLogfilename());
-		setLoggingState(true);
 	}
 }
 

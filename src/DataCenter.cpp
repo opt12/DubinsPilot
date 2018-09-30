@@ -418,6 +418,15 @@ void DataCenter::invokeLogging(bool active, QDir _logFileDir, QString _fileName)
 		//start logging
 		logFileDir = _logFileDir;
 		logFileName = _fileName;
+		if(!QDir(logFileDir).exists()){
+			if(!QDir().mkdir(logFileDir.absolutePath())){
+				//cannot create that directory
+				std::cout << "Cannot create directory: "
+						<< logFileDir.absolutePath().toStdString() << std::endl;
+				emit sigLoggingStateChanged(false);
+				return;
+			}
+		}
 		QFileInfo logFileInfo = QFileInfo(_logFileDir, _fileName);
 		fileLog = new QFile();
 		fileLog->setFileName(logFileInfo.absoluteFilePath());
@@ -435,7 +444,7 @@ void DataCenter::invokeLogging(bool active, QDir _logFileDir, QString _fileName)
 		setOrigin(); //we do this with each logfile
 //		resetWindDisplacement();
 		*outLog << Dataset::csvHeading();
-		emit sigLoggingStateChanged(false);
+		emit sigLoggingStateChanged(true);
 	} else {
 		//stop logging
 		loggingActive = false;
