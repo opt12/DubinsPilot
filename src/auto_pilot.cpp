@@ -161,11 +161,15 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 			//we need this override to be active for those controllers
 			emit sigSendXPDataRef(
 					"sim/operation/override/override_joystick_pitch", true);
+			emit sigSetControllerCheckButtons(ctrlType::CLIMB_CONTROL,
+			ENABLED, CHECKED);
 		}
 		if (_ct == +ctrlType::ROLL_CONTROL) {
 			//we need this override to be active for those controllers
 			emit sigSendXPDataRef(
 					"sim/operation/override/override_joystick_roll", true);
+			emit sigSetControllerCheckButtons(ctrlType::ROLL_CONTROL,
+			ENABLED, CHECKED);
 		}
 		if (_ct == +ctrlType::HEADING_CONTROL) {
 			//we need the roll controller for heading control
@@ -191,10 +195,16 @@ void AutoPilot::invokeController(ctrlType _ct, bool active) {
 		ctrl[_ct].controller->PIDModeSet(MANUAL);
 		ctrl[_ct].publishOutput(ctrl[_ct].output);
 		if (!ctrl[ctrlType::CLIMB_CONTROL].controlActive) {
+			ctrl[ctrlType::CLIMB_CONTROL].controller->PIDResetInternals();
+			emit sigSetControllerCheckButtons(ctrlType::CLIMB_CONTROL,
+			ENABLED, UNCHECKED);
 			emit sigSendXPDataRef(
 					"sim/operation/override/override_joystick_pitch", false);
 		}
 		if (!ctrl[ctrlType::ROLL_CONTROL].controlActive) {
+			ctrl[ctrlType::ROLL_CONTROL].controller->PIDResetInternals();
+			emit sigSetControllerCheckButtons(ctrlType::ROLL_CONTROL,
+			ENABLED, UNCHECKED);
 			emit sigSendXPDataRef(
 					"sim/operation/override/override_joystick_roll", false);
 		}

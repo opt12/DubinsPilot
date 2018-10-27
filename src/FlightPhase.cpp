@@ -70,6 +70,7 @@ void CirclePhase::performFlight(void) {
 		emit sigCircleDirectionChanged((segType == +segmentTypeEnum::L), distanceToCenter);
 		emit sigRequestedSetValueChanged(ctrlType::RADIUS_CONTROL, radius, true, (segType == +segmentTypeEnum::L));
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, true);
+		emit sigCtrlActiveStateChanged(ctrlType::CLIMB_CONTROL, true);	//when doing an auto-approach, we want to have all active
 		isCircleStarted = true;
 		double angleToGo = (segType == +segmentTypeEnum::L) ?
 				angleOut - (angleIn + angleFlown) :
@@ -137,6 +138,7 @@ void StraightPhase::performFlight(void) {
 		emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure
 		emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, requestedHeading, true);
 		emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, true);
+		emit sigCtrlActiveStateChanged(ctrlType::CLIMB_CONTROL, true);	//when doing an auto-approach, we want to have all active
 		isStraightStarted = true;
 		std::cout <<"Straight Flight started\n";
 		emit sigDisplayFlightPhase("Straight Flight",
@@ -193,6 +195,7 @@ void RunOutPhase::performFlight(void) {
 	emit sigCtrlActiveStateChanged(ctrlType::RADIUS_CONTROL, false);	//just to be sure
 	emit sigRequestedSetValueChanged(ctrlType::HEADING_CONTROL, elfHeading, true);
 	emit sigCtrlActiveStateChanged(ctrlType::HEADING_CONTROL, true);
+	emit sigCtrlActiveStateChanged(ctrlType::CLIMB_CONTROL, true);	//when doing an auto-approach, we want to have all active
 
 	return;
 }

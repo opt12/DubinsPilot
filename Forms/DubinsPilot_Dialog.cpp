@@ -326,6 +326,8 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	connect(lineEditAGLLifeSaver, SIGNAL(textChanged(QString)),
 			this, SIGNAL(sigLifeSaverHeightChanged(QString)));
 
+	connect(controllersOffButton, SIGNAL(clicked()), this, SLOT(allControllersOff()));
+
 	//do this  in the next turn of the event loop to have everything wired together already
 	QTimer::singleShot(0, this, SLOT(readSettings()));
 }
@@ -1308,6 +1310,15 @@ void DubinsPilotDialog::pauseSimulation(bool isPaused){
 //			dc->SendXPDataRef("sim/time/sim_speed", pause?0.0:1.0);
 	emit sigSetSimulationPaused(isPaused);
 }
+
+void DubinsPilotDialog::allControllersOff(void){
+	//this is to switch off all controllers. Comes in Handy after reloading a situation in the simulator
+	emit circleControlActiveStateChanged(false);
+	emit headingControlActiveStateChanged(false);
+	emit rollControlActiveStateChanged(false);
+	emit tempomatActiveStateChanged(false);
+}
+
 
 
 void DubinsPilotDialog::setupPlot(void) {

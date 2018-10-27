@@ -138,6 +138,7 @@ private slots:
 	void setWind(void);
 
 	void pauseSimulation(bool pause);
+	void allControllersOff(void);
 
 	void toggleAbsoluteRelative(void);
 

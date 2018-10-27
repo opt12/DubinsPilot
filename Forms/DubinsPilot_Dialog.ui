@@ -2047,7 +2047,7 @@ down</string>
       <rect>
        <x>790</x>
        <y>10</y>
-       <width>201</width>
+       <width>141</width>
        <height>22</height>
       </rect>
      </property>
@@ -2428,6 +2428,34 @@ down</string>
       <string>Stop the World afterwards</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="controllersOffButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>790</x>
+       <y>110</y>
+       <width>201</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>All Controllers OFF</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+    </widget>
     <zorder>layoutWidget</zorder>
     <zorder>layoutWidget</zorder>
     <zorder>saveButton</zorder>
@@ -2444,6 +2472,7 @@ down</string>
     <zorder>layoutWidget</zorder>
     <zorder>igniterOffButton</zorder>
     <zorder>checkBoxStopTheWorld</zorder>
+    <zorder>controllersOffButton</zorder>
    </widget>
   </widget>
  </widget>
