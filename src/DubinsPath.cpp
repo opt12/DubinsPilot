@@ -274,6 +274,15 @@ void DubinsPath::calculateDubinsPath(const Position start,
 	startPoint = start;
 	endPoint = end;
 
+	if(end.getAltitude()<0.0){
+		if (debug) {
+			std::cout
+					<< "ATTENTION!!! (6) The endpoint is not reachable due to height constraints.\n";
+		}
+		isValidDubinsPath = false;	// we won't make it there;
+		return;
+	}
+
 	double overallCircleHeightLoss = heightLossCircle[0] + heightLossCircle[1];
 
 	//damit kann der Höhenverlust des kürzesten Weges ausgerechnet werden
