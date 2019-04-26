@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1046</width>
-    <height>641</height>
+    <height>730</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,8 +30,8 @@
     <rect>
      <x>10</x>
      <y>0</y>
-     <width>1011</width>
-     <height>681</height>
+     <width>1010</width>
+     <height>711</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -43,11 +43,11 @@
    <property name="minimumSize">
     <size>
      <width>0</width>
-     <height>0</height>
+     <height>500</height>
     </size>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tabClimb">
     <attribute name="title">
@@ -59,7 +59,7 @@
        <x>0</x>
        <y>0</y>
        <width>1003</width>
-       <height>543</height>
+       <height>671</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -101,6 +101,12 @@
               </property>
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
               </property>
              </widget>
             </item>
@@ -164,6 +170,12 @@
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
               </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
+              </property>
              </widget>
             </item>
             <item>
@@ -226,6 +238,9 @@
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
               </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
               <property name="scalePosition">
                <enum>QwtSlider::NoScale</enum>
               </property>
@@ -276,7 +291,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QLedIndicator" name="ledIndicator">
+             <widget class="QLedIndicator" name="ledIndicator" native="true">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -286,20 +301,20 @@
               <property name="whatsThis">
                <string>Led indicator/button</string>
               </property>
-              <property name="checkable">
+              <property name="checkable" stdset="0">
                <bool>true</bool>
               </property>
-              <property name="checked">
+              <property name="checked" stdset="0">
                <bool>false</bool>
               </property>
-              <property name="offColor1">
+              <property name="offColor1" stdset="0">
                <color>
                 <red>255</red>
                 <green>0</green>
                 <blue>0</blue>
                </color>
               </property>
-              <property name="offColor2">
+              <property name="offColor2" stdset="0">
                <color>
                 <red>0</red>
                 <green>0</green>
@@ -328,6 +343,12 @@
           </item>
           <item>
            <widget class="QwtKnob" name="KnobClimb">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::WheelFocus</enum>
             </property>
@@ -370,7 +391,7 @@
        <x>0</x>
        <y>0</y>
        <width>1003</width>
-       <height>543</height>
+       <height>673</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -412,6 +433,12 @@
               </property>
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
               </property>
              </widget>
             </item>
@@ -475,6 +502,12 @@
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
               </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
+              </property>
              </widget>
             </item>
             <item>
@@ -537,6 +570,9 @@
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
               </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
               <property name="scalePosition">
                <enum>QwtSlider::NoScale</enum>
               </property>
@@ -587,7 +623,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
-             <widget class="QLedIndicator" name="ledIndicatorRoll">
+             <widget class="QLedIndicator" name="ledIndicatorRoll" native="true">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -597,20 +633,20 @@
               <property name="whatsThis">
                <string>Led indicator/button</string>
               </property>
-              <property name="checkable">
+              <property name="checkable" stdset="0">
                <bool>true</bool>
               </property>
-              <property name="checked">
+              <property name="checked" stdset="0">
                <bool>false</bool>
               </property>
-              <property name="offColor1">
+              <property name="offColor1" stdset="0">
                <color>
                 <red>255</red>
                 <green>0</green>
                 <blue>0</blue>
                </color>
               </property>
-              <property name="offColor2">
+              <property name="offColor2" stdset="0">
                <color>
                 <red>0</red>
                 <green>0</green>
@@ -639,6 +675,12 @@
           </item>
           <item>
            <widget class="QwtKnob" name="KnobRoll">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::WheelFocus</enum>
             </property>
@@ -690,7 +732,7 @@
        <x>0</x>
        <y>0</y>
        <width>1003</width>
-       <height>602</height>
+       <height>666</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -732,6 +774,12 @@
               </property>
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
               </property>
              </widget>
             </item>
@@ -795,6 +843,12 @@
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
               </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
+              </property>
              </widget>
             </item>
             <item>
@@ -857,6 +911,9 @@
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
               </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
               <property name="scalePosition">
                <enum>QwtSlider::NoScale</enum>
               </property>
@@ -894,6 +951,9 @@
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_8">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
           <item>
            <widget class="QCheckBox" name="checkBoxHeadingController">
             <property name="enabled">
@@ -907,7 +967,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
-             <widget class="QLedIndicator" name="ledIndicatorHeading">
+             <widget class="QLedIndicator" name="ledIndicatorHeading" native="true">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -917,20 +977,20 @@
               <property name="whatsThis">
                <string>Led indicator/button</string>
               </property>
-              <property name="checkable">
+              <property name="checkable" stdset="0">
                <bool>true</bool>
               </property>
-              <property name="checked">
+              <property name="checked" stdset="0">
                <bool>false</bool>
               </property>
-              <property name="offColor1">
+              <property name="offColor1" stdset="0">
                <color>
                 <red>255</red>
                 <green>0</green>
                 <blue>0</blue>
                </color>
               </property>
-              <property name="offColor2">
+              <property name="offColor2" stdset="0">
                <color>
                 <red>0</red>
                 <green>0</green>
@@ -959,6 +1019,18 @@
           </item>
           <item>
            <widget class="QwtCompass" name="CompassHeading">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>60</width>
+              <height>140</height>
+             </size>
+            </property>
             <property name="lineWidth">
              <number>4</number>
             </property>
@@ -1019,7 +1091,7 @@
        <x>0</x>
        <y>0</y>
        <width>1003</width>
-       <height>556</height>
+       <height>671</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -1061,6 +1133,12 @@
               </property>
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
               </property>
              </widget>
             </item>
@@ -1124,6 +1202,12 @@
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
               </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="scalePosition">
+               <enum>QwtSlider::NoScale</enum>
+              </property>
              </widget>
             </item>
             <item>
@@ -1186,6 +1270,9 @@
               <property name="focusPolicy">
                <enum>Qt::WheelFocus</enum>
               </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
               <property name="scalePosition">
                <enum>QwtSlider::NoScale</enum>
               </property>
@@ -1236,7 +1323,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
-             <widget class="QLedIndicator" name="ledIndicatorCircle">
+             <widget class="QLedIndicator" name="ledIndicatorCircle" native="true">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -1246,20 +1333,20 @@
               <property name="whatsThis">
                <string>Led indicator/button</string>
               </property>
-              <property name="checkable">
+              <property name="checkable" stdset="0">
                <bool>true</bool>
               </property>
-              <property name="checked">
+              <property name="checked" stdset="0">
                <bool>false</bool>
               </property>
-              <property name="offColor1">
+              <property name="offColor1" stdset="0">
                <color>
                 <red>255</red>
                 <green>0</green>
                 <blue>0</blue>
                </color>
               </property>
-              <property name="offColor2">
+              <property name="offColor2" stdset="0">
                <color>
                 <red>0</red>
                 <green>0</green>
@@ -1288,6 +1375,18 @@
           </item>
           <item>
            <widget class="QwtKnob" name="KnobCircle">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>100</height>
+             </size>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::WheelFocus</enum>
             </property>
@@ -1387,8 +1486,8 @@
       <rect>
        <x>260</x>
        <y>10</y>
-       <width>281</width>
-       <height>29</height>
+       <width>307</width>
+       <height>40</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -1433,7 +1532,7 @@
        <x>20</x>
        <y>60</y>
        <width>971</width>
-       <height>29</height>
+       <height>40</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1512,7 +1611,7 @@
        <x>20</x>
        <y>130</y>
        <width>424</width>
-       <height>223</height>
+       <height>278</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1875,14 +1974,21 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>370</y>
-       <width>312</width>
-       <height>182</height>
+       <y>435</y>
+       <width>326</width>
+       <height>221</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_14">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_12">
+        <item>
+         <widget class="QCheckBox" name="checkBoxPlaneHeading">
+          <property name="text">
+           <string>control AC Heading</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QwtCompass" name="CompassWind">
           <property name="sizePolicy">
@@ -1912,6 +2018,12 @@
           </property>
           <property name="focusPolicy">
            <enum>Qt::WheelFocus</enum>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="scalePosition">
+           <enum>QwtSlider::NoScale</enum>
           </property>
          </widget>
         </item>
@@ -2077,7 +2189,7 @@ down</string>
       <cstring>ledIndicator</cstring>
      </property>
     </widget>
-    <widget class="QLedIndicator" name="ledIndicatorPathFeasible">
+    <widget class="QLedIndicator" name="ledIndicatorPathFeasible" native="true">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -2095,38 +2207,25 @@ down</string>
      <property name="whatsThis">
       <string>Led indicator/button</string>
      </property>
-     <property name="checkable">
+     <property name="checkable" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="checked">
+     <property name="checked" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="offColor1">
+     <property name="offColor1" stdset="0">
       <color>
        <red>255</red>
        <green>0</green>
        <blue>0</blue>
       </color>
      </property>
-     <property name="offColor2">
+     <property name="offColor2" stdset="0">
       <color>
        <red>0</red>
        <green>0</green>
        <blue>255</blue>
       </color>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="checkBoxPlaneHeading">
-     <property name="geometry">
-      <rect>
-       <x>340</x>
-       <y>370</y>
-       <width>161</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>control AC Heading</string>
      </property>
     </widget>
     <widget class="QWidget" name="layoutWidget">
@@ -2135,7 +2234,7 @@ down</string>
        <x>20</x>
        <y>100</y>
        <width>421</width>
-       <height>26</height>
+       <height>30</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_17">
@@ -2210,10 +2309,10 @@ down</string>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>550</x>
+       <x>538</x>
        <y>370</y>
-       <width>409</width>
-       <height>193</height>
+       <width>421</width>
+       <height>201</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_18">
@@ -2318,6 +2417,12 @@ down</string>
         </item>
         <item>
          <widget class="QLabel" name="autoCircleRadiusLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Radius = xm</string>
           </property>
@@ -2325,6 +2430,19 @@ down</string>
            <bool>true</bool>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -2336,7 +2454,7 @@ down</string>
        <x>732</x>
        <y>200</y>
        <width>281</width>
-       <height>89</height>
+       <height>112</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -2468,7 +2586,6 @@ down</string>
     <zorder>checkBoxPause</zorder>
     <zorder>labelPathFeasible</zorder>
     <zorder>ledIndicatorPathFeasible</zorder>
-    <zorder>checkBoxPlaneHeading</zorder>
     <zorder>layoutWidget</zorder>
     <zorder>igniterOffButton</zorder>
     <zorder>checkBoxStopTheWorld</zorder>
@@ -2477,11 +2594,6 @@ down</string>
   </widget>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>QLedIndicator</class>
-   <extends>QWidget</extends>
-   <header>qledindicator.h</header>
-  </customwidget>
   <customwidget>
    <class>QwtPlot</class>
    <extends>QFrame</extends>
@@ -2506,6 +2618,11 @@ down</string>
    <class>QwtSlider</class>
    <extends>QWidget</extends>
    <header>qwt_slider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QLedIndicator</class>
+   <extends>QWidget</extends>
+   <header>qledindicator.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

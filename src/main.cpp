@@ -111,8 +111,8 @@ int main(int argc, char *argv[]) {
 			SLOT(SendXPDataRef(const char*, bool)));
 
 	//connections from DataCenter --> DubinsPilotDialog
-	QObject::connect(dc, SIGNAL(XPlaneConnectionChanged(bool)), mainDialog,
-			SLOT(setXPlaneConnection(bool)));
+	QObject::connect(dc, SIGNAL(XPlaneConnectionDisplayUI(bool)), mainDialog,
+			SLOT(displayXPlaneConnection(bool)));
 	QObject::connect(dc, SIGNAL(sigElfCoordsSet(Position_WGS84, double, bool)), mainDialog,
 			SLOT(showElfCoords(Position_WGS84, double, bool)));
 	QObject::connect(dc, SIGNAL(sigWindChanged(double, double)), mainDialog,

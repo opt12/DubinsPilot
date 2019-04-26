@@ -252,7 +252,7 @@ void XPlaneBeaconListener::checkForExpiredServers() {
 	time_t nowTime = time(NULL);
 	for (auto it = cachedServers.cbegin(); it != cachedServers.cend();) {
 		// see if it has expired, i.e. we haven't received any beacons in last 30 seconds.
-		if (it->second.received < nowTime - 30) {
+		if (it->second.received < nowTime - expiryTime) {
 			for (auto callback : callbacks) {
 				callback(it->second, false);
 			}

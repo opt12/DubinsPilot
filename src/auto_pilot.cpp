@@ -108,12 +108,12 @@ AutoPilot::AutoPilot(QObject* parent) :
 }
 
 AutoPilot::~AutoPilot() {
-	free(ctrl[ctrlType::CLIMB_CONTROL].controller);
-	free(ctrl[ctrlType::ROLL_CONTROL].controller);
-	free(ctrl[ctrlType::HEADING_CONTROL].controller);
-	free(ctrl[ctrlType::RADIUS_CONTROL].controller);
+	delete ctrl[ctrlType::CLIMB_CONTROL].controller;
+	delete ctrl[ctrlType::ROLL_CONTROL].controller;
+	delete ctrl[ctrlType::HEADING_CONTROL].controller;
+	delete ctrl[ctrlType::RADIUS_CONTROL].controller;
 	basicTimer->stop();
-	free(basicTimer);
+	delete basicTimer;
 }
 
 AutoPilot::Controller::Controller() {
@@ -136,8 +136,8 @@ AutoPilot::Controller::Controller() {
 }
 
 AutoPilot::Controller::~Controller() {
-	free(currentValueCurve);
-	free(outputValueCurve);
+	delete currentValueCurve;
+	delete outputValueCurve;
 }
 
 //public Slots:
@@ -312,8 +312,8 @@ json AutoPilot::getCircleDataAsJson(void) {
 }
 
 void AutoPilot::timerExpired(void) {
-	if(dc->isSimulationPaused()){
-		return;	//we just skip everything, when the simulation is Paused
+	if(dc->isSimulationPaused()  || !dc->getConnectionStatus()){
+		return;	//we just skip everything, when the simulation is Paused or the connection is not available
 	}
 
 	if (dubinsSchedulerActive) {
@@ -329,12 +329,12 @@ void AutoPilot::timerExpired(void) {
 		double circleAngle = displacedCircleCenter.getHeadingCart(
 				dc->getPosition());
 		// during the circle flight we permanently oversteer to hold the plane in max. roll angle
-		double newHeading = circleAngle
-				+ (circleDirectionLeft ? -90-45 : +90+45);
-		ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = fmod(newHeading,
-				360.0);
+		double newHeading = fmod(
+				circleAngle + (circleDirectionLeft ? -90 - 45 : +90 + 45) + 360,
+				360);	//make sure, this is a positive value, as QWT cannot handle negative wrap-around anymore (since version 6.1
+		ctrl[ctrlType::HEADING_CONTROL].requestedTargetValue = newHeading;
 		emit sigRequestTargetValue(ctrlType::HEADING_CONTROL, newHeading); //adapt the knob in the GUI
-		//we rteally need to emit the JSOn of the circle every time, as this is moving with the wind
+		//we really need to emit the JSON of the circle every time, as this is moving with the wind
 		emit sigSocketSendData(std::string("CIRCLE_DATA"), 0,
 				getCircleDataAsJson());
 	}

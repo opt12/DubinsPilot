@@ -3,9 +3,11 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 
+TARGET = DubinsPilot
 DEPENDPATH += . src Forms libXPlane
 INCLUDEPATH += . src ./external/libXPlane ./external/json ./external/betterEnums ./external/qLedIndicator Forms
+
+QT += widgets   # as per https://wiki.qt.io/Transition_from_Qt_4.x_to_Qt5
 
 LIBS += -L/usr/lib/	#standard search path for libraries
 LIBS += -lGeographic	#GeographicLib https://geographiclib.sourceforge.io/
@@ -14,8 +16,10 @@ LIBS += -lGeographic	#GeographicLib https://geographiclib.sourceforge.io/
 #QWT Library: ATTENTION. QWT has a breaking interface change from version 6.0 to 6.1.
 #Ensure to use maximum Version 6.0.2 of QWT Library
 #Make sure to set the right search path to the QWT 6.0.2 Library
-INCLUDEPATH += /usr/include/qwt /usr/local/qwt-6.0.2/include	#Check for the correct path to QWT 6.0.2 Library headers
-LIBS += -L/usr/local/qwt-6.0.2/lib -lqwt		#QWT Library https://sourceforge.net/projects/qwt/files/qwt/6.0.2/; include search path if necessary
+#INCLUDEPATH += /usr/include/qwt /usr/local/qwt-6.0.2/include	#Check for the correct path to QWT 6.0.2 Library headers
+#LIBS += -L/usr/local/qwt-6.0.2/lib -lqwt		#QWT Library https://sourceforge.net/projects/qwt/files/qwt/6.0.2/; include search path if necessary
+INCLUDEPATH += /usr/include/qwt 	
+LIBS += -lqwt		#QWT Library https://sourceforge.net/projects/qwt; include search path if necessary
 
 # TODO Check for Cygwin or whatever...
 # see https://stackoverflow.com/questions/2952733/using-sys-socket-h-functions-on-windows
@@ -80,4 +84,4 @@ RCC_DIR =   ./generated/rc
 #additional features and flags
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_CFLAGS += -std=c99
-CONFIG+=debug	#comment this ou tfor production build skipping Debug symbols
+CONFIG+=debug	#comment this out for production build skipping Debug symbols

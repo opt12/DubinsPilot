@@ -9,6 +9,7 @@
 //#define GENERATE_CIRCLE_TEST_VALUES
 
 #include <QtGui>
+#include <QFileDialog>
 
 #include "DubinsPilot_Dialog.h"
 #include <qwt_plot.h>
@@ -28,6 +29,12 @@
 #include "enumDeclarations.h"
 #endif
 
+// This macro is a substitute for the extremely handy function abstractSlider.setRange which disappeared in QWT 6.1
+#define SET_RANGE(obj, lower, upper, stepsize) { \
+    obj->setScale(lower, upper);\
+    obj->setTotalSteps(uint((upper-lower)/stepsize));\
+    }
+
 #include "DataCenter.h"
 
 DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
@@ -37,8 +44,11 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 
 	doubleSpinBoxDValue->setRange(-10.0, 10.0);
 	doubleSpinBoxDValue->setSingleStep(0.01);
-	SliderDValue->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpDValue->setRange(minExp, maxExp);
+//    SliderDValue->setRange(-10.0, 10.0, 0.1);
+    SET_RANGE(SliderDValue, -10.0, 10.0, 0.1)
+//    SliderDValue->setScale(-10.0, 10.0);
+//    SliderDValue->setTotalSteps(uint(20./0.1));
+    spinBoxExpDValue->setRange(minExp, maxExp);
 	connect(doubleSpinBoxDValue, SIGNAL(valueChanged(double)), this,
 			SLOT(setDValue(void)));
 	connect(spinBoxExpDValue, SIGNAL(valueChanged(int)), this,
@@ -50,7 +60,11 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	doubleSpinBoxIValue->setMinimum(-10);
 	doubleSpinBoxIValue->setMaximum(10);
 	doubleSpinBoxIValue->setSingleStep(0.1);
-	SliderIValue->setRange(-10.0, 10.0, 0.1);
+    SET_RANGE(SliderIValue, -10.0, 10.0, 0.1)
+//    SliderIValue->setScale(-10.0, 10.0);
+//    SliderIValue->setTotalSteps(uint(20./0.1));
+
+
 	spinBoxExpIValue->setRange(minExp, maxExp);
 	connect(doubleSpinBoxIValue, SIGNAL(valueChanged(double)), this,
 			SLOT(setIValue(void)));
@@ -63,8 +77,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	doubleSpinBoxPValue->setMinimum(-10);
 	doubleSpinBoxPValue->setMaximum(10);
 	doubleSpinBoxPValue->setSingleStep(0.1);
-	SliderPValue->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpPValue->setRange(minExp, maxExp);
+    SET_RANGE(SliderPValue, -10.0, 10.0, 0.1)
+//    SliderPValue->setScale(-10.0, 10.0);
+//    SliderPValue->setTotalSteps(uint(20./0.1));
+    spinBoxExpPValue->setRange(minExp, maxExp);
 	connect(doubleSpinBoxPValue, SIGNAL(valueChanged(double)), this,
 			SLOT(setPValue(void)));
 	connect(spinBoxExpPValue, SIGNAL(valueChanged(int)), this,
@@ -75,8 +91,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 
 	doubleSpinBoxDValueBank->setRange(-10.0, 10.0);
 	doubleSpinBoxDValueBank->setSingleStep(0.01);
-	SliderDValueBank->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpDValueBank->setRange(minExp, maxExp);
+    SET_RANGE(SliderDValueBank, -10.0, 10.0, 0.1)
+//    SliderDValueBank->setScale(-10.0, 10.0);
+//    SliderDValueBank->setTotalSteps(uint(20./0.1));
+    spinBoxExpDValueBank->setRange(minExp, maxExp);
 	connect(doubleSpinBoxDValueBank, SIGNAL(valueChanged(double)), this,
 			SLOT(setDValueBank(void)));
 	connect(spinBoxExpDValueBank, SIGNAL(valueChanged(int)), this,
@@ -88,8 +106,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	doubleSpinBoxIValueBank->setMinimum(-10);
 	doubleSpinBoxIValueBank->setMaximum(10);
 	doubleSpinBoxIValueBank->setSingleStep(0.1);
-	SliderIValueBank->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpIValueBank->setRange(minExp, maxExp);
+    SET_RANGE(SliderIValueBank, -10.0, 10.0, 0.1)
+//    SliderIValueBank->setScale(-10.0, 10.0);
+//    SliderIValueBank->setTotalSteps(uint(20./0.1));
+    spinBoxExpIValueBank->setRange(minExp, maxExp);
 	connect(doubleSpinBoxIValueBank, SIGNAL(valueChanged(double)), this,
 			SLOT(setIValueBank(void)));
 	connect(spinBoxExpIValueBank, SIGNAL(valueChanged(int)), this,
@@ -101,8 +121,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	doubleSpinBoxPValueBank->setMinimum(-10);
 	doubleSpinBoxPValueBank->setMaximum(10);
 	doubleSpinBoxPValueBank->setSingleStep(0.1);
-	SliderPValueBank->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpPValueBank->setRange(minExp, maxExp);
+    SET_RANGE(SliderPValueBank, -10.0, 10.0, 0.1)
+//    SliderPValueBank->setScale(-10.0, 10.0);
+//    SliderPValueBank->setTotalSteps(uint(20./0.1));
+    spinBoxExpPValueBank->setRange(minExp, maxExp);
 	connect(doubleSpinBoxPValueBank, SIGNAL(valueChanged(double)), this,
 			SLOT(setPValueBank(void)));
 	connect(spinBoxExpPValueBank, SIGNAL(valueChanged(int)), this,
@@ -113,8 +135,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 
 	doubleSpinBoxDValueHeading->setRange(-10.0, 10.0);
 	doubleSpinBoxDValueHeading->setSingleStep(0.01);
-	SliderDValueHeading->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpDValueHeading->setRange(minExp, maxExp);
+    SET_RANGE(SliderDValueHeading, -10.0, 10.0, 0.1)
+//    SliderDValueHeading->setScale(-10.0, 10.0);
+//    SliderDValueHeading->setTotalSteps(uint(20./0.1));
+    spinBoxExpDValueHeading->setRange(minExp, maxExp);
 	connect(doubleSpinBoxDValueHeading, SIGNAL(valueChanged(double)), this,
 			SLOT(setDValueHeading(void)));
 	connect(spinBoxExpDValueHeading, SIGNAL(valueChanged(int)), this,
@@ -126,8 +150,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	doubleSpinBoxIValueHeading->setMinimum(-10);
 	doubleSpinBoxIValueHeading->setMaximum(10);
 	doubleSpinBoxIValueHeading->setSingleStep(0.1);
-	SliderIValueHeading->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpIValueHeading->setRange(minExp, maxExp);
+    SET_RANGE(SliderIValueHeading, -10.0, 10.0, 0.1)
+//    SliderIValueHeading->setScale(-10.0, 10.0);
+//    SliderIValueHeading->setTotalSteps(uint(20./0.1));
+    spinBoxExpIValueHeading->setRange(minExp, maxExp);
 	connect(doubleSpinBoxIValueHeading, SIGNAL(valueChanged(double)), this,
 			SLOT(setIValueHeading(void)));
 	connect(spinBoxExpIValueHeading, SIGNAL(valueChanged(int)), this,
@@ -139,8 +165,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	doubleSpinBoxPValueHeading->setMinimum(-10);
 	doubleSpinBoxPValueHeading->setMaximum(10);
 	doubleSpinBoxPValueHeading->setSingleStep(0.1);
-	SliderPValueHeading->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpPValueHeading->setRange(minExp, maxExp);
+    SET_RANGE(SliderPValueHeading, -10.0, 10.0, 0.1)
+//    SliderPValueHeading->setScale(-10.0, 10.0);
+//    SliderPValueHeading->setTotalSteps(uint(20./0.1));
+    spinBoxExpPValueHeading->setRange(minExp, maxExp);
 	connect(doubleSpinBoxPValueHeading, SIGNAL(valueChanged(double)), this,
 			SLOT(setPValueHeading(void)));
 	connect(spinBoxExpPValueHeading, SIGNAL(valueChanged(int)), this,
@@ -151,8 +179,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 
 	doubleSpinBoxDValueCircle->setRange(-10.0, 10.0);
 	doubleSpinBoxDValueCircle->setSingleStep(0.01);
-	SliderDValueCircle->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpDValueCircle->setRange(minExp, maxExp);
+    SET_RANGE(SliderDValueCircle, -10.0, 10.0, 0.1)
+//    SliderDValueCircle->setScale(-10.0, 10.0);
+//    SliderDValueCircle->setTotalSteps(uint(20./0.1));
+    spinBoxExpDValueCircle->setRange(minExp, maxExp);
 	connect(doubleSpinBoxDValueCircle, SIGNAL(valueChanged(double)), this,
 			SLOT(setDValueCircle(void)));
 	connect(spinBoxExpDValueCircle, SIGNAL(valueChanged(int)), this,
@@ -164,8 +194,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	doubleSpinBoxIValueCircle->setMinimum(-10);
 	doubleSpinBoxIValueCircle->setMaximum(10);
 	doubleSpinBoxIValueCircle->setSingleStep(0.1);
-	SliderIValueCircle->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpIValueCircle->setRange(minExp, maxExp);
+    SET_RANGE(SliderIValueCircle, -10.0, 10.0, 0.1)
+//    SliderIValueCircle->setScale(-10.0, 10.0);
+//    SliderIValueCircle->setTotalSteps(uint(20./0.1));
+    spinBoxExpIValueCircle->setRange(minExp, maxExp);
 	connect(doubleSpinBoxIValueCircle, SIGNAL(valueChanged(double)), this,
 			SLOT(setIValueCircle(void)));
 	connect(spinBoxExpIValueCircle, SIGNAL(valueChanged(int)), this,
@@ -177,8 +209,10 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	doubleSpinBoxPValueCircle->setMinimum(-10);
 	doubleSpinBoxPValueCircle->setMaximum(10);
 	doubleSpinBoxPValueCircle->setSingleStep(0.1);
-	SliderPValueCircle->setRange(-10.0, 10.0, 0.1);
-	spinBoxExpPValueCircle->setRange(minExp, maxExp);
+    SET_RANGE(SliderPValueCircle, -10.0, 10.0, 0.1)
+//    SliderPValueCircle->setScale(-10.0, 10.0);
+//    SliderPValueCircle->setTotalSteps(uint(20./0.1));
+    spinBoxExpPValueCircle->setRange(minExp, maxExp);
 	connect(doubleSpinBoxPValueCircle, SIGNAL(valueChanged(double)), this,
 			SLOT(setPValueCircle(void)));
 	connect(spinBoxExpPValueCircle, SIGNAL(valueChanged(int)), this,
@@ -197,35 +231,49 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 	setupPlot();
 
 //	KnobSpeed->setRange(-8.0, 8.0, .1);	//for Pitch-Control
-	KnobClimbCircle->setRange(-10, 0, 0.025);
-	connect(KnobClimbCircle, SIGNAL(valueChanged(double)), this,
+    SET_RANGE(KnobClimbCircle, -10, 0, 0.025)
+//    KnobClimbCircle->setScale(-10.0, 0.0);
+//    KnobClimbCircle->setTotalSteps(uint(10./0.025));
+    connect(KnobClimbCircle, SIGNAL(valueChanged(double)), this,
 			SLOT(setClimbRateCircleLabel(double)));
-	KnobClimbStraight->setRange(-10, 0, 0.025);
-	connect(KnobClimbStraight, SIGNAL(valueChanged(double)), this,
+    SET_RANGE(KnobClimbStraight, -10, 0, 0.025)
+//    KnobClimbStraight->setScale(-10.0, 0.0);
+//    KnobClimbStraight->setTotalSteps(uint(10./0.025));
+    connect(KnobClimbStraight, SIGNAL(valueChanged(double)), this,
 			SLOT(setClimbRateStraightLabel(double)));
 
-	KnobAutoCircleRadius->setRange(300, 1000, 10.0);
-	connect(KnobAutoCircleRadius, SIGNAL(valueChanged(double)), this,
+    SET_RANGE(KnobAutoCircleRadius, 300, 1000, 10.0)
+//    KnobAutoCircleRadius->setScale(300, 1000);
+//    KnobAutoCircleRadius->setTotalSteps(uint(700./10.));
+    connect(KnobAutoCircleRadius, SIGNAL(valueChanged(double)), this,
 			SLOT(setAutoCircleRadiusLabel(double)));
 
 
-	KnobClimb->setRange(-15, 15, 0.025);
-	connect(KnobClimb, SIGNAL(valueChanged(double)), this,
+    SET_RANGE(KnobClimb, -15, 15, 0.025)
+//    KnobClimb->setScale(-15, 15);
+//    KnobClimb->setTotalSteps(lround(30./0.025));
+    connect(KnobClimb, SIGNAL(valueChanged(double)), this,
 			SLOT(setClimbRateLabel(double)));
 
-	KnobRoll->setRange(-30.0, 30.0, 1.0);
-	connect(KnobRoll, SIGNAL(valueChanged(double)), this,
+    SET_RANGE(KnobRoll, -30.0, 30.0, 1.0)
+//    KnobRoll->setScale(-30.0, 30.0);
+//    KnobRoll->setTotalSteps(lround(60./1.));
+    connect(KnobRoll, SIGNAL(valueChanged(double)), this,
 			SLOT(setBankingLabel(double)));
 
 	CompassHeading->setNeedle(
 			new QwtDialSimpleNeedle(QwtDialSimpleNeedle::Arrow, true, Qt::red));
 	CompassHeading->setRose(new QwtSimpleCompassRose(4, 1));
-	CompassHeading->setRange(0.0, 360.0, 5.0, 1);
-	connect(CompassHeading, SIGNAL(valueChanged(double)), this,
+    SET_RANGE(CompassHeading, 0.0, 360.0, 5.0)
+//    CompassHeading->setScale(0.0, 360.);
+//    CompassHeading->setTotalSteps(uint(360./5.));
+    connect(CompassHeading, SIGNAL(valueChanged(double)), this,
 			SLOT(setHeadingLabel(double)));
 
-	KnobCircle->setRange(300, 1000, 10.0);
-	connect(KnobCircle, SIGNAL(valueChanged(double)), this,
+    SET_RANGE(KnobCircle, 300, 1000, 10.0)
+//    KnobCircle->setScale(300, 1000);
+//    KnobCircle->setTotalSteps(lround(700./10.));
+    connect(KnobCircle, SIGNAL(valueChanged(double)), this,
 			SLOT(setCircleLabel(double)));
 
 	checkBoxClimbController->setChecked(false);
@@ -312,11 +360,15 @@ DubinsPilotDialog::DubinsPilotDialog(QWidget* parent) :
 			new QwtCompassWindArrow(QwtCompassWindArrow::Style2, Qt::darkBlue,
 					Qt::red));
 	CompassWind->setRose(new QwtSimpleCompassRose(4, 1));
-	CompassWind->setRange(0.0, 360.0, 5.0, 1);
-	connect(CompassWind, SIGNAL(valueChanged(double)), this, SLOT(setWind()));
+    SET_RANGE(CompassWind, 0.0, 360.0, 5.0)
+//    CompassWind->setScale(0.0, 360.0);
+//    CompassWind->setTotalSteps(360);
+    connect(CompassWind, SIGNAL(valueChanged(double)), this, SLOT(setWind()));
 
-	SliderWindVelocity->setRange(0.0, ms_to_knots(45.0), ms_to_knots(0.25));
-	connect(SliderWindVelocity, SIGNAL(valueChanged(double)), this,
+//	SliderWindVelocity->setRange(0.0, ms_to_knots(45.0), ms_to_knots(0.25));
+    SET_RANGE(SliderWindVelocity, 0.0, ms_to_knots(45.0), ms_to_knots(0.25))
+
+    connect(SliderWindVelocity, SIGNAL(valueChanged(double)), this,
 			SLOT(setWind()));
 
 	connect(checkBoxPause, SIGNAL(toggled(bool)), this, SLOT(pauseSimulation(bool)));
@@ -347,7 +399,7 @@ void DubinsPilotDialog::reject(){
 	std::cout<<"Ignoring the ESCAPE key!\nUse the 'Close' button to quit!\n";	//just ignore the escape key
 }
 
-void DubinsPilotDialog::setXPlaneConnection(bool active) {
+void DubinsPilotDialog::displayXPlaneConnection(bool active) {
 	if (ledIndicator->isChecked() != active) {
 		qDebug() << "XPlane Connection changed" << endl;
 		ledIndicator->setChecked(active);
@@ -1346,7 +1398,7 @@ void DubinsPilotDialog::setupPlot(void) {
 	climbMarker->attach(qwtPlotClimb);
 
 	zoom_yLeftClimb = new QwtPlotMagnifier(qwtPlotClimb->canvas());
-	zoom_yLeftClimb->setWheelButtonState(Qt::NoModifier);
+    zoom_yLeftClimb->setWheelModifiers(Qt::NoModifier);
 	zoom_yLeftClimb->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yLeftClimb->setAxisEnabled(QwtPlot::yLeft, true);
 	zoom_yLeftClimb->setAxisEnabled(QwtPlot::yRight, false);
@@ -1358,7 +1410,7 @@ void DubinsPilotDialog::setupPlot(void) {
 	drag_yLeftClimb->setAxisEnabled(QwtPlot::yRight, false);
 
 	zoom_yRightClimb = new QwtPlotMagnifier(qwtPlotClimb->canvas());
-	zoom_yRightClimb->setWheelButtonState(Qt::ControlModifier);
+    zoom_yRightClimb->setWheelModifiers(Qt::ControlModifier);
 	zoom_yRightClimb->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yRightClimb->setAxisEnabled(QwtPlot::yLeft, false);
 	zoom_yRightClimb->setAxisEnabled(QwtPlot::yRight, true);
@@ -1395,7 +1447,7 @@ void DubinsPilotDialog::setupPlot(void) {
 	rollMarker->attach(qwtPlotRoll);
 
 	zoom_yLeftRoll = new QwtPlotMagnifier(qwtPlotRoll->canvas());
-	zoom_yLeftRoll->setWheelButtonState(Qt::NoModifier);
+    zoom_yLeftRoll->setWheelModifiers(Qt::NoModifier);
 	zoom_yLeftRoll->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yLeftRoll->setAxisEnabled(QwtPlot::yLeft, true);
 	zoom_yLeftRoll->setAxisEnabled(QwtPlot::yRight, false);
@@ -1407,7 +1459,7 @@ void DubinsPilotDialog::setupPlot(void) {
 	drag_yLeftRoll->setAxisEnabled(QwtPlot::yRight, false);
 
 	zoom_yRightRoll = new QwtPlotMagnifier(qwtPlotRoll->canvas());
-	zoom_yRightRoll->setWheelButtonState(Qt::ControlModifier);
+    zoom_yRightRoll->setWheelModifiers(Qt::ControlModifier);
 	zoom_yRightRoll->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yRightRoll->setAxisEnabled(QwtPlot::yLeft, false);
 	zoom_yRightRoll->setAxisEnabled(QwtPlot::yRight, true);
@@ -1445,7 +1497,7 @@ void DubinsPilotDialog::setupPlot(void) {
 	circleMarker->attach(qwtPlotCircle);
 
 	zoom_yLeftCircle = new QwtPlotMagnifier(qwtPlotCircle->canvas());
-	zoom_yLeftCircle->setWheelButtonState(Qt::NoModifier);
+    zoom_yLeftCircle->setWheelModifiers(Qt::NoModifier);
 	zoom_yLeftCircle->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yLeftCircle->setAxisEnabled(QwtPlot::yLeft, true);
 	zoom_yLeftCircle->setAxisEnabled(QwtPlot::yRight, false);
@@ -1457,7 +1509,7 @@ void DubinsPilotDialog::setupPlot(void) {
 	drag_yLeftCircle->setAxisEnabled(QwtPlot::yRight, false);
 
 	zoom_yRightCircle = new QwtPlotMagnifier(qwtPlotCircle->canvas());
-	zoom_yRightCircle->setWheelButtonState(Qt::ControlModifier);
+    zoom_yRightCircle->setWheelModifiers(Qt::ControlModifier);
 	zoom_yRightCircle->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yRightCircle->setAxisEnabled(QwtPlot::yLeft, false);
 	zoom_yRightCircle->setAxisEnabled(QwtPlot::yRight, true);
@@ -1496,7 +1548,7 @@ void DubinsPilotDialog::setupPlot(void) {
 	headingMarker->attach(qwtPlotHeading);
 
 	zoom_yLeftHeading = new QwtPlotMagnifier(qwtPlotHeading->canvas());
-	zoom_yLeftHeading->setWheelButtonState(Qt::NoModifier);
+    zoom_yLeftHeading->setWheelModifiers(Qt::NoModifier);
 	zoom_yLeftHeading->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yLeftHeading->setAxisEnabled(QwtPlot::yLeft, true);
 	zoom_yLeftHeading->setAxisEnabled(QwtPlot::yRight, false);
@@ -1508,7 +1560,7 @@ void DubinsPilotDialog::setupPlot(void) {
 	drag_yLeftHeading->setAxisEnabled(QwtPlot::yRight, false);
 
 	zoom_yRightHeading = new QwtPlotMagnifier(qwtPlotHeading->canvas());
-	zoom_yRightHeading->setWheelButtonState(Qt::ControlModifier);
+    zoom_yRightHeading->setWheelModifiers(Qt::ControlModifier);
 	zoom_yRightHeading->setAxisEnabled(QwtPlot::xBottom, false);
 	zoom_yRightHeading->setAxisEnabled(QwtPlot::yLeft, false);
 	zoom_yRightHeading->setAxisEnabled(QwtPlot::yRight, true);

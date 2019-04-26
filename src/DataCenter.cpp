@@ -53,6 +53,9 @@ DataCenter::DataCenter(QObject* parent) :
 	//TODO XXX comment out to Debug
 	connectToXPlane();//TODO Das funktioniert nicht immer zuverlässig. Was ist da los?
 //	QTimer::singleShot(0, this, setConnected(true));	//only enqueue this into the event queue
+	QObject::connect(this, SIGNAL(XPlaneConnectionChanged(bool)), this,
+			SLOT(setConnectionState(bool)));
+
 }
 
 DataCenter::~DataCenter() {
@@ -62,14 +65,14 @@ DataCenter::~DataCenter() {
 		xp->setDataRef("sim/operation/override/override_joystick_roll", false);
 	}
 	basicTimer->stop();
-	free(basicTimer);
+	delete basicTimer;
 }
 
 //Private Slots:
 void DataCenter::timerExpired(void) {
 	//TODO Das ist nicht schön, aber da ich den setConnected() Slot nicht per singleShot Timer aufrufen kann ist das die einfachste Lösung.
 	//TODO Die connection zu XPlane läuft noch nicht so, wie es sein soll. Er erkennt aktuell keinen Abriss
-	emit XPlaneConnectionChanged(connected);
+	emit XPlaneConnectionDisplayUI(currentConnection.isConnected);
 
 	if(DataCenter::getInstance()->isSimulationPaused()){
 		return;	//we just skip everything, when the simulation is Paused
@@ -110,10 +113,24 @@ void DataCenter::receiverBeaconCallback(
 		XPlaneBeaconListener::XPlaneServer server, bool exists) {
 	std::cout << "receiverBeaconCallback got [" << server.toString() << " is "
 			<< (exists ? "alive" : "dead") << "]\n";
-	host = server.host;
-	port = server.receivePort;
 
-	setConnected(exists);
+	if (exists){
+		if(!currentConnection.isConnected){
+			//we are not connected, but there is something to connect
+			currentConnection.host = server.host;
+			currentConnection.port = server.receivePort;
+			currentConnection.name = server.name;
+
+			emit XPlaneConnectionChanged(exists);
+		} else {
+			//some other connection got lost
+		}
+	} else {
+		if(!exists && currentConnection.host == server.host && currentConnection.port == server.receivePort){
+			//we lost our connection
+			emit XPlaneConnectionChanged(exists);
+		}
+	}
 }
 
 void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
@@ -200,7 +217,7 @@ void DataCenter::receiverCallbackString(std::string dataref,
 
 void DataCenter::connectToXPlane() {
 	//XXX This does not work with the debugger. check why!
-	XPlaneBeaconListener::getInstance()->setDebug(false);
+	XPlaneBeaconListener::getInstance()->setDebug(true);
 	XPlaneBeaconListener::getInstance()->registerNotificationCallback(
 			[this](XPlaneBeaconListener::XPlaneServer server,
 					bool exists) {return receiverBeaconCallback(server, exists);});
@@ -407,7 +424,7 @@ void DataCenter::resetWindDisplacement(void) {
 //		*outLog << Dataset::csvHeading();
 //
 //	} else {
-//		free(outLog);
+//		delete outLog;
 //	}
 //	std::cout << (loggingActive?"Started ":"Stopped ") << "logging; File: "
 //			<< fileLog->fileName().toStdString() << std::endl;
@@ -434,7 +451,7 @@ void DataCenter::invokeLogging(bool active, QDir _logFileDir, QString _fileName)
 			std::cout << "Cannot open file for writing: "
 					<< qPrintable(fileLog->errorString()) << std::endl;
 			emit sigLoggingStateChanged(false);
-			free(fileLog);
+			delete fileLog;
 			return;
 		}
 		loggingActive = true;
@@ -450,7 +467,7 @@ void DataCenter::invokeLogging(bool active, QDir _logFileDir, QString _fileName)
 		loggingActive = false;
 		if(outLog != NULL){
 			outLog->flush();
-			free(outLog);
+			delete outLog;
 			outLog = NULL;
 		}
 		if(fileLog->isOpen()){
@@ -459,7 +476,7 @@ void DataCenter::invokeLogging(bool active, QDir _logFileDir, QString _fileName)
 		std::cout << (loggingActive?"Started ":"Stopped ") << "logging; File: "
 				<< fileLog->fileName().toStdString() << std::endl;
 		if(fileLog != NULL){
-			free(fileLog);
+			delete fileLog;
 			fileLog = NULL;
 		}
 		emit sigLoggingStateChanged(false);
@@ -493,30 +510,38 @@ void DataCenter::outputPathTrackingStats(const json stats) {
 
 
 void DataCenter::SendXPDataRef(const char* dataRefName, double value) {
-	if (xp) {
+	if (currentConnection.isConnected) {
 		xp->setDataRef(dataRefName, value);
 	}
 }
 
 void DataCenter::SendXPDataRef(const char* dataRefName, bool state) {
-	if (xp) {
+	if (currentConnection.isConnected) {
 		xp->setDataRef(dataRefName, state);
 	}
 }
 
-void DataCenter::setConnected(bool connected) {
-	if (connected != this->connected) {
-		this->connected = connected;
-		//TODO Die connection zu XPlane läuft noch nicht so, wie es sein soll. Er erkennt aktuell keinen Abriss
-		emit XPlaneConnectionChanged(connected);
-	}
-	//now create a proper XPlaneUDPClient
-	if (connected && !xp) {
-		std::cout << std::endl << "Found server " << host << ":" << port
+void DataCenter::setConnectionState(bool connected) {
+	if (currentConnection.isConnected && !connected) {
+		//we lost the connection
+		currentConnection.isConnected = false;
+		delete xp;
+		std::cout << "Lost Connection to " << currentConnection.name << " on "
+				<< currentConnection.host << ":" << currentConnection.port
+				<< std::endl;
+		currentConnection.name = "";
+		currentConnection.host = "";
+		currentConnection.port = 0;
+	} else if (!currentConnection.isConnected && connected) {
+		//a new connection needs to be established
+
+		//now create a proper XPlaneUDPClient
+		std::cout << std::endl << "Found server " << currentConnection.name << "; IP-address is "
+				<< currentConnection.host << ":" << currentConnection.port
 				<< std::endl;
 		std::cout << "Connect to the XPlane server for the first time"
 				<< std::endl;
-		xp = new XPlaneUDPClient(host, port,
+		xp = new XPlaneUDPClient(currentConnection.host, currentConnection.port,
 				[this](std::string dataref, float value) {
 					return receiverCallbackFloat(dataref, value);
 				}, [this](std::string dataref, std::string value) {
@@ -556,14 +581,17 @@ void DataCenter::setConnected(bool connected) {
 		xp->subscribeDataRef("sim/weather/wind_speed_kt", UPDATE_RATE);
 
 		curDat.counter = 0;
+		currentConnection.isConnected = true;
 	}
 
+	emit XPlaneConnectionDisplayUI(currentConnection.isConnected);
+
 	//we only need the timer, while being connected to XPlane
-	if (connected && xp) {
+	if (currentConnection.isConnected) {
+		basicTimer->start(timerMilliseconds);
 		if (debug) {
 			std::cout << "started timer" << std::endl;
 		}
-		basicTimer->start(timerMilliseconds);
 	} else {
 		basicTimer->stop();
 	}

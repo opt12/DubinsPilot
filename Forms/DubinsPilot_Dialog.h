@@ -52,7 +52,7 @@ signals:
 	void sigLoggingActiveStateChanged(bool isLoggingActive);
 
 public slots:
-	void setXPlaneConnection(bool);
+	void displayXPlaneConnection(bool);
 	void attachControllerCurve(ctrlType c, QwtPlotCurve* ctrlCurve);
 	void replotControllerCurve(ctrlType c);
 //	void showOriginCoords(Position_WGS84 origin);

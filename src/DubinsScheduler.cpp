@@ -185,14 +185,14 @@ void DubinsScheduler::clearOutSchedule(void) {
 				this, SIGNAL(sigCircleDirectionChanged(bool, double)));
 		QObject::disconnect(fp, SIGNAL(sigDisplayFlightPhase(QString, QString)),
 				this, SIGNAL(sigDisplayFlightPhase(QString, QString)));
-		free(fp);//don't have to delete the container itself, as it resides on the stack
+		delete fp;//don't have to delete the container itself, as it resides on the stack
 	}
 	flightPhases.clear();
 }
 
 void DubinsScheduler::clearOutStats(void) {
 	for (auto st : pathFollowStats) {
-		free(st);
+		delete st;
 	}
 	pathFollowStats.clear();
 	statistics = json({});

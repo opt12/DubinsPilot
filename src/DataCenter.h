@@ -29,6 +29,14 @@ class QwtPlotCurve;
 class QFile;
 class QTextStream;
 
+struct serverInfo {
+	bool isConnected = false;
+	std::string host = "";
+	std::string name = "";
+	uint16_t port = 0;
+};
+
+
 class DataCenter: public QObject {
 Q_OBJECT
 
@@ -87,6 +95,10 @@ public:
 
 	double getTrue_psi() {
 		return curDat.true_psi;
+	}
+
+	bool getConnectionStatus(){
+		return currentConnection.isConnected;
 	}
 
 	// TODO wieder rausnehmen, ist nur zum Testen
@@ -185,12 +197,13 @@ public slots:
 
 private slots:
 	void timerExpired(void);
-	void setConnected(bool connected);
+	void setConnectionState(bool connected);
 	void calculateDubinsPath(pathTypeEnum pathType);
 
 
 signals:
 	void XPlaneConnectionChanged(bool connected);
+	void XPlaneConnectionDisplayUI(bool connected);
 
 	void sigSocketSendData(std::string msgType, int requestId, json data);
 	void originSetTo(Position_WGS84 origin);
@@ -236,7 +249,6 @@ private:
 	void receiverCallbackString(std::string dataref, std::string value);
 	void connectToXPlane();
 
-	bool connected = false;
 	bool isPaused = false;
 
 	bool loggingActive = false;
@@ -247,8 +259,7 @@ private:
 
 	bool originSet = false;
 
-	std::string host = "";
-	uint16_t port = 0;
+	serverInfo currentConnection;
 
 protected:
 	static DataCenter *instance;

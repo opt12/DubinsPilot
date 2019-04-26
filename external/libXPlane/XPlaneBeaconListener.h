@@ -59,6 +59,8 @@
  *
  */
 
+const static int expiryTime = 10;	//time till a lost connection is recognized
+
 class XPlaneBeaconListener {
 
 private:
