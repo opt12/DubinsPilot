@@ -1,5 +1,7 @@
 # DubinsPilot
 
+**_The project now works with Qt5 and the latest (6.1.x) version of QWT. this should ease the installation on a recent system quite a lot_**
+
 The DubinsPilot software is part of my Bachelor thesis **Implementierung eines Notlandeassistenten auf Basis von Dubins-Kurven unter Berücksichtigung des Windes**
 
 In this bachelor thesis an emergency landing assistant (ELA) is developed that is able to fly an aircraft in a loss of thrust emergency to a reachable emergency landing field (ELF). The path planning to reach this ELF is based on Dubins curves. The novelty concept in this thesis is the path-tracking of the autopilot component in the so called air-frame which is a reference system that moves with the wind. By using this air-frame reference, the path planning algorithm can operate with simple geometries such as circle segments and straight lines. The developed software is connected to the commercial flight simulation software X-Plane and extensive experiments are conducted to evaluate the suitability and accuracy of the air-frame based path planning and tracking in no-wind as well as in constant wind situations.
@@ -19,28 +21,13 @@ To build and run the DubinsPilot software, some prerequisites need to be met:
 
 ### Preparation
 First of all some libraries need to be installed:  
-Qt4 is probably in the package manager:  
-`sudo apt-get install qt4-default`  
+Qt5 is probably in the package manager:  
+`sudo apt-get install qt5-default`  
 Now install the GeographicLib package also from the package manager:  
-`sudo apt-get install libgeographic-dev`
+`sudo apt-get install libgeographic-dev`  
+Additionally, you need QWT (currently Version 6.1 is supported). This also ought to be in the package manager:  
+`sudo apt-get install qwt`  
 
-Due to the named breaking changes, an older version of qwt needs to be used. To build and install the qwt-6.0.2 version follow these steps:  
-Downlaod and inflate the sources for qwt-6.0.2:  
-`wget -qO- -O tmp.zip https://sourceforge.net/projects/qwt/files/qwt/6.0.2/qwt-6.0.2.zip && unzip tmp.zip && rm tmp.zip`
-
-Descend in the qwt-6.0.2 directory:  
-`cd qwt-6.0.2`  
-Generate the Makefile:  
-`qmake qwt.pro`  
-Build and install the qwt-6.0.2 library  
-`make`  
-`sudo make install`  
-Add the path to the `libqwt.so.6` to the run-time linker:  
-`echo "/usr/local/qwt-6.0.2/lib" > qwt.conf && sudo mv qwt.conf /etc/ld.so.conf.d/`  
-Reload the library search configuration:  
-`sudo ldconfig`  
-return from qwt-6.0.2 directory  
-`cd ..`
 
 ### Downloading and building the DubinsPilot app and the DubinsViewer web-app:
 

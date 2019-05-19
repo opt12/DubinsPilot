@@ -11,6 +11,7 @@
 #include <QObject>
 #include <string>
 #include <thread>
+#include <set>
 
 #include "json.hpp"
 // for convenience
@@ -61,7 +62,10 @@ protected:
 
 private:
 	void IpcListener(void);
-	int connectedSocket = 0;
+	void listenForData(int connectedSocket);
+	//TODO ändere in set und füge hinzu, sobald neue Verbindung accepted wurde.
+	std::set<int> connectedSockets;
+
 	void dispatchSockMessage(json receivedJson);
 
 };

@@ -62,14 +62,63 @@ void SockServer::socketSendData(std::string msgType, int requestId, json data) {
 	}
 	string msgString = j.dump() + "\f";
 	unsigned int msgSize = msgString.length();
-	if (connectedSocket != 0) {
+	if (!connectedSockets.empty()) {
 		// wenn noch kein client auf dem Socket verbunden ist, bleibt der connectedSocket == 0
 		// Das würde dann nach stdout gehen, das soll es nicht.
-		for (unsigned int bytesTransferred = 0; bytesTransferred < msgSize;) {
-			bytesTransferred += write(connectedSocket, msgString.c_str(),
-					msgSize);
+		for (auto connectedSocket : connectedSockets){
+			for (unsigned int bytesTransferred = 0; bytesTransferred < msgSize;) {
+				int nbytes = TEMP_FAILURE_RETRY (write(connectedSocket, msgString.c_str(), msgSize));
+				if(nbytes == -1){
+					//some error occurred
+					std::cout << "Some Error occurred on Socket:" << connectedSocket <<": "<<  strerror(errno) << std::endl;
+					break;
+				}
+				bytesTransferred += nbytes;
+			}
 		}
 	}
+}
+
+void SockServer::listenForData(int connectedSocket){
+	char buf[1024];
+	int readCount;
+	json receivedJson;
+
+	std::cout <<"Starting IPCListener on connectedSocket " << connectedSocket<<".\n";
+
+	while ((readCount = read(connectedSocket, buf, sizeof(buf))) > 0) {
+		std::string receivedMsg = std::string(buf, readCount - 1);
+		//obviously, node adds the \0 at the end of the string which is then transferred via IPC
+
+		try {
+			receivedJson = json::parse(receivedMsg);
+		} catch (const std::exception& e) {
+			std::cout << "Reception Error while getting data from Socket\n";
+			std::cout << e.what();
+			continue;
+		}
+
+		if (debug) {
+			std::cout << "read " << readCount << " bytes: " << receivedMsg
+					<< std::endl;
+			std::cout << receivedJson.dump(4) << endl;
+		}
+
+		emit sigDispatchSockMessage(receivedJson);
+
+	}
+
+	if (readCount == -1) {
+		perror("read");
+		return;
+	} else if (readCount == 0) {
+		std::cout << "EOF - closing IPC socket " << connectedSocket <<std::endl;
+		close(connectedSocket);
+		connectedSockets.erase(connectedSocket);
+		std::cout <<"Removed "<< connectedSocket <<" from connected Sockets.\n";
+		std::cout <<"Remaining connected Sockets: "<< connectedSockets.size() <<".\n";
+	}
+
 }
 
 void SockServer::IpcListener() {
@@ -78,11 +127,8 @@ void SockServer::IpcListener() {
 	static std::string socket_path = "/tmp/eee_AutoViewer";
 
 	struct sockaddr_un addr;
-	char buf[1024];
 
-	json receivedJson;
-
-	int socketDescriptor, readCount;
+	int socketDescriptor;
 
 	if ((socketDescriptor = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
 		perror("socket error");
@@ -116,42 +162,18 @@ void SockServer::IpcListener() {
 
 	std::cout << "IPC Listener: Waiting for data: " << std::endl;
 
+	int newConnectedSocket;
+
 	while (!quitFlag) {
-		if ((connectedSocket = accept(socketDescriptor, NULL, NULL)) == -1) {
+		if ((newConnectedSocket = accept(socketDescriptor, NULL, NULL)) == -1) {
 			perror("accept error");
 			continue;
 		}
+		connectedSockets.insert(newConnectedSocket);
+		std::thread t(&SockServer::listenForData, this, newConnectedSocket);
 
-		while ((readCount = read(connectedSocket, buf, sizeof(buf))) > 0) {
-			std::string receivedMsg = std::string(buf, readCount - 1);
-			//obviously, node adds the \0 at the end of the string which is then transferred via IPC
+		t.detach();
 
-			try {
-				receivedJson = json::parse(receivedMsg);
-			} catch (const std::exception& e) {
-				std::cout << "Reception Error while getting data from Socket\n";
-				std::cout << e.what();
-				continue;
-			}
-
-			if (debug) {
-				std::cout << "read " << readCount << " bytes: " << receivedMsg
-						<< std::endl;
-				std::cout << receivedJson.dump(4) << endl;
-			}
-
-			emit sigDispatchSockMessage(receivedJson);
-
-		}
-
-		if (readCount == -1) {
-			perror("read");
-			return;
-		} else if (readCount == 0) {
-			printf("EOF\n");
-			close(connectedSocket);
-			return;	//TODO we don't want to exit in real life
-		}
 	}
 
 	std::cout << "SockServer is going to stop!" << std::endl;
