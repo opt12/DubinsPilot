@@ -113,14 +113,24 @@ json Dataset::asJson() {
 	j["pos_WGS84"] = pos.getPosition_WGS84().asJson();
 	j["roll_electric_deg_pilot"] = roll_electric_deg_pilot;
 //	j["heightOverGnd"] = heightOverGnd;
-	j["requestedClimbRate"] = requestedTargetVals[ctrlType::CLIMB_CONTROL];
-	j["requestedRoll"] = requestedTargetVals[ctrlType::ROLL_CONTROL];
-	j["artstab_pitch_ratio"] = controllerOutputs[ctrlType::CLIMB_CONTROL];
-	j["artstab_roll_ratio"] = controllerOutputs[ctrlType::ROLL_CONTROL];
+	j["targetValues"]["requestedClimbRate"] = requestedTargetVals[ctrlType::CLIMB_CONTROL];
+	j["targetValues"]["requestedRoll"] = requestedTargetVals[ctrlType::ROLL_CONTROL];
+	j["controlAction"]["artstab_pitch_ratio"] = controllerOutputs[ctrlType::CLIMB_CONTROL];
+	j["controlAction"]["artstab_roll_ratio"] = controllerOutputs[ctrlType::ROLL_CONTROL];
 	j["pos_Cart"] = pos.getPosition_Cart().asJson();
 	j["wind_direction_degt"] = wind_direction_degt;
 	j["wind_speed_kt"] = wind_speed_ms;
 	j["windDisplacement"] = windDisplacement.asJson();
+	j["local_velocity"]["south"] = local_vz;
+	j["local_velocity"]["east"]  = local_vx;
+	j["local_velocity"]["up"]    = local_vy;
+	j["rotationQuat"] = rotationQuaternion;
+	j["openGLHeight"] = local_y;
+	j["stallWarning"] = stallWarning;
+	j["h_ind"] = h_ind;
+	j["yoke_pitch_ratio"] = yoke_pitch_ratio;
+	j["yoke_roll_ratio"] = yoke_roll_ratio;
+	j["yoke_heading_ratio"] = yoke_heading_ratio;
 
 
 

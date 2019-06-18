@@ -9,7 +9,7 @@
 #include <thread>
 #include <string>
 //this is to use the IPC sockets
-// TODO check protability for Windows,
+// TODO check portability for Windows,
 // see https://stackoverflow.com/questions/2952733/using-sys-socket-h-functions-on-windows
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -54,27 +54,37 @@ SockServer::~SockServer() {
 }
 
 void SockServer::socketSendData(std::string msgType, int requestId, json data) {
-	json j =
-			{ { "type", msgType }, { "requestId", requestId }, { "data", data } };
+	json j = { { "type", msgType }, { "requestId", requestId }, { "data", data } };
 	//XXX The node.js module needs a "\f" at the end of the serialized JSON-Message :-)
 	if (debug) {
 		cout << "sending via socket: \n" << j.dump(4) << endl;
 	}
 	string msgString = j.dump() + "\f";
 	unsigned int msgSize = msgString.length();
+	std::set<int> socketsToRemove;
 	if (!connectedSockets.empty()) {
 		// wenn noch kein client auf dem Socket verbunden ist, bleibt der connectedSocket == 0
 		// Das würde dann nach stdout gehen, das soll es nicht.
+
 		for (auto connectedSocket : connectedSockets){
-			for (unsigned int bytesTransferred = 0; bytesTransferred < msgSize;) {
+			unsigned int bytesTransferred;
+			for (bytesTransferred = 0; bytesTransferred < msgSize;) {
 				int nbytes = TEMP_FAILURE_RETRY (write(connectedSocket, msgString.c_str(), msgSize));
 				if(nbytes == -1){
 					//some error occurred
 					std::cout << "Some Error occurred on Socket:" << connectedSocket <<": "<<  strerror(errno) << std::endl;
+					//Erasing from an active iterator is problematic, so I better create a list of sockets to remove and remove them after iteration //see https://stackoverflow.com/a/2874533/2682209
+					socketsToRemove.insert(connectedSocket);
 					break;
 				}
 				bytesTransferred += nbytes;
 			}
+		}
+	}
+	if(!socketsToRemove.empty()){
+		for (auto rmv : socketsToRemove){
+			connectedSockets.erase(rmv);
+			std::cout << "Removing socket "<< rmv <<" from connection list. Please reconnect.\n";
 		}
 	}
 }
@@ -87,8 +97,9 @@ void SockServer::listenForData(int connectedSocket){
 	std::cout <<"Starting IPCListener on connectedSocket " << connectedSocket<<".\n";
 
 	while ((readCount = read(connectedSocket, buf, sizeof(buf))) > 0) {
-		std::string receivedMsg = std::string(buf, readCount - 1);
-		//obviously, node adds the \0 at the end of the string which is then transferred via IPC
+//		// obviously, node adds the \0 at the end of the string which is then transferred via IPC
+//		std::string receivedMsg = std::string(buf, readCount - 1);
+		std::string receivedMsg = std::string(buf, readCount);
 
 		try {
 			receivedJson = json::parse(receivedMsg);
@@ -114,9 +125,13 @@ void SockServer::listenForData(int connectedSocket){
 	} else if (readCount == 0) {
 		std::cout << "EOF - closing IPC socket " << connectedSocket <<std::endl;
 		close(connectedSocket);
-		connectedSockets.erase(connectedSocket);
-		std::cout <<"Removed "<< connectedSocket <<" from connected Sockets.\n";
-		std::cout <<"Remaining connected Sockets: "<< connectedSockets.size() <<".\n";
+		//remove the socket from the list of connected sockets within the write-thread only
+		//SockServer::socketSendData() which iterates over the set of connectedSockets.
+		//Otherwise, the iterator of the socketSendData()-thread may become invalid
+		//
+//		connectedSockets.erase(connectedSocket);
+//		std::cout <<"Removed "<< connectedSocket <<" from connected Sockets.\n";
+//		std::cout <<"Remaining connected Sockets: "<< connectedSockets.size() <<".\n";
 	}
 
 }

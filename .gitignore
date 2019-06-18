@@ -46,3 +46,6 @@ Makefile
 .settings/
 
 /.project~
+/Default/
+/FlightTestLogfiles/
+.vscode/

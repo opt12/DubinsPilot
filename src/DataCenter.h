@@ -195,6 +195,14 @@ public slots:
 		return autoGlideRatioStraight;
 	}
 
+	double getCurrentValue(ctrlType _ct) const {
+		return curDat.currentValue[_ct];
+	}
+	double getControllerOutputs(ctrlType _ct) const {
+		return curDat.controllerOutputs[_ct];
+	}
+
+
 private slots:
 	void timerExpired(void);
 	void setConnectionState(bool connected);

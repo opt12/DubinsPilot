@@ -39,7 +39,8 @@ HEADERS += Forms/DubinsPilot_Dialog.h \
            src/FlightPhase.h \
            src/DubinsScheduler.h \
            src/ControlAutomation.h \
-           src/constants.h
+           src/constants.h \
+           src/gym.h
 FORMS +=   Forms/DubinsPilot_Dialog.ui
 SOURCES += Forms/DubinsPilot_Dialog.cpp \
            src/main.cpp \
@@ -55,7 +56,8 @@ SOURCES += Forms/DubinsPilot_Dialog.cpp \
            src/auto_pilot.cpp \
            src/FlightPhase.cpp \
            src/ControlAutomation.cpp \
-           src/DubinsScheduler.cpp
+           src/DubinsScheduler.cpp \
+           src/gym.cpp
 
 #branch of external libXPlane
 HEADERS += ./external/libXPlane/XPlaneBeaconListener.h \

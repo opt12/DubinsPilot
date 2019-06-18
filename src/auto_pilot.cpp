@@ -28,6 +28,13 @@ AutoPilot::AutoPilot(QObject* parent) :
 	basicTimer = new QTimer();
 	QObject::connect(basicTimer, SIGNAL(timeout()), this, SLOT(timerExpired()));
 
+	// create the plots
+	plots = std::vector<Plot>(ctrlType::_size());
+	//initialize each plot with its own identity, so that it can retrieve the correct data from DataCenter
+	for (ctrlType c : ctrlType::_values()) {
+		plots[c].whoAmI = c._to_integral();
+	}
+
 	ctrl = std::vector<Controller>(ctrlType::_size());
 	ctrl[ctrlType::CLIMB_CONTROL].controller = new PIDControl(0.0, 0.0, 0.0,
 			0.1, -1.0, 1.0, MANUAL, DIRECT);
@@ -117,6 +124,30 @@ AutoPilot::~AutoPilot() {
 }
 
 AutoPilot::Controller::Controller() {
+//	//initialize the plot data to all zeroes;
+//	for (int i = 0; i < plotDataSize; ++i) {
+//		currentValueHistory[i] = 0.0;
+//		outputValueHistory[i] = 0.0;
+//		timeData[i] = i-(plotDataSize-1);
+//	}
+//
+//	currentValueCurve = new QwtPlotCurve;
+//	currentValueCurve->setSamples(timeData, currentValueHistory, plotDataSize);
+//	currentValueCurve->setPen(QPen(Qt::green, 2));
+//	currentValueCurve->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
+//
+//	outputValueCurve = new QwtPlotCurve;
+//	outputValueCurve->setSamples(timeData, outputValueHistory, plotDataSize);
+//	outputValueCurve->setPen(QPen(Qt::blue, 2));
+//	outputValueCurve->setAxes(QwtPlot::xBottom, QwtPlot::yRight);
+}
+
+AutoPilot::Controller::~Controller() {
+//	delete currentValueCurve;
+//	delete outputValueCurve;
+}
+
+AutoPilot::Plot::Plot(){
 	//initialize the plot data to all zeroes;
 	for (int i = 0; i < plotDataSize; ++i) {
 		currentValueHistory[i] = 0.0;
@@ -135,10 +166,11 @@ AutoPilot::Controller::Controller() {
 	outputValueCurve->setAxes(QwtPlot::xBottom, QwtPlot::yRight);
 }
 
-AutoPilot::Controller::~Controller() {
+AutoPilot::Plot::~Plot() {
 	delete currentValueCurve;
 	delete outputValueCurve;
 }
+
 
 //public Slots:
 void AutoPilot::invokeController(ctrlType _ct, bool active) {
@@ -354,12 +386,6 @@ void AutoPilot::timerExpired(void) {
 		ctrl[c].controller->PIDSetpointSet(ctrl[c].requestedTargetValue);
 		ctrl[c].controller->PIDInputSet(ctrl[c].currentValue);
 		ctrl[c].controller->PIDCompute();
-		dc->setControllerOutputs(c,
-				ctrl[c].controlActive ? ctrl[c].output : -666);
-		dc->setRequestedTargetValue(c,
-				ctrl[c].controlActive ? ctrl[c].requestedTargetValue : -666);
-		dc->setCurrentValues(c,
-				ctrl[c].controlActive ? ctrl[c].currentValue : -666);
 		if (ctrl[c].controlActive) {
 			ctrl[c].output = ctrl[c].controller->PIDOutputGet();
 			ctrl[c].publishOutput(ctrl[c].output);
@@ -372,6 +398,15 @@ void AutoPilot::timerExpired(void) {
 				std::cout << "\tNew output value is " << ctrl[c].output << "\n";
 			}
 		}
+		//set the new values in the datacenter for plotting and logging
+		dc->setRequestedTargetValue(c,ctrl[c].requestedTargetValue);
+		dc->setCurrentValues(c, ctrl[c].currentValue);
+		if(ctrl[c].controlActive) {
+			//only set this, when the controller is active
+			dc->setControllerOutputs(c,ctrl[c].output);
+		} else {
+			//leave the values in the datacenter as they are
+		}
 	}
 	QTimer::singleShot(0, this, SLOT(updateAllPlots()));
 	++count;
@@ -379,21 +414,22 @@ void AutoPilot::timerExpired(void) {
 
 void AutoPilot::updateAllPlots() {
 	for (ctrlType c : ctrlType::_values()) {
-		ctrl[c].updatePlot();//updatePlot() is private and hence cannot be called from outside;
+		plots[c].updatePlot();//updatePlot() is private and hence cannot be called from outside;
 		emit sigReplotControllerCurve(c);
 	}
 }
 
-void AutoPilot::Controller::updatePlot(void) {
+void AutoPilot::Plot::updatePlot(void) {
 	// add the latest data to the plot
 	//TODO check if this is really efficient, but works for the moment
+	//TODO this should be realized using some DEQUE structure
 	memmove(currentValueHistory, currentValueHistory + 1,
 			(plotDataSize - 1) * sizeof(double));
 	memmove(outputValueHistory, outputValueHistory + 1,
 			(plotDataSize - 1) * sizeof(double));
 
-	currentValueHistory[plotDataSize - 1] = currentValue;
-	outputValueHistory[plotDataSize - 1] = output;
+	currentValueHistory[plotDataSize - 1] = dc->getCurrentValue(ctrlType::_from_integral(this->whoAmI));
+	outputValueHistory[plotDataSize - 1] = dc->getControllerOutputs(ctrlType::_from_integral(this->whoAmI));
 
 //	currentValueCurve->setSamples(timeData, currentValueHistory, plotDataSize);
 //	outputValueCurve->setSamples(timeData, outputValueHistory, plotDataSize);
@@ -407,8 +443,8 @@ void AutoPilot::attachPlots(void) {
 		std::cout << "attaching the plots now \n";
 	}
 	for (ctrlType _ct : ctrlType::_values()) {
-		emit sigAttachControllerCurve(_ct, ctrl[_ct].currentValueCurve);
-		emit sigAttachControllerCurve(_ct, ctrl[_ct].outputValueCurve);
+		emit sigAttachControllerCurve(_ct, plots[_ct].currentValueCurve);
+		emit sigAttachControllerCurve(_ct, plots[_ct].outputValueCurve);
 		emit sigReplotControllerCurve(_ct);
 	}
 }

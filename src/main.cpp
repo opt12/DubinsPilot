@@ -18,6 +18,7 @@
 #include "enumDeclarations.h"
 #include "DubinsScheduler.h"
 #include "ControlAutomation.h"
+#include "Gym.h"
 
 #include "json.hpp"
 // for convenience
@@ -51,6 +52,8 @@ int main(int argc, char *argv[]) {
 //	sock->setDebug(true);
 
 	RequestDispatcher rqd;
+
+	Gym gym;
 
 	ControlAutomation ctrlAuto;
 
@@ -135,6 +138,14 @@ int main(int argc, char *argv[]) {
 	//connections from SockServer --> RequestDispatcher
 	QObject::connect(sock, SIGNAL(sigDispatchSockMessage(json)), &rqd,
 			SLOT(dispatchSockMessage(json)));
+
+	//connections from RequestDispatcher --> Gym
+	QObject::connect(&rqd, SIGNAL(sigSetPlaneState(json, int)), &gym, SLOT(setPlaneState(json, int)));
+	QObject::connect(&rqd, SIGNAL(sigSendGymControl(const char*, double)), &gym, SLOT(setGymControl(const char*, double)));
+
+	//connections from Gym --> DataCenter
+	QObject::connect(&gym, SIGNAL(sigSendXPDataRef(const char*, double)), dc, SLOT(SendXPDataRef(const char*, double)));
+
 
 	//connections from DataCenter --> SockServer
 	QObject::connect(dc, SIGNAL(sigSocketSendData(std::string, int, json)),

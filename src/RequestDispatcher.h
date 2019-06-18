@@ -33,6 +33,8 @@ signals:
 	void requested_getPositionXY(int requestId);
 	void requested_getOrigin(int requestId);
 	void requested_getPlaneState(int requestId);
+	void sigSetPlaneState(json data, int requestId);
+	void sigSendGymControl(const char*, double);
 
 private:
 	bool debug = false;

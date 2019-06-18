@@ -24,16 +24,22 @@ RequestDispatcher::~RequestDispatcher() {
 }
 
 void RequestDispatcher::dispatchSockMessage(json receivedJson) {
-
-	std::string msgType = receivedJson.value("type", "malformedRequest");
+	std::string msgType;
+	try {
+		msgType = receivedJson.value("type", "malformedRequest");
+	} catch (const std::exception& e) {
+		msgType = "malformedRequest";
+		std::cout << "Reception Error while getting data from Socket\n";
+		std::cout << e.what() << std::endl;
+	}
 	int requestId = -1;
 	json data;
 	try {
 		data = receivedJson["data"];
 		requestId = receivedJson["requestId"];
-	} catch (std::exception& e) {
+	} catch (const std::exception& e) {
 		std::cout << "Malformed request received from Socket\n";
-		std::cout << e.what();
+		std::cout << e.what() << std::endl;;
 	}
 
 	if (debug) {
@@ -54,6 +60,20 @@ void RequestDispatcher::dispatchSockMessage(json receivedJson) {
 //	case hash("GET_PLANE_STATE"):
 //		emit requested_getPlaneState(requestId);
 //		break;
+	case hash("SET_PLANE_STATE"):
+		std::cout << "SET_PLANE_STATE received with data:\n";
+		std::cout << data.dump(4) << std::endl;
+		emit sigSetPlaneState(data, requestId);
+		break;
+	case hash("SET_ELEVATOR"):
+		std::cout << "SET_ELEVATOR received with data:\n";
+		std::cout << data.dump(4) << std::endl;
+		try {
+			emit sigSendGymControl("sim/joystick/yoke_pitch_ratio", data["yoke_pitch_ratio"]);
+		} catch (const std::exception& e) {
+			std::cout << "SET_ELEVATOR: " << e.what() << std::endl;
+		}
+		break;
 
 	case hash("malformedRequest"):
 	default:

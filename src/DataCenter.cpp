@@ -121,6 +121,9 @@ void DataCenter::receiverBeaconCallback(
 			currentConnection.port = server.receivePort;
 			currentConnection.name = server.name;
 
+			std::cout << "connected to " << currentConnection.name << " ("
+					<< currentConnection.host << ":" << currentConnection.port << ")\n";
+
 			emit XPlaneConnectionChanged(exists);
 		} else {
 			//some other connection got lost
@@ -203,6 +206,45 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 		}
 		// XXX In contrast to the docs, wind speed is given directly in m/s instead of knots;
 		curDat.wind_speed_ms = value;
+		break;
+	case hash("sim/flightmodel/position/local_vx"):
+		curDat.local_vx = value;
+		break;
+	case hash("sim/flightmodel/position/local_vy"):
+		curDat.local_vy = value;
+		break;
+	case hash("sim/flightmodel/position/local_vz"):
+		curDat.local_vz = value;
+		break;
+	case hash("sim/flightmodel/position/local_y"):
+		curDat.local_y = value;
+		break;
+	case hash("sim/flightmodel/position/q[0]"):
+		curDat.rotationQuaternion[0] = value;
+		break;
+	case hash("sim/flightmodel/position/q[1]"):
+		curDat.rotationQuaternion[1] = value;
+		break;
+	case hash("sim/flightmodel/position/q[2]"):
+		curDat.rotationQuaternion[2] = value;
+		break;
+	case hash("sim/flightmodel/position/q[3]"):
+		curDat.rotationQuaternion[3] = value;
+		break;
+	case hash("sim/flightmodel/failures/stallwarning"):
+		curDat.stallWarning = value;
+		break;
+	case hash("sim/flightmodel/misc/h_ind"):
+		curDat.h_ind = value;
+		break;
+	case hash("sim/joystick/yoke_pitch_ratio"):
+		curDat.yoke_pitch_ratio = value;
+		break;
+	case hash("sim/joystick/yoke_roll_ratio"):
+		curDat.yoke_roll_ratio = value;
+		break;
+	case hash("sim/joystick/yoke_heading_ratio"):
+		curDat.yoke_heading_ratio = value;
 		break;
 	default:
 		break;
@@ -579,6 +621,20 @@ void DataCenter::setConnectionState(bool connected) {
 		// XXX at least the wind is not emitted with the subscribed update rate!!!
 		xp->subscribeDataRef("sim/weather/wind_direction_degt", UPDATE_RATE);
 		xp->subscribeDataRef("sim/weather/wind_speed_kt", UPDATE_RATE);
+
+		xp->subscribeDataRef("sim/flightmodel/position/q[0]", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/q[1]", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/q[2]", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/q[3]", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/local_y", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/local_vx", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/local_vy", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/position/local_vz", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/failures/stallwarning", UPDATE_RATE);
+		xp->subscribeDataRef("sim/flightmodel/misc/h_ind", UPDATE_RATE);
+		xp->subscribeDataRef("sim/joystick/yoke_pitch_ratio", UPDATE_RATE);
+		xp->subscribeDataRef("sim/joystick/yoke_roll_ratio", UPDATE_RATE);
+		xp->subscribeDataRef("sim/joystick/yoke_heading_ratio", UPDATE_RATE);
 
 		curDat.counter = 0;
 		currentConnection.isConnected = true;

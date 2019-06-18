@@ -38,11 +38,11 @@ private:
 		virtual ~Controller();
 
 	private:
-		// data arrays for the plot
-		static const int plotDataSize = 500;
-		double currentValueHistory[plotDataSize];
-		double outputValueHistory[plotDataSize];
-		double timeData[plotDataSize];
+//		// data arrays for the plot
+//		static const int plotDataSize = 500;
+//		double currentValueHistory[plotDataSize];
+//		double outputValueHistory[plotDataSize];
+//		double timeData[plotDataSize];
 
 
 	public:
@@ -54,6 +54,22 @@ private:
 		std::function<void(double output)> publishOutput = [this](double output) {return output;};
 		double output=0.0;
 		bool controlActive = false;
+//		QwtPlotCurve *currentValueCurve=NULL, *outputValueCurve=NULL;
+//		void updatePlot(void);	//adds a new point to the QwtPlotCurves
+	};
+
+	class Plot {
+	public:
+		Plot();
+		virtual ~Plot();
+	private:
+		// data arrays for the plot
+		static const int plotDataSize = 500;
+		double currentValueHistory[plotDataSize];
+		double outputValueHistory[plotDataSize];
+		double timeData[plotDataSize];
+	public:
+		ctrlType::_integral whoAmI = 0;
 		QwtPlotCurve *currentValueCurve=NULL, *outputValueCurve=NULL;
 		void updatePlot(void);	//adds a new point to the QwtPlotCurves
 	};
@@ -89,6 +105,7 @@ private:
 	QTimer *basicTimer;
 	const int timerMilliseconds = 100;
 	std::vector<Controller> ctrl;
+	std::vector<Plot> plots;
 
 	int count=0;
 	bool debug = false;

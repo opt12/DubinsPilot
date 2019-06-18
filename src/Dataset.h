@@ -143,6 +143,18 @@ public:
 //	double latitude = 0.0, longitude = 0.0; //WGS84
 //	double elevation = 0.0; // WGS84
 
+
+	double local_vx, local_vy, local_vz;	//[mtr/sec] The velocity in local OGL coordinates
+	std::vector<double> rotationQuaternion = {0.0, 0.0, 0.0, 0.0}; //A quaternion representing the rotation from local OpenGL coordinates to the aircraft's coordinates.
+	double local_y;							//[meters]  The location of the plane in OpenGL coordinates
+	int stallWarning = 0;					//Stall Warning
+	double h_ind = 0.0;						//Indicated barometric altitude, quite probably in feet actually.
+	double yoke_pitch_ratio = 0.0,
+		   yoke_roll_ratio = 0.0,
+		   yoke_heading_ratio = 0.0;
+
+
+
 	/*************************/
 
 	double roll_electric_deg_pilot = 0.0;
