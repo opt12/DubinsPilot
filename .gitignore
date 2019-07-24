@@ -49,3 +49,5 @@ Makefile
 /Default/
 /FlightTestLogfiles/
 .vscode/
+/.directory
+/.qmake.stash

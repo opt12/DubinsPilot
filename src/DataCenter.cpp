@@ -246,6 +246,9 @@ void DataCenter::receiverCallbackFloat(std::string dataref, float value) {
 	case hash("sim/joystick/yoke_heading_ratio"):
 		curDat.yoke_heading_ratio = value;
 		break;
+	case hash("sim/flightmodel/position/Qrad"):
+		curDat.Qrad = value;
+		break;
 	default:
 		break;
 	}

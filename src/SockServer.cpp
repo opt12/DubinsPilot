@@ -69,7 +69,17 @@ void SockServer::socketSendData(std::string msgType, int requestId, json data) {
 		for (auto connectedSocket : connectedSockets){
 			unsigned int bytesTransferred;
 			for (bytesTransferred = 0; bytesTransferred < msgSize;) {
-				int nbytes = TEMP_FAILURE_RETRY (write(connectedSocket, msgString.c_str(), msgSize));
+				int nbytes;
+				try {
+					nbytes = TEMP_FAILURE_RETRY (write(connectedSocket, msgString.c_str(), msgSize));
+				} catch (const std::exception& e) {
+					std::cout << "Reception Error while getting data from Socket\n";
+					std::cout << e.what();
+					std::cout << "Some Error occurred on Socket:" << connectedSocket <<": "<<  strerror(errno) << std::endl;
+					//Erasing from an active iterator is problematic, so I better create a list of sockets to remove and remove them after iteration //see https://stackoverflow.com/a/2874533/2682209
+					socketsToRemove.insert(connectedSocket);
+					break;
+				}
 				if(nbytes == -1){
 					//some error occurred
 					std::cout << "Some Error occurred on Socket:" << connectedSocket <<": "<<  strerror(errno) << std::endl;
@@ -92,19 +102,27 @@ void SockServer::socketSendData(std::string msgType, int requestId, json data) {
 void SockServer::listenForData(int connectedSocket){
 	char buf[1024];
 	int readCount;
+	std::string receivedMsg;
 	json receivedJson;
 
 	std::cout <<"Starting IPCListener on connectedSocket " << connectedSocket<<".\n";
 
-	while ((readCount = read(connectedSocket, buf, sizeof(buf))) > 0) {
+	do {
+		try {
+			readCount = read(connectedSocket, buf, sizeof(buf));
+			receivedMsg = std::string(buf, readCount);
+		} catch (const std::exception& e) {
+			std::cout << "Reception Error while getting data from Socket\n";
+			std::cout << e.what();
+			break;
+		}
 //		// obviously, node adds the \0 at the end of the string which is then transferred via IPC
 //		std::string receivedMsg = std::string(buf, readCount - 1);
-		std::string receivedMsg = std::string(buf, readCount);
 
 		try {
 			receivedJson = json::parse(receivedMsg);
 		} catch (const std::exception& e) {
-			std::cout << "Reception Error while getting data from Socket\n";
+			std::cout << "Reception Error while parsing data from Socket\n";
 			std::cout << e.what();
 			continue;
 		}
@@ -117,7 +135,7 @@ void SockServer::listenForData(int connectedSocket){
 
 		emit sigDispatchSockMessage(receivedJson);
 
-	}
+	} while (readCount > 0);
 
 	if (readCount == -1) {
 		perror("read");

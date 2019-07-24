@@ -106,6 +106,7 @@ json Dataset::asJson() {
 	j["vpath"] = vpath;
 	j["alpha"] = alpha;
 	j["true_theta"] = true_theta;
+	j["Qrad"] = Qrad;
 	j["true_phi"] = true_phi;
 	j["true_psi"] = true_psi;
 	j["altitude_ft_pilot"] = altitude_ft_pilot;
@@ -131,9 +132,6 @@ json Dataset::asJson() {
 	j["yoke_pitch_ratio"] = yoke_pitch_ratio;
 	j["yoke_roll_ratio"] = yoke_roll_ratio;
 	j["yoke_heading_ratio"] = yoke_heading_ratio;
-
-
-
 
 	return j;
 }

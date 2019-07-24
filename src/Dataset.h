@@ -133,6 +133,7 @@ public:
 
 	double vpath = 0.0, alpha = 0.0, true_theta = 0.0; // deg
 	double true_phi = 0.0, true_psi = 0.0; // deg
+	double Qrad = 0.0; 	//rad/sec, The pitch rotation rates (relative to the flight)
 
 	double altitude_ft_pilot = 0; //ft	//the default value is chosen, so that the control automation does not trigger at startup
 	double y_agl = 66666.66; //meter	//the default value is chosen, so that the control automation does not trigger at startup
